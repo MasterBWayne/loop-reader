@@ -5,39 +5,70 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// ── Anonymous Auth ─────────────────────────────────────────────────────────
+// ── Auth ───────────────────────────────────────────────────────────────────
 
-/** Get or create an anonymous user. Returns user ID. */
 export async function ensureAnonymousUser(): Promise<string | null> {
   try {
-    // Check if there's already a session
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user?.id) return session.user.id;
-
-    // Sign in anonymously
     const { data, error } = await supabase.auth.signInAnonymously();
-    if (error) {
-      console.error('Anonymous auth failed:', error.message);
-      return null;
-    }
+    if (error) { console.error('Anonymous auth failed:', error.message); return null; }
     return data.user?.id || null;
-  } catch (err) {
-    console.error('Auth error:', err);
-    return null;
-  }
+  } catch (err) { console.error('Auth error:', err); return null; }
 }
 
-/** Get current user ID (null if not authenticated) */
-export async function getCurrentUserId(): Promise<string | null> {
+export async function getCurrentUser() {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    return session?.user?.id || null;
-  } catch {
-    return null;
-  }
+    return session?.user || null;
+  } catch { return null; }
 }
 
-// ── Intake Answers ─────────────────────────────────────────────────────────
+export async function signInWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
+  if (error) console.error('Google sign-in error:', error.message);
+  return { data, error };
+}
+
+export async function signInWithEmail(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  return { data, error };
+}
+
+export async function signUpWithEmail(email: string, password: string) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+  });
+  return { data, error };
+}
+
+export async function signOut() {
+  await supabase.auth.signOut();
+}
+
+/** Link anonymous account to a permanent identity (Google/email).
+ *  Supabase handles UID migration natively when linking. */
+export async function linkWithGoogle() {
+  const { data, error } = await supabase.auth.linkIdentity({
+    provider: 'google',
+    options: { redirectTo: `${window.location.origin}/auth/callback` },
+  });
+  if (error) console.error('Link Google error:', error.message);
+  return { data, error };
+}
+
+export function isAnonymousUser(user: { is_anonymous?: boolean } | null): boolean {
+  return !!user?.is_anonymous;
+}
+
+// ── Intake ─────────────────────────────────────────────────────────────────
 
 export interface IntakeData {
   struggle: string;
@@ -47,33 +78,23 @@ export interface IntakeData {
   vision: string;
 }
 
-/** Save intake answers to Supabase users table */
 export async function saveIntake(userId: string, intake: IntakeData): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('users')
-      .upsert({
-        id: userId,
-        intake_struggle: intake.struggle,
-        intake_duration: intake.duration,
-        intake_impact: intake.impact,
-        intake_tried: intake.tried,
-        intake_vision: intake.vision,
-        intake_completed: true,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'id' });
-
-    if (error) {
-      console.error('Save intake error:', error.message);
-      return false;
-    }
+    const { error } = await supabase.from('users').upsert({
+      id: userId,
+      intake_struggle: intake.struggle,
+      intake_duration: intake.duration,
+      intake_impact: intake.impact,
+      intake_tried: intake.tried,
+      intake_vision: intake.vision,
+      intake_completed: true,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'id' });
+    if (error) { console.error('Save intake error:', error.message); return false; }
     return true;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
-/** Load intake answers from Supabase */
 export async function loadIntake(userId: string): Promise<IntakeData | null> {
   try {
     const { data, error } = await supabase
@@ -81,9 +102,7 @@ export async function loadIntake(userId: string): Promise<IntakeData | null> {
       .select('intake_struggle, intake_duration, intake_impact, intake_tried, intake_vision, intake_completed')
       .eq('id', userId)
       .single();
-
     if (error || !data?.intake_completed) return null;
-
     return {
       struggle: data.intake_struggle || '',
       duration: data.intake_duration || '',
@@ -91,9 +110,7 @@ export async function loadIntake(userId: string): Promise<IntakeData | null> {
       tried: data.intake_tried || '',
       vision: data.intake_vision || '',
     };
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 // ── Chapter Progress ───────────────────────────────────────────────────────
@@ -104,16 +121,9 @@ export interface ChapterProgressRecord {
   first_opened_at: string | null;
 }
 
-/** Save chapter open event to Supabase */
-export async function saveChapterProgress(
-  userId: string,
-  bookId: string,
-  chapterNumber: number
-): Promise<boolean> {
+export async function saveChapterProgress(userId: string, bookId: string, chapterNumber: number): Promise<boolean> {
   try {
     const now = new Date().toISOString();
-
-    // Try to insert; if exists, update first_opened_at only if null
     const { data: existing } = await supabase
       .from('chapter_progress')
       .select('id, first_opened_at')
@@ -122,45 +132,29 @@ export async function saveChapterProgress(
       .maybeSingle();
 
     if (existing) {
-      // Update first_opened_at if not set
       if (!existing.first_opened_at) {
-        await supabase
-          .from('chapter_progress')
-          .update({ first_opened_at: now })
-          .eq('id', existing.id);
+        await supabase.from('chapter_progress').update({ first_opened_at: now }).eq('id', existing.id);
       }
     } else {
-      // Insert new record
-      // Need to look up book UUID from slug — for now use the string ID directly
-      await supabase
-        .from('chapter_progress')
-        .insert({
-          user_id: userId,
-          chapter_number: chapterNumber,
-          unlocked_at: now,
-          first_opened_at: now,
-        });
+      await supabase.from('chapter_progress').insert({
+        user_id: userId,
+        chapter_number: chapterNumber,
+        unlocked_at: now,
+        first_opened_at: now,
+      });
     }
     return true;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
-/** Load all chapter progress for a user */
-export async function loadChapterProgress(
-  userId: string
-): Promise<ChapterProgressRecord[]> {
+export async function loadChapterProgress(userId: string): Promise<ChapterProgressRecord[]> {
   try {
     const { data, error } = await supabase
       .from('chapter_progress')
       .select('chapter_number, unlocked_at, first_opened_at')
       .eq('user_id', userId)
       .order('chapter_number');
-
     if (error || !data) return [];
     return data;
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }

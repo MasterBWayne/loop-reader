@@ -30,6 +30,8 @@ interface ReaderLayoutProps {
   isChapterUnlocked: (chapterNumber: number, progress: ChapterProgress) => boolean;
   getUnlockDate: (chapterNumber: number, progress: ChapterProgress) => Date | null;
   onBackToLibrary?: () => void;
+  user?: any;
+  onSignOut?: () => void;
 }
 
 export function ReaderLayout({
@@ -41,6 +43,8 @@ export function ReaderLayout({
   isChapterUnlocked,
   getUnlockDate,
   onBackToLibrary,
+  user,
+  onSignOut,
 }: ReaderLayoutProps) {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [showChat, setShowChat] = useState(false);

@@ -6,12 +6,15 @@ import { IntakeForm, type IntakeAnswers } from '@/components/IntakeForm';
 import { BOOKS, type Book } from '@/data/books';
 import {
   ensureAnonymousUser,
+  getCurrentUser,
   saveIntake,
   loadIntake,
   saveChapterProgress,
   loadChapterProgress,
+  isAnonymousUser,
   type ChapterProgressRecord,
 } from '@/lib/supabase';
+import { UserProfile, UpgradeBanner } from '@/components/UserProfile';
 
 type AppState = 'loading' | 'landing' | 'intake' | 'reading';
 
@@ -103,6 +106,7 @@ function BookCard({ book, progress, onSelect }: { book: Book; progress: ChapterP
 export default function Home() {
   const [appState, setAppState] = useState<AppState>('loading');
   const [userId, setUserId] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [intake, setIntake] = useState<IntakeAnswers | null>(null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [progress, setProgress] = useState<ChapterProgress>({});
@@ -114,6 +118,8 @@ export default function Home() {
       // 1. Get or create anonymous user
       const uid = await ensureAnonymousUser();
       setUserId(uid);
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
 
       // 2. Try to load intake from Supabase
       let loadedIntake: IntakeAnswers | null = null;
@@ -265,6 +271,8 @@ export default function Home() {
         isChapterUnlocked={isChapterUnlocked}
         getUnlockDate={getUnlockDate}
         onBackToLibrary={handleBackToLibrary}
+        user={user}
+        onSignOut={() => { setUser(null); setIntake(null); window.location.reload(); }}
       />
     );
   }
@@ -277,7 +285,7 @@ export default function Home() {
           <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-navy font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <span className="text-sm font-medium tracking-wide text-white/80">THE ARCHITECT METHOD</span>
         </div>
-        {intake && <span className="text-[10px] text-white/30 bg-white/5 px-3 py-1 rounded-full">Welcome back</span>}
+        <UserProfile user={user} onSignOut={() => { setUser(null); setIntake(null); window.location.reload(); }} />
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 pt-16 pb-12 text-center">
@@ -289,6 +297,13 @@ export default function Home() {
       </div>
 
       <div className="max-w-3xl mx-auto px-6 pb-24">
+        {/* Upgrade banner for anonymous users who completed intake */}
+        {intake && user && isAnonymousUser(user) && (
+          <div className="mb-6 rounded-xl overflow-hidden">
+            <UpgradeBanner user={user} />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {BOOKS.map(book => (
             <BookCard
