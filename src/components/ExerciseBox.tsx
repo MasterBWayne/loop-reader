@@ -5,13 +5,18 @@ import { useState, useEffect } from 'react';
 interface ExerciseBoxProps {
   question: string;
   existingAnswer?: string;
+  existingCommitment?: string;
   onSubmit: (answer: string) => void;
+  onCommitmentSubmit?: (commitment: string) => void;
   loading: boolean;
 }
 
-export function ExerciseBox({ question, existingAnswer, onSubmit, loading }: ExerciseBoxProps) {
+export function ExerciseBox({ question, existingAnswer, existingCommitment, onSubmit, onCommitmentSubmit, loading }: ExerciseBoxProps) {
   const [answer, setAnswer] = useState(existingAnswer || '');
   const [submitted, setSubmitted] = useState(!!existingAnswer);
+  const [showCommitment, setShowCommitment] = useState(false);
+  const [commitment, setCommitment] = useState(existingCommitment || '');
+  const [commitmentSaved, setCommitmentSaved] = useState(!!existingCommitment);
 
   // Sync when existingAnswer arrives asynchronously (e.g. Supabase load)
   useEffect(() => {
@@ -21,10 +26,27 @@ export function ExerciseBox({ question, existingAnswer, onSubmit, loading }: Exe
     }
   }, [existingAnswer]);
 
+  useEffect(() => {
+    if (existingCommitment && !commitment) {
+      setCommitment(existingCommitment);
+      setCommitmentSaved(true);
+    }
+  }, [existingCommitment]);
+
   const handleSubmit = () => {
     if (!answer.trim()) return;
     setSubmitted(true);
     onSubmit(answer.trim());
+    // Show commitment prompt after a brief delay
+    if (!existingCommitment) {
+      setTimeout(() => setShowCommitment(true), 1500);
+    }
+  };
+
+  const handleCommitmentSubmit = () => {
+    if (!commitment.trim() || !onCommitmentSubmit) return;
+    setCommitmentSaved(true);
+    onCommitmentSubmit(commitment.trim());
   };
 
   return (
@@ -85,6 +107,55 @@ export function ExerciseBox({ question, existingAnswer, onSubmit, loading }: Exe
           </>
         )}
       </div>
+
+      {/* Commitment prompt — appears after saving answer */}
+      {submitted && showCommitment && !commitmentSaved && onCommitmentSubmit && (
+        <div className="mt-4 bg-gradient-to-br from-emerald-50/80 to-green-50/50 border border-emerald-200/50 rounded-2xl p-6 animate-message-in">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🎯</span>
+            <span className="text-[11px] font-semibold text-emerald-600/80 uppercase tracking-widest">Make it real</span>
+          </div>
+          <p className="text-sm text-ink/70 mb-4 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
+            When will you apply this? Set a specific intention:
+          </p>
+          <p className="text-xs text-muted mb-3 italic">
+            "I will [action] with [person/situation] on [day]."
+          </p>
+          <textarea
+            value={commitment}
+            onChange={e => setCommitment(e.target.value)}
+            placeholder="e.g. I will mirror my partner's words tonight when they tell me about their day"
+            rows={2}
+            className="w-full bg-white/70 border border-emerald-200/50 rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-emerald-400/50 transition-colors resize-none leading-relaxed"
+            style={{ fontFamily: "'Lora', serif" }}
+          />
+          <div className="flex items-center justify-between mt-3">
+            <button onClick={() => setShowCommitment(false)} className="text-[11px] text-muted hover:text-ink transition-colors">
+              Skip for now
+            </button>
+            <button
+              onClick={handleCommitmentSubmit}
+              disabled={!commitment.trim()}
+              className="flex items-center gap-2 bg-emerald-500/90 hover:bg-emerald-500 disabled:bg-ink/10 disabled:text-ink/30 text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+            >
+              Set intention
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Saved commitment display */}
+      {commitmentSaved && commitment && (
+        <div className="mt-4 bg-emerald-50/50 border border-emerald-200/30 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm">🎯</span>
+            <span className="text-[10px] font-semibold text-emerald-600/60 uppercase tracking-widest">Your commitment</span>
+          </div>
+          <p className="text-sm text-ink/60 italic" style={{ fontFamily: "'Lora', serif" }}>"{commitment}"</p>
+          <p className="text-[10px] text-muted/40 mt-2">The Architect will check in on this tomorrow.</p>
+        </div>
+      )}
     </div>
   );
 }

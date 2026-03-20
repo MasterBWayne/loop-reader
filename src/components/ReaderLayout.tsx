@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { IntakeAnswers } from './IntakeForm';
 import { ExerciseBox } from './ExerciseBox';
-import { saveReflection, loadReflections, type ReflectionRecord } from '@/lib/supabase';
+import { saveReflection, loadReflections, saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp, type ReflectionRecord, type CommitmentRecord } from '@/lib/supabase';
 
 interface Chapter {
   number: number;
@@ -69,6 +69,11 @@ export function ReaderLayout({
   const [reflections, setReflections] = useState<Record<number, string>>({});
   const [exerciseLoading, setExerciseLoading] = useState(false);
   const [showJourney, setShowJourney] = useState(false);
+  const [commitments, setCommitments] = useState<Record<number, string>>({});
+  const [pendingFollowUp, setPendingFollowUp] = useState<CommitmentRecord | null>(null);
+  const [followUpInput, setFollowUpInput] = useState('');
+  const [followUpLoading, setFollowUpLoading] = useState(false);
+  const [followUpDismissed, setFollowUpDismissed] = useState(false);
   const [journeySummary, setJourneySummary] = useState<string | null>(null);
   const [journeyLoading, setJourneyLoading] = useState(false);
   const bookId = bookTitle.toLowerCase().replace(/\s+/g, '-');
@@ -103,6 +108,19 @@ export function ReaderLayout({
           } catch {}
         }
       });
+
+      // Load pending commitments for follow-up banner
+      loadPendingCommitments(user.id).then(pending => {
+        if (pending.length > 0) {
+          setPendingFollowUp(pending[0]);
+        }
+      });
+
+      // Load commitments for current book
+      try {
+        const localCommitments = JSON.parse(localStorage.getItem(`loop-reader-commitments-${bookId}`) || '{}');
+        if (Object.keys(localCommitments).length > 0) setCommitments(localCommitments);
+      } catch {}
     }
   }, [user?.id, bookId]);
 
@@ -204,6 +222,49 @@ export function ReaderLayout({
       }, 2000);
     }
   }, [chapter, user, bookId, bookTitle, chapters, userProfile]);
+
+  const handleCommitmentSubmit = useCallback(async (commitmentText: string) => {
+    if (!user?.id) return;
+    // Due date = 24 hours from now
+    const dueDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    await saveCommitment(user.id, bookId, chapter.number, commitmentText, dueDate);
+    setCommitments(prev => {
+      const updated = { ...prev, [chapter.number]: commitmentText };
+      try { localStorage.setItem(`loop-reader-commitments-${bookId}`, JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  }, [user, bookId, chapter]);
+
+  const handleFollowUpSubmit = useCallback(async () => {
+    if (!pendingFollowUp || !followUpInput.trim() || !user?.id) return;
+    setFollowUpLoading(true);
+    try {
+      // Get AI response to their follow-up
+      const res = await fetch('/api/commitment-followup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          commitmentText: pendingFollowUp.commitment_text,
+          chapterTitle: chapters.find(c => c.number === pendingFollowUp.chapter_number)?.title || '',
+          outcomeText: followUpInput.trim(),
+          profile: userProfile,
+        }),
+      });
+      const data = await res.json();
+
+      // Mark as followed up in Supabase
+      await markCommitmentFollowedUp(user.id, pendingFollowUp.book_id, pendingFollowUp.chapter_number, followUpInput.trim());
+
+      // Show AI response in chat
+      if (data.response) {
+        setMessages(prev => [...prev, { role: 'assistant', content: `🎯 *Checking in on your commitment:*\n\n${data.response}` }]);
+        setShowChat(true);
+      }
+      setPendingFollowUp(null);
+      setFollowUpInput('');
+    } catch {}
+    setFollowUpLoading(false);
+  }, [pendingFollowUp, followUpInput, user, chapters, userProfile]);
 
   const handleShowJourney = useCallback(async () => {
     setJourneyLoading(true);
@@ -411,6 +472,47 @@ export function ReaderLayout({
         <div className={`flex-1 overflow-y-auto reader-scroll transition-all duration-300 ${showChat ? 'hidden md:block' : ''}`}>
           {unlocked ? (
             <article className="max-w-2xl mx-auto px-6 md:px-12 py-12">
+              {/* Commitment follow-up banner */}
+              {pendingFollowUp && !followUpDismissed && (
+                <div className="mb-6 bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/60 rounded-2xl p-5 animate-message-in">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🎯</span>
+                      <span className="text-[11px] font-semibold text-amber-700/70 uppercase tracking-widest">Check-in</span>
+                    </div>
+                    <button onClick={() => setFollowUpDismissed(true)} className="text-amber-400 hover:text-amber-600 text-xs">Later</button>
+                  </div>
+                  <p className="text-sm text-ink/70 mb-2" style={{ fontFamily: "'Lora', serif" }}>
+                    You committed: <em>"{pendingFollowUp.commitment_text}"</em>
+                  </p>
+                  <p className="text-sm text-ink/80 font-medium mb-3" style={{ fontFamily: "'Lora', serif" }}>
+                    What happened?
+                  </p>
+                  <textarea
+                    value={followUpInput}
+                    onChange={e => setFollowUpInput(e.target.value)}
+                    placeholder="I did it / I didn't get to it because..."
+                    rows={2}
+                    disabled={followUpLoading}
+                    className="w-full bg-white/70 border border-amber-200/40 rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-amber-400/50 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  />
+                  <div className="flex justify-end mt-3">
+                    <button
+                      onClick={handleFollowUpSubmit}
+                      disabled={!followUpInput.trim() || followUpLoading}
+                      className="flex items-center gap-2 bg-amber-500/90 hover:bg-amber-500 disabled:bg-ink/10 disabled:text-ink/30 text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                    >
+                      {followUpLoading ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        'Share what happened'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Personalized intro */}
               {(personalizedIntro || introLoading) && (
                 <div className="mb-10 bg-gold/5 border border-gold/15 rounded-2xl px-6 py-5">
@@ -448,7 +550,9 @@ export function ReaderLayout({
                   key={`exercise-${chapter.number}`}
                   question={chapter.exerciseQuestion}
                   existingAnswer={reflections[chapter.number]}
+                  existingCommitment={commitments[chapter.number]}
                   onSubmit={handleExerciseSubmit}
+                  onCommitmentSubmit={user?.id ? handleCommitmentSubmit : undefined}
                   loading={exerciseLoading}
                 />
               )}

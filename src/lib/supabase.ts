@@ -252,6 +252,76 @@ export async function saveChapterProgress(userId: string, bookId: string, chapte
   } catch { return false; }
 }
 
+// ── Commitments (Accountability Loop) ──────────────────────────────────
+
+export interface CommitmentRecord {
+  id?: string;
+  user_id: string;
+  book_id: string;
+  chapter_number: number;
+  commitment_text: string;
+  due_date: string;
+  followed_up: boolean;
+  outcome?: string;
+  created_at?: string;
+}
+
+export async function saveCommitment(userId: string, bookId: string, chapterNumber: number, commitmentText: string, dueDate: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('commitments').upsert({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      commitment_text: commitmentText,
+      due_date: dueDate,
+      followed_up: false,
+    }, { onConflict: 'user_id,book_id,chapter_number' });
+    if (error) { console.error('Save commitment error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadPendingCommitments(userId: string): Promise<CommitmentRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from('commitments')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('followed_up', false)
+      .lte('due_date', new Date().toISOString())
+      .order('due_date');
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+export async function markCommitmentFollowedUp(userId: string, bookId: string, chapterNumber: number, outcome: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('commitments')
+      .update({ followed_up: true, outcome })
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .eq('chapter_number', chapterNumber);
+    if (error) { console.error('Update commitment error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadCommitment(userId: string, bookId: string, chapterNumber: number): Promise<CommitmentRecord | null> {
+  try {
+    const { data, error } = await supabase
+      .from('commitments')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .eq('chapter_number', chapterNumber)
+      .maybeSingle();
+    if (error || !data) return null;
+    return data;
+  } catch { return null; }
+}
+
 export async function loadChapterProgress(userId: string): Promise<ChapterProgressRecord[]> {
   try {
     const { data, error } = await supabase
