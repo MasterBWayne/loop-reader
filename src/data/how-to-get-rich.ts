@@ -328,4 +328,154 @@ Dennis lost everything multiple times. Each time, he rebuilt faster because the 
 
 *The mountain matters. But who you become climbing it matters more.*`,
   },
+  {
+    number: 9,
+    title: 'The Power and Peril of Delegation',
+    exerciseQuestion: 'What tasks are you doing right now that someone else could do 80% as well? What would you build with the hours you reclaimed?',
+    content: `Dennis built a publishing empire. He didn't do it by writing every article, designing every page, and mailing every issue himself. He learned to delegate. But he also learned that delegation done wrong will destroy you faster than doing everything yourself.
+
+**The Control Trap**
+
+Most founders and high performers share the same disease: they believe nobody can do it as well as they can. And they're right \u2014 at first. Nobody will care about your thing the way you do. Nobody will execute with your exact standards. Nobody will understand the vision the way it lives in your head.
+
+This is true. It's also irrelevant.
+
+Because the alternative to imperfect delegation is perfect burnout. You can do everything yourself and be excellent at a very small thing. Or you can accept 80% quality from others and build something that scales beyond your personal capacity.
+
+Dennis was clear: the first few delegations will hurt. People will make mistakes with your money, your brand, your customers. You'll want to take it all back. Some founders do \u2014 and they stay small forever.
+
+**What to Keep, What to Release**
+
+Not everything should be delegated. Dennis kept three things close: the vision (where are we going), the money (where is it going), and the culture (who are we). Everything else \u2014 execution, operations, logistics, even creative work \u2014 he pushed outward.
+
+The rule is simple: delegate anything that doesn't require your unique judgment. If someone with basic competence and clear instructions could do it, it shouldn't be on your plate.
+
+**The Peril**
+
+Delegation without accountability is abdication. Dennis watched founders hand off critical functions and then stop paying attention. By the time they noticed something was wrong, the damage was done \u2014 embezzlement, brand destruction, customer exodus.
+
+Trust, but verify. Give people freedom to execute, but build systems that let you see results. Not micromanagement \u2014 measurement. There's a difference.
+
+**The Emotional Barrier**
+
+The real reason most people don't delegate isn't practical. It's identity. If you stop doing the work, what are you? If someone else can do your job, are you replaceable? If you're not the one executing, do you still matter?
+
+These are ego questions disguised as strategic ones. And they'll keep you trapped in a one-person operation forever if you let them.
+
+*What are you holding onto that you should have handed off six months ago?*`,
+  },
+  {
+    number: 10,
+    title: 'The Brutality of Persistence',
+    exerciseQuestion: 'What have you quit in the past that you now suspect you abandoned too early? What would have happened if you\'d given it six more months?',
+    content: `Dennis didn't use the word "persistence" the way motivational speakers do. He didn't dress it up. He called it what it was: brutal. Unglamorous. Often indistinguishable from stupidity until it works.
+
+**The Persistence Filter**
+
+Here's what Dennis observed across every wealthy person he knew: they didn't quit. That's it. That's the entire differentiator.
+
+Not smarter. Not more talented. Not better connected. They simply stayed in the game longer than everyone else. They absorbed more rejection, survived more failures, and endured more stretches of zero visible progress than the people who eventually quit.
+
+This sounds simple. It's the hardest thing you'll ever do. Because persistence doesn't feel heroic in the moment. It feels like being wrong. It feels like wasting time. It feels like everyone else has moved on to something smarter while you're still grinding on the same stupid thing.
+
+**The Dip vs. The Dead End**
+
+The hard part isn't persisting. It's knowing when to persist and when to pivot. Dennis acknowledged this openly: sometimes the thing you're building is genuinely not going to work, and persisting is just stubbornness burning money.
+
+The difference between a dip and a dead end isn't always obvious. But Dennis offered one heuristic: are you getting better at the thing, even if results haven't arrived? If your skills are compounding, if your understanding is deepening, if each iteration is tighter than the last \u2014 you're in a dip. Stay.
+
+If nothing is improving despite sustained effort \u2014 same mistakes, same feedback, same flatline \u2014 you might be at a dead end. Pivot.
+
+**The Quitting Epidemic**
+
+Most people quit in the dip. They quit after the initial excitement fades and before the compounding kicks in. They quit at month four of a business that needs eighteen months. They quit at draft three of a book that needs twelve. They quit at the exact point where persistence would have separated them from everyone else who also quit.
+
+Dennis was blunt: the world is full of talented quitters. They had every advantage except the willingness to be uncomfortable long enough for those advantages to matter.
+
+**The Compound Effect of Not Quitting**
+
+Every day you don't quit, your competition shrinks. Not because you're getting better \u2014 though you probably are \u2014 but because someone else decided today was the day they stopped trying. By year three, you're competing against almost nobody. By year five, the field is nearly empty.
+
+*Persistence isn't romantic. It's just showing up tomorrow after a terrible today. Repeatedly.*`,
+  },
+  {
+    number: 11,
+    title: 'The True Cost of Wealth',
+    exerciseQuestion: 'If building wealth cost you your closest relationship, would it still be worth it? Answer honestly \u2014 the honest answer will tell you what you actually value.',
+    content: `Dennis became a billionaire and wrote a poem called "How to Get Rich" that ended with the line: "I have tasted all the fruits of wealth and power. And none of it \u2014 not one crumb \u2014 was worth it."
+
+Then he spent the rest of his life giving it away.
+
+This isn't a contradiction. It's wisdom earned at maximum price.
+
+**What Money Costs**
+
+Dennis cataloged the costs with surgical honesty:
+
+Time. Years of it. Not just working hours \u2014 the mental hours. The nights you can't sleep because of a deal. The holidays you're physically present but mentally somewhere else. The years that blur together because you were too focused to experience them.
+
+Relationships. Not all of them. But more than you'd like. The friendships that couldn't survive your unavailability. The romantic relationships that buckled under the asymmetry of obsession. The family events you missed.
+
+Health. Dennis smoked, drank, and drove himself to exhaustion for decades. He got rich and then spent years trying to buy back the health he'd spent getting there. You can't buy back health. You can only buy better treatment for the damage.
+
+Trust. Once you have money, you can never be entirely sure why people want to be around you. This creates a particular kind of loneliness that poor people don't understand and rich people don't talk about.
+
+**The Regret Calculus**
+
+Dennis didn't say "don't get rich." He said: know the price before you pay it, and decide consciously. The people who suffer most aren't the ones who paid the price knowingly. They're the ones who arrived at wealth and realized they'd been paying a price they never agreed to.
+
+**What Money Doesn't Fix**
+
+Money solves money problems. That's all. It solves them completely and permanently \u2014 which is valuable. But it doesn't solve loneliness, meaninglessness, relationship dysfunction, or the voice in your head that says you're not enough.
+
+Dennis watched rich people try to buy their way out of existential problems. Bigger houses. Faster cars. Younger partners. Each purchase produced a spike of satisfaction that lasted approximately as long as the novelty did. Then the same emptiness returned, now with a more expensive backdrop.
+
+**The Integration Question**
+
+The smartest path \u2014 the one Dennis wished he'd taken \u2014 is building wealth while building a life. Not sequentially. Simultaneously. Not "I'll get rich and then focus on relationships." That's a lie you tell yourself. You'll get rich and have the same relational patterns, just with more zeros in your account.
+
+Build the business AND the marriage. Build the wealth AND the friendships. Build the empire AND the health practices. It's slower. The ceiling might be lower. But you arrive as a whole person instead of a wealthy fragment.
+
+*Dennis made a billion dollars and gave most of it away. The lesson isn't "money doesn't matter." It's "know what matters before you trade everything for money."*`,
+  },
+  {
+    number: 12,
+    title: 'Legacy and the Limits of Capital',
+    exerciseQuestion: 'If your obituary were written today, what would it say? What do you want it to say \u2014 and what would need to change for those to match?',
+    content: `Dennis spent the final years of his life planting trees. Millions of them. A man who'd built his fortune on publishing, media, and ruthless deal-making spent his last chapter putting things into the ground that wouldn't mature until long after he was dead.
+
+That's the purest expression of legacy: building something whose value you'll never see.
+
+**The Legacy Question**
+
+Most people avoid this question because it forces a confrontation with mortality. But Dennis was direct: you're going to die. The money stays. The buildings stay. The trees stay. You don't. So what do you want to leave behind?
+
+This isn't a sentimental question. It's a strategic one. Because your answer to "what do I want to leave behind?" should fundamentally shape what you build right now.
+
+If your legacy is your family, then the relationships you're neglecting for your business are the actual priority, not the distraction. If your legacy is an idea that outlives you, then capturing and distributing that idea matters more than the next revenue milestone. If your legacy is something you built that serves people after you're gone, then sustainability and systems matter more than growth.
+
+**The Limits of Capital**
+
+Dennis discovered something that most wealthy people learn and few admit: capital has hard limits. Money can build hospitals, fund research, create opportunities. It cannot make people love you. It cannot make your work meaningful. It cannot replace the years you didn't spend with people who needed you.
+
+More importantly, capital cannot purchase significance. You can donate buildings and name them after yourself. But significance isn't a building with your name on it. It's the change you created in other humans that continues after you stop being involved.
+
+**The Convergence**
+
+The greatest version of wealth is when earning it and leaving a legacy are the same activity. When the business you build also solves a real problem. When the wealth you generate also creates opportunity for others. When the work you do every day is something you'd be proud to have on your tombstone.
+
+This convergence is rare. But it's worth pursuing from the start, not discovering in retirement.
+
+Dennis found it in trees \u2014 living things that would outlast him, clean the air, provide shade for strangers. It wasn't glamorous. It was real.
+
+**The Final Audit**
+
+Here is the question Dennis would ask if he were sitting across from you right now:
+
+When you're gone and the money is distributed and the business is sold or shuttered \u2014 what remains? What did you cause to exist that wouldn't have existed without you? Not what did you accumulate. What did you create?
+
+If the answer is "nothing yet" \u2014 that's fine. You're still here. But start building something that lasts longer than you do.
+
+*The mountain was never the point. What you plant at the top is.*`,
+  },
 ];
