@@ -1,4 +1,5 @@
 import { ART_OF_WAR_CHAPTERS } from './art-of-war';
+import { HOW_TO_GET_RICH_CHAPTERS } from './how-to-get-rich';
 
 export interface Chapter {
   number: number;
@@ -163,5 +164,19 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     featured: true,
     coverColor: 'from-slate-700 to-zinc-900',
     chapters: ART_OF_WAR_CHAPTERS,
+  },
+  {
+    id: 'how-to-get-rich',
+    title: 'How to Get Rich',
+    subtitle: 'Book Three',
+    author: 'Felix Dennis (adapted)',
+    bookNumber: 3,
+    description: 'The brutally honest blueprint for building wealth from a self-made British publishing billionaire. No fluff. No pretense. Just the raw truth about what it actually takes.',
+    readTime: '~50 min read',
+    category: 'Business',
+    tags: ['wealth', 'entrepreneurship', 'ownership', 'execution', 'risk'],
+    featured: true,
+    coverColor: 'from-emerald-700 to-green-900',
+    chapters: HOW_TO_GET_RICH_CHAPTERS,
   },
 ];
