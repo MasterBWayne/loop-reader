@@ -86,6 +86,11 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
+              onClick={() => {
+                if (tab.href === '/' && pathname === '/') {
+                  window.dispatchEvent(new Event('navigate-library'));
+                }
+              }}
               className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all min-w-[60px] ${
                 isActive ? 'bg-gold/10' : 'hover:bg-white/5'
               }`}

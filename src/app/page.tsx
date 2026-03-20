@@ -131,6 +131,15 @@ export default function Home() {
     } catch {}
   }, [appState]);
 
+  useEffect(() => {
+    const handleNavLibrary = () => {
+      setAppState('landing');
+      setSelectedBook(null);
+    };
+    window.addEventListener('navigate-library', handleNavLibrary);
+    return () => window.removeEventListener('navigate-library', handleNavLibrary);
+  }, []);
+
   // ── Init ──────────────────────────────────────────────────────────────
   useEffect(() => {
     async function init() {
