@@ -6,24 +6,38 @@ export interface Chapter {
   content: string;
 }
 
+export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership';
+
 export interface Book {
   id: string;
   title: string;
   subtitle: string;
+  author: string;
   bookNumber: number;
   description: string;
   readTime: string;
+  category: BookCategory;
+  tags: string[];
+  featured: boolean;
+  coverColor: string; // gradient accent for placeholder covers
   chapters: Chapter[];
 }
+
+export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership'];
 
 export const BOOKS: Book[] = [
   {
     id: 'stop-chasing',
     title: 'Stop Chasing',
     subtitle: 'Book One',
+    author: 'The Architect',
     bookNumber: 1,
     description: 'How to break free from the loops that keep high performers stuck \u2014 and find what the last 5% actually requires.',
     readTime: '~45 min read',
+    category: 'Self-Help',
+    tags: ['attachment', 'identity', 'high performers', 'meaning'],
+    featured: true,
+    coverColor: 'from-amber-600 to-orange-800',
     chapters: [
       {
         number: 1,
@@ -137,9 +151,14 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     id: 'art-of-war-inner-battles',
     title: 'The Art of War for Inner Battles',
     subtitle: 'Book Two',
+    author: 'The Architect',
     bookNumber: 2,
     description: 'Sun Tzu\'s 2,500-year-old strategy manual, rewritten for the war inside your head. Not metaphor \u2014 field manual.',
     readTime: '~40 min read',
+    category: 'Philosophy',
+    tags: ['strategy', 'mindset', 'discipline', 'emotional control'],
+    featured: true,
+    coverColor: 'from-slate-700 to-zinc-900',
     chapters: ART_OF_WAR_CHAPTERS,
   },
 ];

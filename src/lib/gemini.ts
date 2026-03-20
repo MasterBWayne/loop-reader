@@ -2,6 +2,16 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
+export interface UserProfileContext {
+  display_name?: string;
+  age?: number;
+  life_situation?: string;
+  current_goals?: string;
+  biggest_challenges?: string;
+  relationship_status?: string;
+  career_stage?: string;
+}
+
 export async function generatePersonalizedIntro(
   chapterTitle: string,
   chapterContent: string,
@@ -11,7 +21,8 @@ export async function generatePersonalizedIntro(
     impact: string;
     tried: string;
     vision: string;
-  }
+  },
+  profile?: UserProfileContext
 ): Promise<string> {
   const prompt = `You are a deeply insightful personal development author writing under the pen name "The Architect." Your voice is: direct, warm but not soft, zero therapy-speak, zero generic advice. You sound like a brilliant friend who sees people clearly.
 
@@ -23,6 +34,8 @@ Here's what they shared about themselves:
 - Impact on life: ${intake.impact}
 - What they've tried: ${intake.tried}
 - Ideal life vision: ${intake.vision}
+
+${profile ? `\nReader profile: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. Situation: ' + profile.life_situation : ''}${profile.current_goals ? '. Goals: ' + profile.current_goals : ''}${profile.biggest_challenges ? '. Challenges: ' + profile.biggest_challenges : ''}` : ''}
 
 The chapter covers this content (first 500 chars): ${chapterContent.slice(0, 500)}
 
@@ -61,10 +74,14 @@ export async function generateCompanionResponse(
     impact: string;
     tried: string;
     vision: string;
-  }
+  },
+  profile?: UserProfileContext
 ): Promise<string> {
   const intakeContext = intake
     ? `\nReader context: They struggle with "${intake.struggle}" (${intake.duration}). Impact: "${intake.impact}". They've tried: "${intake.tried}". Their vision: "${intake.vision}".`
+    : '';
+  const profileContext = profile
+    ? `\nReader profile: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}${profile.current_goals ? '. Goals: ' + profile.current_goals : ''}`
     : '';
 
   const historyText = chatHistory
@@ -75,7 +92,7 @@ export async function generateCompanionResponse(
   const prompt = `You are an AI reading companion for the book "Stop Chasing" by The Architect. You're helping someone read Chapter: "${chapterTitle}".
 
 Chapter excerpt: ${chapterContentSnippet.slice(0, 800)}
-${intakeContext}
+${intakeContext}${profileContext}
 
 Recent conversation:
 ${historyText}

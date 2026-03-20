@@ -68,6 +68,30 @@ export function isAnonymousUser(user: { is_anonymous?: boolean } | null): boolea
   return !!user?.is_anonymous;
 }
 
+// ── User Profile ───────────────────────────────────────────────────────────
+
+export interface UserProfileData {
+  display_name?: string;
+  age?: number;
+  life_situation?: string;
+  current_goals?: string;
+  biggest_challenges?: string;
+  relationship_status?: string;
+  career_stage?: string;
+}
+
+export async function loadUserProfile(userId: string): Promise<UserProfileData | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('display_name, age, life_situation, current_goals, biggest_challenges, relationship_status, career_stage, profile_completed')
+      .eq('id', userId)
+      .single();
+    if (error || !data?.profile_completed) return null;
+    return data;
+  } catch { return null; }
+}
+
 // ── Intake ─────────────────────────────────────────────────────────────────
 
 export interface IntakeData {

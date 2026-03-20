@@ -33,6 +33,7 @@ interface ReaderLayoutProps {
   user?: any;
   onSignOut?: () => void;
   pace?: 'guided' | 'free';
+  userProfile?: any;
 }
 
 export function ReaderLayout({
@@ -47,6 +48,7 @@ export function ReaderLayout({
   user,
   onSignOut,
   pace,
+  userProfile,
 }: ReaderLayoutProps) {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [showChat, setShowChat] = useState(false);
@@ -99,6 +101,7 @@ export function ReaderLayout({
           chapterTitle: chapter.title,
           chapterContent: chapter.content,
           intake,
+          profile: userProfile,
         }),
       });
       const data = await res.json();
@@ -131,6 +134,7 @@ export function ReaderLayout({
           chatHistory: newMessages.slice(-8),
           intake,
           userId: user?.id,
+          profile: userProfile,
         }),
       });
       const data = await res.json();

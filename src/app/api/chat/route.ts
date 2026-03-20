@@ -64,7 +64,7 @@ async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolea
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, chapterTitle, chapterContent, chatHistory, intake, userId } = await req.json();
+    const { message, chapterTitle, chapterContent, chatHistory, intake, userId, profile } = await req.json();
 
     if (!message || !chapterTitle) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -87,7 +87,8 @@ export async function POST(req: NextRequest) {
       chapterContent || '',
       message,
       chatHistory || [],
-      intake
+      intake,
+      profile
     );
 
     return NextResponse.json({ response });
