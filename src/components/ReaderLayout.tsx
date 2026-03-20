@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { IntakeAnswers } from './IntakeForm';
 import { ExerciseBox } from './ExerciseBox';
+import { HabitTracker } from './HabitTracker';
 import { saveReflection, loadReflections, saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp, type ReflectionRecord, type CommitmentRecord } from '@/lib/supabase';
 
 interface Chapter {
@@ -56,6 +57,7 @@ export function ReaderLayout({
   const [currentChapter, setCurrentChapter] = useState(0);
   const [showChat, setShowChat] = useState(false);
   const [showNav, setShowNav] = useState(false);
+  const [activeTab, setActiveTab] = useState<'chapters' | 'practice'>('chapters');
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -409,6 +411,30 @@ export function ReaderLayout({
         </div>
       </header>
 
+      {/* Tab switcher: Chapters | Practice */}
+      <div className="bg-navy border-b border-white/10 px-4 flex gap-1 shrink-0">
+        <button
+          onClick={() => setActiveTab('chapters')}
+          className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
+            activeTab === 'chapters'
+              ? 'text-gold border-gold'
+              : 'text-white/40 border-transparent hover:text-white/60'
+          }`}
+        >
+          Chapters
+        </button>
+        <button
+          onClick={() => setActiveTab('practice')}
+          className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
+            activeTab === 'practice'
+              ? 'text-gold border-gold'
+              : 'text-white/40 border-transparent hover:text-white/60'
+          }`}
+        >
+          Practice
+        </button>
+      </div>
+
       <div className="flex flex-1 overflow-hidden relative">
         {/* Chapter nav sidebar */}
         {showNav && (
@@ -468,8 +494,20 @@ export function ReaderLayout({
           </>
         )}
 
+        {/* Practice tab */}
+        {activeTab === 'practice' && user?.id && (
+          <div className={`flex-1 overflow-y-auto reader-scroll bg-cream ${showChat ? 'hidden md:block' : ''}`}>
+            <HabitTracker bookId={bookId} bookTitle={bookTitle} userId={user.id} />
+          </div>
+        )}
+        {activeTab === 'practice' && !user?.id && (
+          <div className="flex-1 flex items-center justify-center bg-cream text-muted text-sm">
+            Sign in to track your practice habits.
+          </div>
+        )}
+
         {/* Reader panel */}
-        <div className={`flex-1 overflow-y-auto reader-scroll transition-all duration-300 ${showChat ? 'hidden md:block' : ''}`}>
+        <div className={`flex-1 overflow-y-auto reader-scroll transition-all duration-300 ${activeTab !== 'chapters' ? 'hidden' : ''} ${showChat ? 'hidden md:block' : ''}`}>
           {unlocked ? (
             <article className="max-w-2xl mx-auto px-6 md:px-12 py-12">
               {/* Commitment follow-up banner */}

@@ -18,6 +18,8 @@ import {
   type UserProfileData,
 } from '@/lib/supabase';
 import { UserProfile, UpgradeBanner } from '@/components/UserProfile';
+import { MaintenanceCard } from '@/components/MaintenanceCard';
+import { saveMaintenanceCheckin, hasCheckedInThisWeek } from '@/lib/supabase';
 
 type AppState = 'loading' | 'landing' | 'intake' | 'pace-select' | 'reading';
 type SortOption = 'featured' | 'newest' | 'az';
@@ -62,11 +64,19 @@ function getUnlockDate(cn: number, progress: ChapterProgress): Date | null {
 
 function BookCard({ book, progress, onSelect }: { book: Book; progress: ChapterProgress; onSelect: () => void }) {
   const chaptersRead = Object.keys(progress).length;
+  const contentChapters = book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'));
+  const isComplete = contentChapters.length > 0 && chaptersRead >= contentChapters.length;
   return (
     <button onClick={onSelect} className="group w-full text-left rounded-2xl overflow-hidden border border-white/10 hover:border-gold/30 transition-all duration-300 bg-white/[0.03] hover:bg-white/[0.06]">
       {/* Cover placeholder */}
       <div className={`h-36 bg-gradient-to-br ${book.coverColor} relative flex items-end p-4`}>
         <div className="absolute inset-0 bg-black/20" />
+        {isComplete && (
+          <div className="absolute top-3 right-3 bg-emerald-500/90 text-white text-[9px] font-bold px-2.5 py-1 rounded-full z-10 flex items-center gap-1">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+            In Maintenance
+          </div>
+        )}
         <div className="relative z-10">
           <span className="text-[9px] font-bold text-white/60 uppercase tracking-widest">{book.category}</span>
           <h3 className="text-lg font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>{book.title}</h3>
@@ -79,11 +89,13 @@ function BookCard({ book, progress, onSelect }: { book: Book; progress: ChapterP
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-white/25">{book.chapters.length} ch &middot; {book.readTime}</span>
             {chaptersRead > 0 && (
-              <span className="text-[10px] text-gold/50 bg-gold/10 px-1.5 py-0.5 rounded">{chaptersRead}/{book.chapters.length}</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded ${isComplete ? 'text-emerald-400/70 bg-emerald-500/10' : 'text-gold/50 bg-gold/10'}`}>
+                {isComplete ? '✓ Complete' : `${chaptersRead}/${book.chapters.length}`}
+              </span>
             )}
           </div>
           <span className="text-[11px] text-gold/70 font-medium group-hover:text-gold transition-colors">
-            {chaptersRead > 0 ? 'Continue \u2192' : 'Read \u2192'}
+            {isComplete ? 'Review \u2192' : chaptersRead > 0 ? 'Continue \u2192' : 'Read \u2192'}
           </span>
         </div>
       </div>
@@ -109,6 +121,8 @@ export default function Home() {
   const [categoryFilter, setCategoryFilter] = useState<BookCategory | 'All'>('All');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [visibleCount, setVisibleCount] = useState(BOOKS_PER_PAGE);
+  const [maintenanceBooks, setMaintenanceBooks] = useState<{ book: Book; chapterIdx: number }[]>([]);
+  const [dismissedMaintenance, setDismissedMaintenance] = useState<Set<string>>(new Set());
 
   // ── Init ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -195,6 +209,31 @@ export default function Home() {
     }
     init();
   }, []);
+
+  // ── Maintenance mode detection ─────────────────────────────────────────
+  useEffect(() => {
+    if (!userId || appState !== 'landing') return;
+    const uid = userId;
+    async function checkMaintenance() {
+      const results: { book: Book; chapterIdx: number }[] = [];
+      for (const book of BOOKS) {
+        const bookProgress = allProgress[book.id] || {};
+        const contentChapters = book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'));
+        const isComplete = contentChapters.length > 0 && Object.keys(bookProgress).length >= contentChapters.length;
+        if (!isComplete) continue;
+
+        const alreadyCheckedIn = await hasCheckedInThisWeek(uid, book.id);
+        if (alreadyCheckedIn) continue;
+
+        // Pick a rotating chapter based on week number
+        const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+        const chapterIdx = weekNum % contentChapters.length;
+        results.push({ book, chapterIdx });
+      }
+      setMaintenanceBooks(results);
+    }
+    checkMaintenance();
+  }, [userId, appState, allProgress]);
 
   // ── Filtered + sorted books ───────────────────────────────────────────
   const filteredBooks = useMemo(() => {
@@ -362,6 +401,43 @@ export default function Home() {
         <h1 className="text-3xl font-bold leading-tight mb-2" style={{ fontFamily: "'Lora', serif" }}>Library</h1>
         <p className="text-sm text-white/40 max-w-lg">Each book is a different lens on the same truth. The AI companion adapts to you across every book.</p>
       </div>
+
+      {/* Maintenance check-in cards */}
+      {maintenanceBooks.filter(m => !dismissedMaintenance.has(m.book.id)).length > 0 && (
+        <div className="max-w-6xl mx-auto px-6 mb-6">
+          {maintenanceBooks.filter(m => !dismissedMaintenance.has(m.book.id)).map(({ book, chapterIdx }) => {
+            const ch = book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'))[chapterIdx];
+            if (!ch) return null;
+            return (
+              <MaintenanceCard
+                key={book.id}
+                bookTitle={book.title}
+                chapterTitle={ch.title}
+                chapterNumber={ch.number}
+                onSubmit={async (rating, reflection) => {
+                  // Get AI response
+                  let aiResponse = '';
+                  try {
+                    const res = await fetch('/api/maintenance', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ chapterTitle: ch.title, rating, reflection, profile: userProfile }),
+                    });
+                    const data = await res.json();
+                    aiResponse = data.response || '';
+                  } catch {}
+                  // Save to Supabase
+                  if (userId) {
+                    await saveMaintenanceCheckin(userId, book.id, ch.number, rating, reflection, aiResponse);
+                  }
+                  return aiResponse;
+                }}
+                onDismiss={() => setDismissedMaintenance(prev => new Set([...prev, book.id]))}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {/* Featured (only when not searching) */}
       {!isSearching && featuredBooks.length > 0 && (

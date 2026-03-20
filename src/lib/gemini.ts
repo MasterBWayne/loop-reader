@@ -136,6 +136,44 @@ Rules:
   return response.text?.trim() || "I need a moment to think about that. Could you rephrase?";
 }
 
+// ── Maintenance Mode ───────────────────────────────────────────────────
+
+export async function generateMaintenanceResponse(
+  chapterTitle: string,
+  rating: number,
+  reflection: string,
+  profile?: UserProfileContext
+): Promise<string> {
+  const profileCtx = profile
+    ? `\nReader: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}`
+    : '';
+
+  const prompt = `You are The Architect doing a weekly check-in with a reader who finished a book.
+
+The principle from "${chapterTitle}" was revisited this week.
+Their self-rating: ${rating}/10
+${reflection ? `Their reflection: "${reflection}"` : 'No reflection provided.'}
+${profileCtx}
+
+Write a 1-2 sentence response:
+- If rating 1-4: encouraging reframe — name what's hard about this specific principle and give them a smaller version to try
+- If rating 5-7: acknowledge the effort, point out what partial practice still teaches them
+- If rating 8-10: reinforce the win — name specifically what practicing this principle is building in them
+
+Rules:
+- Under 40 words
+- No therapy-speak
+- Reference the specific principle, not generic encouragement
+- Sound like a coach who remembers what they're working on`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.7, maxOutputTokens: 120 },
+  });
+  return response.text?.trim() || '';
+}
+
 // ── Accountability Loop ────────────────────────────────────────────────
 
 export async function generateCommitmentFollowUp(

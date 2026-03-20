@@ -322,6 +322,200 @@ export async function loadCommitment(userId: string, bookId: string, chapterNumb
   } catch { return null; }
 }
 
+// ── Maintenance Mode ───────────────────────────────────────────────────
+
+export interface MaintenanceCheckin {
+  id?: string;
+  user_id: string;
+  book_id: string;
+  chapter_number: number;
+  week_date: string;
+  rating: number;
+  reflection?: string;
+  ai_response?: string;
+}
+
+export async function saveMaintenanceCheckin(userId: string, bookId: string, chapterNumber: number, rating: number, reflection: string, aiResponse: string): Promise<boolean> {
+  const weekDate = getWeekDate();
+  try {
+    const { error } = await supabase.from('maintenance_checkins').upsert({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      week_date: weekDate,
+      rating,
+      reflection: reflection || null,
+      ai_response: aiResponse || null,
+    }, { onConflict: 'user_id,book_id,week_date' });
+    if (error) { console.error('Save maintenance checkin error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadMaintenanceCheckins(userId: string, bookId: string): Promise<MaintenanceCheckin[]> {
+  try {
+    const { data, error } = await supabase
+      .from('maintenance_checkins')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .order('week_date', { ascending: false })
+      .limit(10);
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+export async function hasCheckedInThisWeek(userId: string, bookId: string): Promise<boolean> {
+  const weekDate = getWeekDate();
+  try {
+    const { data } = await supabase
+      .from('maintenance_checkins')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .eq('week_date', weekDate)
+      .maybeSingle();
+    return !!data;
+  } catch { return false; }
+}
+
+function getWeekDate(): string {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday
+  const monday = new Date(now.setDate(diff));
+  return monday.toISOString().split('T')[0];
+}
+
+// ── Habit Tracker ──────────────────────────────────────────────────────
+
+export interface HabitRecord {
+  id: string;
+  book_id: string;
+  habit_text: string;
+  frequency: string;
+  sort_order: number;
+}
+
+export interface HabitCompletionRecord {
+  habit_id: string;
+  completed_date: string;
+}
+
+export async function ensureHabitsSeeded(bookId: string, habits: string[]): Promise<HabitRecord[]> {
+  try {
+    // Check if already seeded
+    const { data: existing } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('book_id', bookId)
+      .order('sort_order');
+    if (existing && existing.length > 0) return existing;
+
+    // Seed habits
+    const rows = habits.map((text, i) => ({
+      book_id: bookId,
+      habit_text: text,
+      frequency: 'weekly',
+      sort_order: i,
+    }));
+    const { data, error } = await supabase.from('habits').insert(rows).select();
+    if (error) { console.error('Seed habits error:', error.message); return []; }
+    return data || [];
+  } catch { return []; }
+}
+
+export async function loadHabits(bookId: string): Promise<HabitRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('book_id', bookId)
+      .order('sort_order');
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+export async function loadHabitCompletions(userId: string, habitIds: string[]): Promise<HabitCompletionRecord[]> {
+  if (habitIds.length === 0) return [];
+  // Load completions for this week
+  const weekStart = getWeekDate();
+  const weekEnd = new Date(new Date(weekStart).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  try {
+    const { data, error } = await supabase
+      .from('habit_completions')
+      .select('habit_id, completed_date')
+      .eq('user_id', userId)
+      .in('habit_id', habitIds)
+      .gte('completed_date', weekStart)
+      .lt('completed_date', weekEnd);
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+export async function toggleHabitCompletion(userId: string, habitId: string): Promise<boolean> {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    // Check if already completed today
+    const { data: existing } = await supabase
+      .from('habit_completions')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('habit_id', habitId)
+      .eq('completed_date', today)
+      .maybeSingle();
+
+    if (existing) {
+      // Un-complete
+      await supabase.from('habit_completions').delete().eq('id', existing.id);
+      return false;
+    } else {
+      // Complete
+      await supabase.from('habit_completions').insert({
+        user_id: userId,
+        habit_id: habitId,
+        completed_date: today,
+      });
+      return true;
+    }
+  } catch { return false; }
+}
+
+export async function getHabitStreak(userId: string, habitId: string): Promise<number> {
+  try {
+    const { data, error } = await supabase
+      .from('habit_completions')
+      .select('completed_date')
+      .eq('user_id', userId)
+      .eq('habit_id', habitId)
+      .order('completed_date', { ascending: false })
+      .limit(30);
+    if (error || !data || data.length === 0) return 0;
+
+    // Count consecutive weeks with at least one completion
+    let streak = 0;
+    const now = new Date();
+    for (let w = 0; w < 12; w++) {
+      const weekStart = new Date(now.getTime() - w * 7 * 24 * 60 * 60 * 1000);
+      const day = weekStart.getDay();
+      const mondayOffset = day === 0 ? -6 : 1 - day;
+      const monday = new Date(weekStart);
+      monday.setDate(monday.getDate() + mondayOffset);
+      const mondayStr = monday.toISOString().split('T')[0];
+      const sundayStr = new Date(monday.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const hasCompletion = data.some(d => d.completed_date >= mondayStr && d.completed_date <= sundayStr);
+      if (hasCompletion) streak++;
+      else break;
+    }
+    return streak;
+  } catch { return 0; }
+}
+
+// ── Chapter Progress ───────────────────────────────────────────────────
+
 export async function loadChapterProgress(userId: string): Promise<ChapterProgressRecord[]> {
   try {
     const { data, error } = await supabase
