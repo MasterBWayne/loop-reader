@@ -29,6 +29,7 @@ interface ReaderLayoutProps {
   onChapterOpen: (chapterNumber: number) => void;
   isChapterUnlocked: (chapterNumber: number, progress: ChapterProgress) => boolean;
   getUnlockDate: (chapterNumber: number, progress: ChapterProgress) => Date | null;
+  onBackToLibrary?: () => void;
 }
 
 export function ReaderLayout({
@@ -39,6 +40,7 @@ export function ReaderLayout({
   onChapterOpen,
   isChapterUnlocked,
   getUnlockDate,
+  onBackToLibrary,
 }: ReaderLayoutProps) {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [showChat, setShowChat] = useState(false);
@@ -218,6 +220,15 @@ export function ReaderLayout({
             <div className="fixed inset-0 bg-black/20 z-20 md:hidden" onClick={() => setShowNav(false)} />
             <aside className="absolute md:relative left-0 top-0 bottom-0 w-64 bg-navy-light border-r border-white/10 z-20 overflow-y-auto">
               <div className="p-4">
+                {onBackToLibrary && (
+                  <button
+                    onClick={onBackToLibrary}
+                    className="flex items-center gap-2 text-xs text-white/40 hover:text-white/70 mb-4 transition-colors"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
+                    Back to Library
+                  </button>
+                )}
                 <p className="text-xs text-gold/60 font-semibold tracking-[0.15em] uppercase mb-4">Chapters</p>
                 <div className="space-y-1">
                   {chapters.map((ch, i) => {
