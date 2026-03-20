@@ -124,6 +124,13 @@ export default function Home() {
   const [maintenanceBooks, setMaintenanceBooks] = useState<{ book: Book; chapterIdx: number }[]>([]);
   const [dismissedMaintenance, setDismissedMaintenance] = useState<Set<string>>(new Set());
 
+  // ── Sync reading state to localStorage for BottomNav ─────────────────
+  useEffect(() => {
+    try {
+      localStorage.setItem('loop-reader-is-reading', appState === 'reading' ? 'true' : 'false');
+    } catch {}
+  }, [appState]);
+
   // ── Init ──────────────────────────────────────────────────────────────
   useEffect(() => {
     async function init() {

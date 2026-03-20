@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const TABS = [
@@ -44,16 +45,43 @@ const TABS = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const [isReading, setIsReading] = useState(false);
 
-  const isReading = pathname.startsWith('/read/');
+  // Detect reading state from localStorage flag (set by page.tsx when entering/leaving reader)
+  useEffect(() => {
+    const check = () => {
+      try {
+        setIsReading(localStorage.getItem('loop-reader-is-reading') === 'true');
+      } catch {}
+    };
+    check();
+    // Listen for storage changes from the same page
+    window.addEventListener('storage', check);
+    // Also poll briefly for same-tab changes
+    const interval = setInterval(check, 500);
+    return () => {
+      window.removeEventListener('storage', check);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Also detect /read/ token routes
+  const onReadRoute = pathname.startsWith('/read/');
+  const activelyReading = isReading || onReadRoute;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10 safe-area-bottom">
       <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-1.5" style={{ paddingBottom: 'max(0.375rem, env(safe-area-inset-bottom))' }}>
         {TABS.map(tab => {
-          const isActive = isReading
-            ? tab.href === '/reading'
-            : tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href);
+          let isActive: boolean;
+          if (activelyReading) {
+            // When reading, only "Reading" is active
+            isActive = tab.href === '/reading';
+          } else if (tab.href === '/') {
+            isActive = pathname === '/' || pathname === '/library';
+          } else {
+            isActive = pathname.startsWith(tab.href);
+          }
           return (
             <Link
               key={tab.href}
