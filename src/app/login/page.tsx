@@ -26,7 +26,8 @@ export default function LoginPage() {
       if (err) {
         setError(err.message);
       } else {
-        setConfirmSent(true);
+        // Autoconfirm is on — user is immediately logged in
+        window.location.href = '/';
       }
     } else {
       const { error: err } = await signInWithEmail(email, password);
