@@ -32,6 +32,7 @@ interface ReaderLayoutProps {
   onBackToLibrary?: () => void;
   user?: any;
   onSignOut?: () => void;
+  pace?: 'guided' | 'free';
 }
 
 export function ReaderLayout({
@@ -45,6 +46,7 @@ export function ReaderLayout({
   onBackToLibrary,
   user,
   onSignOut,
+  pace,
 }: ReaderLayoutProps) {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [showChat, setShowChat] = useState(false);

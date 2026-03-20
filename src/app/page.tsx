@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ReaderLayout } from '@/components/ReaderLayout';
 import { IntakeForm, type IntakeAnswers } from '@/components/IntakeForm';
 import { BOOKS, type Book } from '@/data/books';
+import { PaceSelector, type ReadingPace } from '@/components/PaceSelector';
 import {
   ensureAnonymousUser,
   getCurrentUser,
@@ -16,7 +17,9 @@ import {
 } from '@/lib/supabase';
 import { UserProfile, UpgradeBanner } from '@/components/UserProfile';
 
-type AppState = 'loading' | 'landing' | 'intake' | 'reading';
+type AppState = 'loading' | 'landing' | 'intake' | 'pace-select' | 'reading';
+
+const STORAGE_KEY_PACE = 'loop-reader-pace';
 
 const STORAGE_KEY_INTAKE = 'loop-reader-intake';
 const STORAGE_KEY_PROGRESS = 'loop-reader-progress';
@@ -57,7 +60,8 @@ function supabaseProgressToLocal(records: ChapterProgressRecord[]): ChapterProgr
   return result;
 }
 
-function isChapterUnlocked(chapterNumber: number, progress: ChapterProgress): boolean {
+function isChapterUnlocked(chapterNumber: number, progress: ChapterProgress, pace?: ReadingPace): boolean {
+  if (pace === 'free') return true;
   if (chapterNumber === 1) return true;
   const prevChapter = progress[chapterNumber - 1];
   if (!prevChapter?.firstOpenedAt) return false;
@@ -111,6 +115,7 @@ export default function Home() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [progress, setProgress] = useState<ChapterProgress>({});
   const [allProgress, setAllProgress] = useState<Record<string, ChapterProgress>>({});
+  const [paceMap, setPaceMap] = useState<Record<string, ReadingPace>>({});
 
   // ── Init: auth + load data ────────────────────────────────────────────
   useEffect(() => {
@@ -161,7 +166,13 @@ export default function Home() {
       }
       setAllProgress(progressMap);
 
-      setAppState(loadedIntake ? 'landing' : 'landing');
+      // Load pace preferences
+      try {
+        const storedPace = localStorage.getItem(STORAGE_KEY_PACE);
+        if (storedPace) setPaceMap(JSON.parse(storedPace));
+      } catch {}
+
+      setAppState('landing');
     }
 
     init();
@@ -178,19 +189,8 @@ export default function Home() {
     }
 
     if (selectedBook) {
-      const initialProgress: ChapterProgress = {
-        1: { unlockedAt: new Date().toISOString(), firstOpenedAt: new Date().toISOString() },
-      };
-      setProgress(initialProgress);
-      localStorage.setItem(`${STORAGE_KEY_PROGRESS}-${selectedBook.id}`, JSON.stringify(initialProgress));
-      setAllProgress(prev => ({ ...prev, [selectedBook.id]: initialProgress }));
-
-      // Save ch1 to Supabase
-      if (userId) {
-        saveChapterProgress(userId, selectedBook.id, 1);
-      }
-
-      setAppState('reading');
+      // Show pace selector before reading
+      setAppState('pace-select');
     }
   }, [userId, selectedBook]);
 
@@ -202,19 +202,48 @@ export default function Home() {
 
     if (!intake) {
       setAppState('intake');
-    } else {
-      if (Object.keys(bookProgress).length === 0) {
-        const initialProgress: ChapterProgress = {
-          1: { unlockedAt: new Date().toISOString(), firstOpenedAt: new Date().toISOString() },
-        };
-        setProgress(initialProgress);
-        localStorage.setItem(`${STORAGE_KEY_PROGRESS}-${book.id}`, JSON.stringify(initialProgress));
-        setAllProgress(prev => ({ ...prev, [book.id]: initialProgress }));
-        if (userId) saveChapterProgress(userId, book.id, 1);
-      }
-      setAppState('reading');
+      return;
     }
-  }, [intake, allProgress, userId]);
+
+    // If no pace chosen for this book yet, show pace selector
+    if (!paceMap[book.id]) {
+      setAppState('pace-select');
+      return;
+    }
+
+    // Start reading
+    if (Object.keys(bookProgress).length === 0) {
+      const initialProgress: ChapterProgress = {
+        1: { unlockedAt: new Date().toISOString(), firstOpenedAt: new Date().toISOString() },
+      };
+      setProgress(initialProgress);
+      localStorage.setItem(`${STORAGE_KEY_PROGRESS}-${book.id}`, JSON.stringify(initialProgress));
+      setAllProgress(prev => ({ ...prev, [book.id]: initialProgress }));
+      if (userId) saveChapterProgress(userId, book.id, 1);
+    }
+    setAppState('reading');
+  }, [intake, allProgress, userId, paceMap]);
+
+  const handlePaceSelect = useCallback((pace: ReadingPace) => {
+    if (!selectedBook) return;
+    const updated = { ...paceMap, [selectedBook.id]: pace };
+    setPaceMap(updated);
+    localStorage.setItem(STORAGE_KEY_PACE, JSON.stringify(updated));
+
+    // Initialize chapter 1
+    const bookProgress = allProgress[selectedBook.id] || {};
+    if (Object.keys(bookProgress).length === 0) {
+      const initialProgress: ChapterProgress = {
+        1: { unlockedAt: new Date().toISOString(), firstOpenedAt: new Date().toISOString() },
+      };
+      setProgress(initialProgress);
+      localStorage.setItem(`${STORAGE_KEY_PROGRESS}-${selectedBook.id}`, JSON.stringify(initialProgress));
+      setAllProgress(prev => ({ ...prev, [selectedBook.id]: initialProgress }));
+      if (userId) saveChapterProgress(userId, selectedBook.id, 1);
+    }
+
+    setAppState('reading');
+  }, [selectedBook, paceMap, allProgress, userId]);
 
   // ── Chapter open ──────────────────────────────────────────────────────
   const handleChapterOpen = useCallback((chapterNumber: number) => {
@@ -260,6 +289,10 @@ export default function Home() {
     return <IntakeForm onComplete={handleIntakeComplete} />;
   }
 
+  if (appState === 'pace-select' && selectedBook) {
+    return <PaceSelector bookTitle={selectedBook.title} onSelect={handlePaceSelect} />;
+  }
+
   if (appState === 'reading' && selectedBook) {
     return (
       <ReaderLayout
@@ -268,11 +301,12 @@ export default function Home() {
         intake={intake!}
         progress={progress}
         onChapterOpen={handleChapterOpen}
-        isChapterUnlocked={isChapterUnlocked}
-        getUnlockDate={getUnlockDate}
+        isChapterUnlocked={(cn, p) => isChapterUnlocked(cn, p, paceMap[selectedBook.id])}
+        getUnlockDate={paceMap[selectedBook.id] === 'free' ? () => null : getUnlockDate}
         onBackToLibrary={handleBackToLibrary}
         user={user}
         onSignOut={() => { setUser(null); setIntake(null); window.location.reload(); }}
+        pace={paceMap[selectedBook.id]}
       />
     );
   }
