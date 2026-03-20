@@ -39,12 +39,15 @@ export function MicButton({ currentText, onTextChange, className = '' }: MicButt
       return;
     }
 
+    const isRecordingRef = { current: false };
+
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
     recognition.onstart = () => {
+      isRecordingRef.current = true;
       setIsRecording(true);
       startTextRef.current = currentTextRef.current;
     };
@@ -70,13 +73,23 @@ export function MicButton({ currentText, onTextChange, className = '' }: MicButt
     };
 
     recognition.onerror = (event: any) => {
+      if (event.error === 'no-speech') return; // ignore silence, keep going
       console.error('Speech recognition error', event.error);
+      isRecordingRef.current = false;
       setIsRecording(false);
     };
 
     recognition.onend = () => {
-      setIsRecording(false);
+      // Auto-restart on iOS Safari which stops after silence
+      if (isRecordingRef.current) {
+        try { recognition.start(); } catch (_) {}
+      } else {
+        setIsRecording(false);
+      }
     };
+
+    // Expose isRecordingRef so toggleRecording can set it
+    (recognition as any)._isRecordingRef = isRecordingRef;
 
     recognitionRef.current = recognition;
   }, []); // Run once on mount
@@ -85,6 +98,7 @@ export function MicButton({ currentText, onTextChange, className = '' }: MicButt
     if (!recognitionRef.current) return;
 
     if (isRecording) {
+      (recognitionRef.current as any)._isRecordingRef.current = false;
       recognitionRef.current.stop();
       setIsRecording(false);
     } else {

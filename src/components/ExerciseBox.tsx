@@ -79,11 +79,14 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
             <div className="relative">
               <textarea
                 value={answer}
-                onChange={e => setAnswer(e.target.value)}
+                onChange={e => {
+                  setAnswer(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
                 placeholder="Write your response here..."
-                rows={5}
                 disabled={loading}
-                className="w-full bg-white/70 border border-border rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/80 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                className="w-full min-h-[120px] bg-white/70 border border-border rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/80 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50 overflow-y-auto"
                 style={{ fontFamily: "'Lora', serif" }}
               />
               {!loading && (

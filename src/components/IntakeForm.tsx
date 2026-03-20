@@ -127,12 +127,15 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
         <div className="relative">
           <textarea
             value={currentAnswer}
-            onChange={(e) => setAnswers({ ...answers, [question.key]: e.target.value })}
+            onChange={(e) => {
+              setAnswers({ ...answers, [question.key]: e.target.value });
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
             onKeyDown={handleKeyDown}
             placeholder={question.placeholder}
             autoFocus
-            rows={4}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pb-10 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed"
+            className="w-full min-h-[120px] bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pb-10 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed overflow-y-auto"
           />
           <MicButton 
             currentText={currentAnswer} 
