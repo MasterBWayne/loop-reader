@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import type { IntakeAnswers } from './IntakeForm';
 import { ExerciseBox } from './ExerciseBox';
 import { HabitTracker } from './HabitTracker';
-import { saveReflection, loadReflections, saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp, type ReflectionRecord, type CommitmentRecord } from '@/lib/supabase';
+import { saveReflection, loadReflections, loadChapterReflection, saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp, type ReflectionRecord, type CommitmentRecord } from '@/lib/supabase';
 
 interface Chapter {
   number: number;
@@ -131,10 +131,26 @@ export function ReaderLayout({
     if (unlocked) {
       onChapterOpen(chapter.number);
       fetchPersonalizedIntro();
+      
+      // Fetch specific reflection for this chapter on mount to ensure textarea prepopulates
+      if (user?.id && chapter.number) {
+        loadChapterReflection(user.id, bookId, chapter.number).then(answer => {
+          if (answer) {
+            setReflections(prev => ({ ...prev, [chapter.number]: answer }));
+            // Also sync to localStorage
+            try {
+              const key = `loop-reader-reflections-${bookId}`;
+              const stored = JSON.parse(localStorage.getItem(key) || '{}');
+              stored[chapter.number] = answer;
+              localStorage.setItem(key, JSON.stringify(stored));
+            } catch {}
+          }
+        });
+      }
     } else {
       setPersonalizedIntro(null);
     }
-  }, [currentChapter, unlocked]);
+  }, [currentChapter, unlocked, user?.id, bookId, chapter.number]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

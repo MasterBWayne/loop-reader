@@ -90,7 +90,7 @@ function BookCard({ book, progress, onSelect }: { book: Book; progress: ChapterP
             <span className="text-[10px] text-white/25">{book.chapters.length} ch &middot; {book.readTime}</span>
             {chaptersRead > 0 && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded ${isComplete ? 'text-emerald-400/70 bg-emerald-500/10' : 'text-gold/50 bg-gold/10'}`}>
-                {isComplete ? '✓ Complete' : `${chaptersRead}/${book.chapters.length}`}
+                {isComplete ? '✓ Read' : `${chaptersRead}/${book.chapters.length}`}
               </span>
             )}
           </div>

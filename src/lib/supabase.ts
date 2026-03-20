@@ -527,3 +527,17 @@ export async function loadChapterProgress(userId: string): Promise<ChapterProgre
     return data;
   } catch { return []; }
 }
+
+export async function loadChapterReflection(userId: string, bookId: string, chapterNumber: number): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('chapter_reflections')
+      .select('answer_text')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .eq('chapter_number', chapterNumber)
+      .single();
+    if (error || !data) return null;
+    return data.answer_text;
+  } catch { return null; }
+}
