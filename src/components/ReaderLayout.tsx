@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import type { IntakeAnswers } from './IntakeForm';
 import { ExerciseBox } from './ExerciseBox';
 import { HabitTracker } from './HabitTracker';
+import { MicButton } from './MicButton';
 import { saveReflection, loadReflections, loadChapterReflection, saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp, type ReflectionRecord, type CommitmentRecord } from '@/lib/supabase';
 
 interface Chapter {
@@ -759,6 +760,12 @@ export function ReaderLayout({
                   disabled={limitReached}
                   className="flex-1 bg-transparent text-sm text-white/90 placeholder:text-white/30 outline-none disabled:opacity-40"
                 />
+                {!limitReached && (
+                  <MicButton 
+                    currentText={input} 
+                    onTextChange={setInput} 
+                  />
+                )}
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isTyping || limitReached}

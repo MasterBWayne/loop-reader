@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { MicButton } from './MicButton';
 
 interface ExerciseBoxProps {
   question: string;
@@ -75,15 +76,24 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
           </div>
         ) : (
           <>
-            <textarea
-              value={answer}
-              onChange={e => setAnswer(e.target.value)}
-              placeholder="Write your response here..."
-              rows={5}
-              disabled={loading}
-              className="w-full bg-white/70 border border-border rounded-xl px-4 py-3.5 text-sm text-ink/80 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50"
-              style={{ fontFamily: "'Lora', serif" }}
-            />
+            <div className="relative">
+              <textarea
+                value={answer}
+                onChange={e => setAnswer(e.target.value)}
+                placeholder="Write your response here..."
+                rows={5}
+                disabled={loading}
+                className="w-full bg-white/70 border border-border rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/80 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                style={{ fontFamily: "'Lora', serif" }}
+              />
+              {!loading && (
+                <MicButton 
+                  currentText={answer} 
+                  onTextChange={setAnswer} 
+                  className="absolute bottom-2 right-2" 
+                />
+              )}
+            </div>
             <div className="flex items-center justify-between mt-4">
               <p className="text-[10px] text-muted/50">Your response is private and shapes future chapters</p>
               <button
@@ -121,14 +131,21 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
           <p className="text-xs text-muted mb-3 italic">
             "I will [action] with [person/situation] on [day]."
           </p>
-          <textarea
-            value={commitment}
-            onChange={e => setCommitment(e.target.value)}
-            placeholder="e.g. I will mirror my partner's words tonight when they tell me about their day"
-            rows={2}
-            className="w-full bg-white/70 border border-emerald-200/50 rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-emerald-400/50 transition-colors resize-none leading-relaxed"
-            style={{ fontFamily: "'Lora', serif" }}
-          />
+          <div className="relative">
+            <textarea
+              value={commitment}
+              onChange={e => setCommitment(e.target.value)}
+              placeholder="e.g. I will mirror my partner's words tonight when they tell me about their day"
+              rows={2}
+              className="w-full bg-white/70 border border-emerald-200/50 rounded-xl px-4 py-3 pb-10 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-emerald-400/50 transition-colors resize-none leading-relaxed"
+              style={{ fontFamily: "'Lora', serif" }}
+            />
+            <MicButton 
+              currentText={commitment} 
+              onTextChange={setCommitment} 
+              className="absolute bottom-2 right-2" 
+            />
+          </div>
           <div className="flex items-center justify-between mt-3">
             <button onClick={() => setShowCommitment(false)} className="text-[11px] text-muted hover:text-ink transition-colors">
               Skip for now

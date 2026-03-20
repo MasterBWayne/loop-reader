@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { MicButton } from './MicButton';
 
 export interface IntakeAnswers {
   struggle: string;
@@ -123,15 +124,22 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
         </h2>
         <p className="text-sm text-white/40 mb-8">{question.hint}</p>
 
-        <textarea
-          value={currentAnswer}
-          onChange={(e) => setAnswers({ ...answers, [question.key]: e.target.value })}
-          onKeyDown={handleKeyDown}
-          placeholder={question.placeholder}
-          autoFocus
-          rows={4}
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed"
-        />
+        <div className="relative">
+          <textarea
+            value={currentAnswer}
+            onChange={(e) => setAnswers({ ...answers, [question.key]: e.target.value })}
+            onKeyDown={handleKeyDown}
+            placeholder={question.placeholder}
+            autoFocus
+            rows={4}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pb-10 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed"
+          />
+          <MicButton 
+            currentText={currentAnswer} 
+            onTextChange={(newText) => setAnswers({ ...answers, [question.key]: newText })} 
+            className="absolute bottom-2 right-2" 
+          />
+        </div>
 
         <div className="flex items-center justify-between mt-6">
           <button
