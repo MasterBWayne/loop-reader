@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import { ReaderLayout } from '@/components/ReaderLayout';
 import { IntakeForm, type IntakeAnswers } from '@/components/IntakeForm';
 import { BOOKS, CATEGORIES, type Book, type BookCategory } from '@/data/books';
@@ -389,17 +390,22 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-navy text-white">
       {/* Nav */}
-      <nav className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-navy font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
-          <span className="text-sm font-medium tracking-wide text-white/80">THE ARCHITECT METHOD</span>
-        </div>
-        <div className="flex items-center gap-3">
-          {intake && (
-            <a href="/profile" className="text-[11px] text-white/30 hover:text-gold transition-colors hidden sm:block">
-              Edit Profile
-            </a>
+      <nav className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto relative">
+        <Link href="/profile" className="flex items-center justify-center w-[36px] h-[36px] rounded-full border border-gold bg-navy shrink-0 z-10">
+          {user && !isAnonymousUser(user) && user.email ? (
+            <span className="text-gold font-bold text-sm">
+              {user.email.charAt(0).toUpperCase()}
+            </span>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
           )}
+        </Link>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className="text-sm font-medium tracking-wide text-white/80" style={{ fontFamily: "'Lora', serif" }}>Loop Reader</span>
+        </div>
+        <div className="flex items-center gap-3 z-10">
           <UserProfile user={user} onSignOut={handleSignOut} />
         </div>
       </nav>
