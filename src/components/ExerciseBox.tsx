@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ExerciseBoxProps {
   question: string;
@@ -12,6 +12,14 @@ interface ExerciseBoxProps {
 export function ExerciseBox({ question, existingAnswer, onSubmit, loading }: ExerciseBoxProps) {
   const [answer, setAnswer] = useState(existingAnswer || '');
   const [submitted, setSubmitted] = useState(!!existingAnswer);
+
+  // Sync when existingAnswer arrives asynchronously (e.g. Supabase load)
+  useEffect(() => {
+    if (existingAnswer && !answer) {
+      setAnswer(existingAnswer);
+      setSubmitted(true);
+    }
+  }, [existingAnswer]);
 
   const handleSubmit = () => {
     if (!answer.trim()) return;

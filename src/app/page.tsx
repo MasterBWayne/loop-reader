@@ -148,6 +148,34 @@ export default function Home() {
       }
       setAllProgress(progressMap);
       try { const p = localStorage.getItem(STORAGE_KEY_PACE); if (p) setPaceMap(JSON.parse(p)); } catch {}
+
+      // Check for resume from /reading tab or ?resume=true
+      const params = new URLSearchParams(window.location.search);
+      const shouldResume = params.get('resume') === 'true';
+      if (shouldResume) {
+        const lastBookId = localStorage.getItem('loop-reader-last-book');
+        if (lastBookId) {
+          const book = BOOKS.find(b => b.id === lastBookId);
+          if (book && loadedIntake) {
+            const bookPace = (() => { try { const pm = localStorage.getItem(STORAGE_KEY_PACE); return pm ? JSON.parse(pm)[lastBookId] : null; } catch { return null; } })();
+            const bookProgress = progressMap[lastBookId] || {};
+            setSelectedBook(book);
+            setProgress(bookProgress);
+            if (bookPace) {
+              if (Object.keys(bookProgress).length === 0) {
+                const init: ChapterProgress = { 1: { unlockedAt: new Date().toISOString(), firstOpenedAt: new Date().toISOString() } };
+                setProgress(init);
+                setAllProgress(prev => ({ ...prev, [lastBookId]: init }));
+              }
+              setAppState('reading');
+              // Clean URL
+              window.history.replaceState({}, '', '/');
+              return;
+            }
+          }
+        }
+      }
+
       setAppState('landing');
 
       // Listen for auth state changes (login/logout) and reload data
@@ -247,6 +275,11 @@ export default function Home() {
 
   const handleChapterOpen = useCallback((chapterNumber: number) => {
     if (!selectedBook) return;
+    // Save reading bookmark for resume
+    try {
+      localStorage.setItem('loop-reader-last-book', selectedBook.id);
+      localStorage.setItem('loop-reader-last-chapter', String(chapterNumber));
+    } catch {}
     setProgress(prev => {
       const updated = { ...prev };
       if (!updated[chapterNumber]) updated[chapterNumber] = { unlockedAt: new Date().toISOString() };

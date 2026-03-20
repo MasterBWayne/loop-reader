@@ -78,13 +78,30 @@ export function ReaderLayout({
   const chapter = chapters[currentChapter];
   const unlocked = isChapterUnlocked(chapter.number, progress);
 
-  // Load reflections from Supabase
+  // Load reflections from Supabase + localStorage fallback
   useEffect(() => {
+    // Always load from localStorage first (instant)
+    try {
+      const key = `loop-reader-reflections-${bookId}`;
+      const stored = JSON.parse(localStorage.getItem(key) || '{}');
+      if (Object.keys(stored).length > 0) {
+        setReflections(prev => ({ ...prev, ...stored }));
+      }
+    } catch {}
+
+    // Then load from Supabase (authoritative, overwrites)
     if (user?.id) {
       loadReflections(user.id, bookId).then(records => {
         const map: Record<number, string> = {};
         for (const r of records) map[r.chapter_number] = r.answer_text;
-        setReflections(map);
+        if (Object.keys(map).length > 0) {
+          setReflections(map);
+          // Sync to localStorage
+          try {
+            const key = `loop-reader-reflections-${bookId}`;
+            localStorage.setItem(key, JSON.stringify(map));
+          } catch {}
+        }
       });
     }
   }, [user?.id, bookId]);
