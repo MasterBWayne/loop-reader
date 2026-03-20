@@ -149,6 +149,21 @@ export default function Home() {
       setAllProgress(progressMap);
       try { const p = localStorage.getItem(STORAGE_KEY_PACE); if (p) setPaceMap(JSON.parse(p)); } catch {}
       setAppState('landing');
+
+      // Listen for auth state changes (login/logout) and reload data
+      const { data: { subscription } } = (await import('@/lib/supabase')).supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          setUser(session.user);
+          setUserId(session.user.id);
+          // Reload intake for new user
+          const newIntake = await loadIntake(session.user.id);
+          if (newIntake) {
+            setIntake(newIntake);
+            localStorage.setItem(STORAGE_KEY_INTAKE, JSON.stringify(newIntake));
+          }
+        }
+      });
+      return () => subscription.unsubscribe();
     }
     init();
   }, []);

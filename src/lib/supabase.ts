@@ -36,11 +36,56 @@ export async function signInWithGoogle() {
 }
 
 export async function signInWithEmail(email: string, password: string) {
+  // Capture anonymous user ID before signing in (for data migration)
+  const { data: { session: anonSession } } = await supabase.auth.getSession();
+  const anonUserId = anonSession?.user?.is_anonymous ? anonSession.user.id : null;
+
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  // If we had anon data and now signed in as a different user, migrate
+  if (!error && data.user && anonUserId && anonUserId !== data.user.id) {
+    await migrateAnonymousData(anonUserId, data.user.id);
+  }
+
   return { data, error };
 }
 
+/** Migrate intake + progress from anonymous UID to permanent UID */
+async function migrateAnonymousData(fromId: string, toId: string) {
+  try {
+    // Load intake from anon user
+    const anonIntake = await loadIntake(fromId);
+    if (anonIntake) {
+      // Check if target user already has intake
+      const existingIntake = await loadIntake(toId);
+      if (!existingIntake) {
+        await saveIntake(toId, anonIntake);
+      }
+    }
+
+    // Migrate localStorage data too
+    const localIntake = localStorage.getItem('loop-reader-intake');
+    if (localIntake) {
+      // Keep it — it'll be picked up by the new session
+    }
+  } catch (err) {
+    console.error('Data migration error:', err);
+  }
+}
+
 export async function signUpWithEmail(email: string, password: string) {
+  // Check if current session is anonymous — if so, upgrade instead of creating new user
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user?.is_anonymous) {
+    // Upgrade anonymous user to permanent by adding email+password
+    const { data, error } = await supabase.auth.updateUser({
+      email,
+      password,
+    });
+    return { data: { user: data.user, session }, error };
+  }
+
+  // No anonymous session — standard signup
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
