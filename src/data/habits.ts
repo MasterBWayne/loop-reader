@@ -62,6 +62,6 @@ export const BOOK_HABITS: BookHabit[] = [
   },
 ];
 
-export function getHabitsForBook(bookId: string): string[] {
-  return BOOK_HABITS.find(b => b.bookId === bookId)?.habits.map(h => h.habitText) || [];
+export function getHabitsForBook(bookId: string): { habitText: string; frequency: string }[] {
+  return BOOK_HABITS.find(b => b.bookId === bookId)?.habits.map(h => ({ habitText: h.habitText, frequency: h.frequency })) || [];
 }

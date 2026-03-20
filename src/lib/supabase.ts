@@ -501,7 +501,7 @@ export interface HabitCompletionRecord {
   completed_date: string;
 }
 
-export async function ensureHabitsSeeded(bookId: string, habits: string[]): Promise<HabitRecord[]> {
+export async function ensureHabitsSeeded(bookId: string, habits: { habitText: string; frequency: string }[]): Promise<HabitRecord[]> {
   try {
     // Check if already seeded
     const { data: existing } = await supabase
@@ -512,10 +512,10 @@ export async function ensureHabitsSeeded(bookId: string, habits: string[]): Prom
     if (existing && existing.length > 0) return existing;
 
     // Seed habits
-    const rows = habits.map((text, i) => ({
+    const rows = habits.map((h, i) => ({
       book_id: bookId,
-      habit_text: text,
-      frequency: 'weekly',
+      habit_text: h.habitText,
+      frequency: h.frequency,
       sort_order: i,
     }));
     const { data, error } = await supabase.from('habits').insert(rows).select();
