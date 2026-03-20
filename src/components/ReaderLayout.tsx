@@ -110,8 +110,10 @@ export function ReaderLayout({
     }
   };
 
+  const [limitReached, setLimitReached] = useState(false);
+
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || limitReached) return;
     const userMsg = input.trim();
     setInput('');
     const newMessages = [...messages, { role: 'user' as const, content: userMsg }];
@@ -128,10 +130,12 @@ export function ReaderLayout({
           chapterContent: chapter.content,
           chatHistory: newMessages.slice(-8),
           intake,
+          userId: user?.id,
         }),
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      if (data.limitReached) setLimitReached(true);
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Something went wrong. Try again in a moment.' }]);
     } finally {
@@ -417,12 +421,13 @@ export function ReaderLayout({
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask about this chapter..."
-                  className="flex-1 bg-transparent text-sm text-white/90 placeholder:text-white/30 outline-none"
+                  placeholder={limitReached ? "Monthly limit reached" : "Ask about this chapter..."}
+                  disabled={limitReached}
+                  className="flex-1 bg-transparent text-sm text-white/90 placeholder:text-white/30 outline-none disabled:opacity-40"
                 />
                 <button
                   onClick={handleSend}
-                  disabled={!input.trim() || isTyping}
+                  disabled={!input.trim() || isTyping || limitReached}
                   className="text-gold hover:text-gold-light disabled:text-white/20 disabled:cursor-not-allowed transition-colors p-1"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
