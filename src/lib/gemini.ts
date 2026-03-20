@@ -288,3 +288,96 @@ Rules:
   });
   return response.text?.trim() || '';
 }
+
+// ── Journey Tab Upgrades ───────────────────────────────────────────────
+
+export async function generateWeeklyInsight(
+  reflections: { bookTitle: string; chapterTitle: string; answer_text: string }[]
+): Promise<{ insight: string; linked_book_id?: string; linked_chapter_number?: number }> {
+  if (reflections.length === 0) return { insight: "You haven't written any reflections this week. Read a chapter and share your thoughts to start finding patterns." };
+
+  const reflText = reflections.map((r, i) => `[Entry ${i+1}] Book: ${r.bookTitle} | Chapter: ${r.chapterTitle} | Answer: "${r.answer_text}"`).join('\n');
+
+  const prompt = `You are an AI pattern-recognition engine analyzing a user's journal entries from the last 7 days.
+Here are their recent reflections:
+${reflText}
+
+Task: Identify a recurring theme or pattern in their answers.
+Generate a 2-3 sentence insight starting with something like "In X exercises this week, you mentioned..." or "A pattern is emerging around..."
+Then, optionally suggest one of the chapters they reflected on to revisit.
+
+Output format MUST be a valid JSON object:
+{
+  "insight": "The 2-3 sentence insight text.",
+  "linkedBookTitle": "Exact book title to revisit (or null)",
+  "linkedChapterTitle": "Exact chapter title to revisit (or null)"
+}
+Return ONLY the JSON.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.7, maxOutputTokens: 200 },
+  });
+  
+  try {
+    const text = response.text?.replace(/```json/g, '').replace(/```/g, '').trim() || '{}';
+    const parsed = JSON.parse(text);
+    return { 
+      insight: parsed.insight || "Keep reflecting to reveal deeper patterns.", 
+      linked_book_id: parsed.linkedBookTitle, 
+      linked_chapter_number: parsed.linkedChapterTitle 
+    };
+  } catch (e) {
+    return { insight: "You're building momentum! Keep reflecting to reveal deeper patterns across your reading." };
+  }
+}
+
+export async function categorizeReflectionTags(answerText: string): Promise<string[]> {
+  const prompt = `Categorize the following reflection answer into exactly 1 or 2 of these tags: Anxiety, Negotiation, Focus, Relationships, Money, Identity, Habits.
+If none fit perfectly, pick the closest one.
+Answer: "${answerText}"
+
+Output format MUST be a valid JSON array of strings, e.g. ["Focus", "Habits"]. Return ONLY the JSON array.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.1, maxOutputTokens: 50 },
+  });
+
+  try {
+    const text = response.text?.replace(/```json/g, '').replace(/```/g, '').trim() || '[]';
+    const tags = JSON.parse(text);
+    const validTags = ["Anxiety", "Negotiation", "Focus", "Relationships", "Money", "Identity", "Habits"];
+    return tags.filter((t: string) => validTags.includes(t)).slice(0, 2);
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function generateFlashbackReframe(answerText: string): Promise<{ reframe: string; microStep: string }> {
+  const prompt = `A user is revisiting an old journal reflection from over 30 days ago. They admitted they have NOT YET applied what they learned.
+Their original reflection: "${answerText}"
+
+Task: Provide a gentle reframe and a 1-action micro-step to help them get unstuck.
+Output format MUST be a valid JSON object:
+{
+  "reframe": "1 sentence normalizing the delay and reframing it.",
+  "microStep": "1 tiny, immediate action they can take today."
+}
+Return ONLY the JSON.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.7, maxOutputTokens: 150 },
+  });
+
+  try {
+    const text = response.text?.replace(/```json/g, '').replace(/```/g, '').trim() || '{}';
+    return JSON.parse(text);
+  } catch (e) {
+    return { reframe: "It's normal to need time to process before acting.", microStep: "Pick just one sentence from this reflection to keep in mind today." };
+  }
+}

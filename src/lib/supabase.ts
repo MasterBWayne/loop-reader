@@ -188,10 +188,32 @@ export interface ReflectionRecord {
   chapter_number: number;
   question_text: string;
   answer_text: string;
+  tags?: string[];
+  is_implemented?: boolean;
+  implemented_at?: string;
   created_at: string;
 }
 
-export async function saveReflection(userId: string, bookId: string, chapterNumber: number, questionText: string, answerText: string): Promise<boolean> {
+export interface FlashbackResponseRecord {
+  id: string;
+  user_id: string;
+  book_id: string;
+  chapter_number: number;
+  response_type: string;
+  ai_reframe?: string;
+  created_at: string;
+}
+
+export interface WeeklyInsightRecord {
+  id: string;
+  week_date: string;
+  insight_text: string;
+  linked_book_id?: string;
+  linked_chapter_number?: number;
+  created_at: string;
+}
+
+export async function saveReflection(userId: string, bookId: string, chapterNumber: number, questionText: string, answerText: string, tags: string[] = []): Promise<boolean> {
   try {
     const { error } = await supabase.from('chapter_reflections').upsert({
       user_id: userId,
@@ -199,6 +221,7 @@ export async function saveReflection(userId: string, bookId: string, chapterNumb
       chapter_number: chapterNumber,
       question_text: questionText,
       answer_text: answerText,
+      tags: tags,
     }, { onConflict: 'user_id,book_id,chapter_number' });
     if (error) { console.error('Save reflection error:', error.message); return false; }
     return true;
@@ -209,7 +232,7 @@ export async function loadReflections(userId: string, bookId: string): Promise<R
   try {
     const { data, error } = await supabase
       .from('chapter_reflections')
-      .select('chapter_number, question_text, answer_text, created_at')
+      .select('chapter_number, question_text, answer_text, tags, is_implemented, implemented_at, created_at')
       .eq('user_id', userId)
       .eq('book_id', bookId)
       .order('chapter_number');
@@ -320,6 +343,81 @@ export async function loadCommitment(userId: string, bookId: string, chapterNumb
     if (error || !data) return null;
     return data;
   } catch { return null; }
+}
+
+export async function loadAllCommitments(userId: string): Promise<CommitmentRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from('commitments')
+      .select('*')
+      .eq('user_id', userId);
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+// ── Journey Tab Upgrades ────────────────────────────────────────────────
+
+export async function loadWeeklyInsight(userId: string, weekDate: string): Promise<WeeklyInsightRecord | null> {
+  try {
+    const { data, error } = await supabase
+      .from('weekly_insights')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('week_date', weekDate)
+      .maybeSingle();
+    if (error || !data) return null;
+    return data;
+  } catch { return null; }
+}
+
+export async function saveWeeklyInsight(userId: string, weekDate: string, insightText: string, linkedBookId?: string, linkedChapterNumber?: number): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('weekly_insights').upsert({
+      user_id: userId,
+      week_date: weekDate,
+      insight_text: insightText,
+      linked_book_id: linkedBookId,
+      linked_chapter_number: linkedChapterNumber,
+    }, { onConflict: 'user_id,week_date' });
+    if (error) { console.error('Save insight error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadAllReflections(userId: string): Promise<(ReflectionRecord & { book_id: string })[]> {
+  try {
+    const { data, error } = await supabase
+      .from('chapter_reflections')
+      .select('book_id, chapter_number, question_text, answer_text, tags, is_implemented, implemented_at, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+export async function saveFlashbackResponse(userId: string, bookId: string, chapterNumber: number, responseType: 'yes' | 'not_yet' | 'help', aiReframe?: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('flashback_responses').upsert({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      response_type: responseType,
+      ai_reframe: aiReframe,
+    }, { onConflict: 'user_id,book_id,chapter_number' });
+    
+    if (responseType === 'yes') {
+      await supabase.from('chapter_reflections')
+        .update({ is_implemented: true, implemented_at: new Date().toISOString() })
+        .eq('user_id', userId)
+        .eq('book_id', bookId)
+        .eq('chapter_number', chapterNumber);
+    }
+    
+    if (error) { console.error('Save flashback error:', error.message); return false; }
+    return true;
+  } catch { return false; }
 }
 
 // ── Maintenance Mode ───────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getCurrentUser, supabase } from '@/lib/supabase';
+import { getCurrentUser, supabase, loadAllCommitments, loadWeeklyInsight, saveWeeklyInsight, saveFlashbackResponse } from '@/lib/supabase';
 import { BOOKS } from '@/data/books';
 
 interface Reflection {
@@ -9,6 +9,9 @@ interface Reflection {
   chapter_number: number;
   question_text: string;
   answer_text: string;
+  tags?: string[];
+  is_implemented?: boolean;
+  implemented_at?: string;
   created_at: string;
 }
 
@@ -23,26 +26,71 @@ interface BookGroup {
     question: string;
     answer: string;
     date: string;
+    tags?: string[];
+    is_implemented?: boolean;
+    created_at?: string;
   }[];
+}
+
+interface WinCard {
+  bookId: string;
+  bookTitle: string;
+  coverColor: string;
+  chapterTitle: string;
+  what: string;
+  dateAchieved: string;
+  dateObj: Date;
 }
 
 export default function JourneyPage() {
   const [loading, setLoading] = useState(true);
   const [groups, setGroups] = useState<BookGroup[]>([]);
+  const [allReflections, setAllReflections] = useState<Reflection[]>([]);
   const [expandedBook, setExpandedBook] = useState<string | null>(null);
+  
+  const [activeTab, setActiveTab] = useState<'reflections' | 'wins'>('reflections');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  
+  // Feature 1: Credit Score
+  const [commitmentsCount, setCommitmentsCount] = useState(0);
+  const [implementedCount, setImplementedCount] = useState(0);
+  const [streakCount, setStreakCount] = useState(0);
+
+  // Feature 2: Weekly Insight
+  const [weeklyInsight, setWeeklyInsight] = useState<{ insight: string; bookId?: string; chapterNumber?: number } | null>(null);
+
+  // Feature 4: Flashback
+  const [flashbackReflection, setFlashbackReflection] = useState<{
+    bookId: string;
+    bookTitle: string;
+    chapterNumber: number;
+    chapterTitle: string;
+    answerText: string;
+    date: string;
+  } | null>(null);
+  const [flashbackState, setFlashbackState] = useState<'idle' | 'loading' | 'success' | 'reframe'>('idle');
+  const [flashbackReframe, setFlashbackReframe] = useState<{ reframe: string; microStep: string } | null>(null);
+
+  // Feature 5: Wins
+  const [wins, setWins] = useState<WinCard[]>([]);
 
   useEffect(() => {
     async function load() {
       const user = await getCurrentUser();
       if (!user) { setLoading(false); return; }
 
-      const { data, error } = await supabase
-        .from('chapter_reflections')
-        .select('book_id, chapter_number, question_text, answer_text, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
+      // Parallel fetching
+      const [reflectionsRes, commitmentsData] = await Promise.all([
+        supabase
+          .from('chapter_reflections')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false }),
+        loadAllCommitments(user.id)
+      ]);
 
-      if (error || !data || data.length === 0) {
+      const data = reflectionsRes.data;
+      if (reflectionsRes.error || !data || data.length === 0) {
         // Try localStorage fallback
         const localGroups: BookGroup[] = [];
         for (const book of BOOKS) {
@@ -75,6 +123,8 @@ export default function JourneyPage() {
         return;
       }
 
+      setAllReflections(data);
+
       // Group by book
       const bookMap = new Map<string, Reflection[]>();
       for (const r of data) {
@@ -83,6 +133,8 @@ export default function JourneyPage() {
       }
 
       const result: BookGroup[] = [];
+      const winsList: WinCard[] = [];
+
       for (const [bookId, reflections] of bookMap) {
         const book = BOOKS.find(b => b.id === bookId);
         if (!book) continue;
@@ -96,26 +148,192 @@ export default function JourneyPage() {
             .sort((a, b) => a.chapter_number - b.chapter_number)
             .map(r => {
               const ch = book.chapters.find(c => c.number === r.chapter_number);
+              
+              // Populate wins from implemented reflections
+              if (r.is_implemented && r.implemented_at) {
+                winsList.push({
+                  bookId,
+                  bookTitle: book.title,
+                  coverColor: book.coverColor,
+                  chapterTitle: ch?.title || `Chapter ${r.chapter_number}`,
+                  what: "Applied chapter exercise",
+                  dateAchieved: new Date(r.implemented_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+                  dateObj: new Date(r.implemented_at)
+                });
+              }
+
               return {
                 chapterNumber: r.chapter_number,
                 chapterTitle: ch?.title || `Chapter ${r.chapter_number}`,
                 question: r.question_text,
                 answer: r.answer_text,
                 date: new Date(r.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+                tags: r.tags || [],
+                is_implemented: r.is_implemented,
+                created_at: r.created_at
               };
             }),
         });
       }
-
       setGroups(result);
       if (result.length > 0) setExpandedBook(result[0].bookId);
+
+      // Populate wins from commitments
+      if (commitmentsData) {
+        setCommitmentsCount(commitmentsData.length);
+        const followedUp = commitmentsData.filter(c => c.followed_up);
+        
+        let streak = 0;
+        let implemented = 0;
+        
+        for (const c of commitmentsData) {
+          if (c.followed_up && c.outcome && !c.outcome.toLowerCase().includes('not yet') && !c.outcome.toLowerCase().includes("didn't")) {
+            implemented++;
+            
+            // Check if done this week to build streak
+            const isThisWeek = new Date(c.due_date).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000;
+            if (isThisWeek) streak++;
+
+            const book = BOOKS.find(b => b.id === c.book_id);
+            const ch = book?.chapters.find(ch => ch.number === c.chapter_number);
+            
+            winsList.push({
+              bookId: c.book_id,
+              bookTitle: book?.title || '',
+              coverColor: book?.coverColor || 'from-blue-600 to-indigo-600',
+              chapterTitle: ch?.title || `Chapter ${c.chapter_number}`,
+              what: c.commitment_text,
+              dateAchieved: new Date(c.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+              dateObj: new Date(c.due_date)
+            });
+          }
+        }
+        setImplementedCount(implemented);
+        setStreakCount(streak);
+      }
+
+      setWins(winsList.sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime()));
+
+      // Feature 2: Weekly Insight Loader
+      const getWeekDate = () => {
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        return new Date(d.setDate(diff)).toISOString().split('T')[0];
+      };
+      
+      const weekDate = getWeekDate();
+      const existingInsight = await loadWeeklyInsight(user.id, weekDate);
+      
+      if (existingInsight) {
+        setWeeklyInsight({
+          insight: existingInsight.insight_text,
+          bookId: existingInsight.linked_book_id,
+          chapterNumber: existingInsight.linked_chapter_number
+        });
+      } else {
+        // Generate new if there are recent reflections (last 7 days)
+        const recentReflections = data.filter(r => new Date(r.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000);
+        
+        if (recentReflections.length > 0) {
+          try {
+            const mappedRefls = recentReflections.map(r => {
+              const b = BOOKS.find(bk => bk.id === r.book_id);
+              const c = b?.chapters.find(ch => ch.number === r.chapter_number);
+              return {
+                bookTitle: b?.title || '',
+                chapterTitle: c?.title || '',
+                answer_text: r.answer_text
+              };
+            });
+            
+            const res = await fetch('/api/journey/insight', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reflections: mappedRefls })
+            });
+            const insightData = await res.json();
+            
+            if (insightData.insight) {
+              setWeeklyInsight({
+                insight: insightData.insight,
+                bookId: insightData.linked_book_id,
+                chapterNumber: insightData.linked_chapter_number
+              });
+              await saveWeeklyInsight(
+                user.id, 
+                weekDate, 
+                insightData.insight, 
+                insightData.linked_book_id, 
+                insightData.linked_chapter_number
+              );
+            }
+          } catch (e) {}
+        }
+      }
+
+      // Feature 4: Flashback Loader
+      const oldReflections = data.filter(r => !r.is_implemented && new Date(r.created_at).getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000);
+      if (oldReflections.length > 0) {
+        // Just pick a random one for the visit
+        const randomRefl = oldReflections[Math.floor(Math.random() * oldReflections.length)];
+        const b = BOOKS.find(bk => bk.id === randomRefl.book_id);
+        const c = b?.chapters.find(ch => ch.number === randomRefl.chapter_number);
+        
+        setFlashbackReflection({
+          bookId: randomRefl.book_id,
+          bookTitle: b?.title || '',
+          chapterNumber: randomRefl.chapter_number,
+          chapterTitle: c?.title || `Chapter ${randomRefl.chapter_number}`,
+          answerText: randomRefl.answer_text,
+          date: new Date(randomRefl.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+        });
+      }
+
       setLoading(false);
     }
 
     load();
   }, []);
 
-  const totalReflections = groups.reduce((sum, g) => sum + g.reflections.length, 0);
+  const handleFlashbackAction = async (type: 'yes' | 'not_yet' | 'help') => {
+    if (!flashbackReflection) return;
+    setFlashbackState('loading');
+    
+    const user = await getCurrentUser();
+    if (!user) return;
+    
+    if (type === 'yes') {
+      await saveFlashbackResponse(user.id, flashbackReflection.bookId, flashbackReflection.chapterNumber, 'yes');
+      setFlashbackState('success');
+    } else if (type === 'not_yet') {
+      try {
+        const res = await fetch('/api/journey/flashback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answerText: flashbackReflection.answerText })
+        });
+        const data = await res.json();
+        if (data.reframe) {
+          setFlashbackReframe(data);
+          setFlashbackState('reframe');
+          await saveFlashbackResponse(user.id, flashbackReflection.bookId, flashbackReflection.chapterNumber, 'not_yet', data.reframe);
+        } else {
+          setFlashbackState('idle');
+        }
+      } catch (e) {
+        setFlashbackState('idle');
+      }
+    } else if (type === 'help') {
+      await saveFlashbackResponse(user.id, flashbackReflection.bookId, flashbackReflection.chapterNumber, 'help');
+      window.location.href = `/reading?book=${flashbackReflection.bookId}&chapter=${flashbackReflection.chapterNumber}`;
+    }
+  };
+
+  const totalReflections = allReflections.length;
+  
+  // Derived tags
+  const allTags = Array.from(new Set(allReflections.flatMap(r => r.tags || []))).filter(Boolean);
 
   if (loading) {
     return (
@@ -124,6 +342,11 @@ export default function JourneyPage() {
       </main>
     );
   }
+
+  const implementationRate = commitmentsCount > 0 ? Math.round((implementedCount / commitmentsCount) * 100) : 0;
+  const radius = 20;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (implementationRate / 100) * circumference;
 
   return (
     <main className="min-h-screen bg-navy text-white">
@@ -135,95 +358,308 @@ export default function JourneyPage() {
         </div>
 
         <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Lora', serif" }}>Your Journey</h1>
-        <p className="text-sm text-white/40">
-          {totalReflections === 0
-            ? 'Complete chapter exercises to build your self-discovery journal.'
-            : `${totalReflections} reflection${totalReflections !== 1 ? 's' : ''} across ${groups.length} book${groups.length !== 1 ? 's' : ''}`}
-        </p>
+        
+        {/* Tabs */}
+        <div className="flex gap-6 border-b border-white/10 mt-6 mb-6">
+          <button 
+            onClick={() => setActiveTab('reflections')}
+            className={`pb-3 text-sm font-semibold transition-colors relative ${activeTab === 'reflections' ? 'text-gold' : 'text-white/40 hover:text-white'}`}
+          >
+            Reflections
+            {activeTab === 'reflections' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-t" />}
+          </button>
+          <button 
+            onClick={() => setActiveTab('wins')}
+            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-2 ${activeTab === 'wins' ? 'text-gold' : 'text-white/40 hover:text-white'}`}
+          >
+            Wins Gallery
+            {wins.length > 0 && <span className="bg-white/10 text-white text-[10px] px-1.5 py-0.5 rounded-md">{wins.length}</span>}
+            {activeTab === 'wins' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-t" />}
+          </button>
+        </div>
       </div>
 
-      {/* Empty state */}
-      {groups.length === 0 && (
-        <div className="max-w-3xl mx-auto px-6 py-16 text-center">
-          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6b6b80" strokeWidth="1.5">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
+      {activeTab === 'reflections' && (
+        <>
+          {/* Feature 1: Credit Score Gauge */}
+          <div className="max-w-3xl mx-auto px-6 mb-6">
+            <div className="bg-white/5 rounded-2xl p-5 border border-white/10 flex items-center gap-5">
+              <div className="relative w-16 h-16 flex-shrink-0">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle cx="32" cy="32" r={radius} stroke="currentColor" strokeWidth="6" fill="transparent" className="text-white/10" />
+                  <circle 
+                    cx="32" cy="32" r={radius} stroke="currentColor" strokeWidth="6" fill="transparent" 
+                    className="text-gold transition-all duration-1000 ease-out" 
+                    strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" 
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-sm font-bold text-white">{implementationRate}%</span>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-white/80 uppercase tracking-widest mb-1">Behavioral Implementation</h3>
+                <p className="text-sm text-white/50">{implementedCount} of {commitmentsCount} frameworks applied.</p>
+                {streakCount > 0 && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 bg-gold/10 text-gold px-2 py-1 rounded-md text-[10px] font-bold">
+                    <span>🔥 {streakCount} WEEK STREAK</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-          <h2 className="text-lg font-semibold mb-2" style={{ fontFamily: "'Lora', serif" }}>No reflections yet</h2>
-          <p className="text-sm text-white/40 max-w-sm mx-auto mb-6">
-            Start reading a book and complete the exercise at the end of each chapter. Your answers will appear here as a personal growth journal.
-          </p>
-          <a href="/" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-light text-navy font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">
-            Browse Library
-          </a>
+
+          {/* Feature 2: Weekly Insight */}
+          {weeklyInsight && (
+            <div className="max-w-3xl mx-auto px-6 mb-8">
+              <div className="bg-gradient-to-br from-gold/10 to-transparent rounded-2xl p-5 border border-gold/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">💡</span>
+                  <h3 className="text-sm font-semibold text-gold tracking-wide">THIS WEEK'S INSIGHT</h3>
+                </div>
+                <p className="text-sm text-white/90 leading-relaxed mb-4" style={{ fontFamily: "'Lora', serif" }}>
+                  {weeklyInsight.insight}
+                </p>
+                {weeklyInsight.bookId && weeklyInsight.chapterNumber && (
+                  <a 
+                    href={`/reading?book=${weeklyInsight.bookId}&chapter=${weeklyInsight.chapterNumber}`}
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-gold hover:text-white transition-colors"
+                  >
+                    Revisit Chapter →
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Feature 4: Flashback Challenge */}
+          {flashbackReflection && flashbackState !== 'success' && (
+            <div className="max-w-3xl mx-auto px-6 mb-8">
+              <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden relative">
+                <div className="absolute top-0 right-0 p-3 opacity-20 text-4xl leading-none font-serif">"</div>
+                <div className="p-5 border-b border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">
+                      Flashback · {flashbackReflection.date}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-white mb-1" style={{ fontFamily: "'Lora', serif" }}>
+                    {flashbackReflection.bookTitle} · {flashbackReflection.chapterTitle}
+                  </h3>
+                  <p className="text-sm text-white/60 italic line-clamp-3" style={{ fontFamily: "'Lora', serif" }}>
+                    "{flashbackReflection.answerText}"
+                  </p>
+                </div>
+                
+                <div className="p-5 bg-black/20">
+                  {flashbackState === 'idle' && (
+                    <>
+                      <p className="text-sm font-medium text-white mb-4 text-center">Have you applied this yet?</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button onClick={() => handleFlashbackAction('yes')} className="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                          ✓ Yes, I did it
+                        </button>
+                        <button onClick={() => handleFlashbackAction('not_yet')} className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                          ✗ Not yet
+                        </button>
+                        <button onClick={() => handleFlashbackAction('help')} className="bg-gold/10 hover:bg-gold/20 text-gold text-xs font-semibold py-2 rounded-lg transition-colors">
+                          → I need help
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {flashbackState === 'loading' && (
+                    <div className="flex justify-center py-2">
+                      <div className="w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                    </div>
+                  )}
+                  {flashbackState === 'reframe' && flashbackReframe && (
+                    <div className="text-center animate-fade-in">
+                      <p className="text-sm text-white/80 mb-3">{flashbackReframe.reframe}</p>
+                      <div className="bg-gold/10 border border-gold/20 rounded-xl p-3 inline-block">
+                        <p className="text-xs font-bold text-gold uppercase mb-1">Micro-Step for Today</p>
+                        <p className="text-sm text-white">{flashbackReframe.microStep}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Feature 3: Toolbelt Filters */}
+          {allTags.length > 0 && (
+            <div className="max-w-3xl mx-auto px-6 mb-6">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSelectedTag(null)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${selectedTag === null ? 'bg-gold text-navy' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+                >
+                  All ({totalReflections})
+                </button>
+                {allTags.map(tag => {
+                  const count = allReflections.filter(r => r.tags?.includes(tag)).length;
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => setSelectedTag(tag)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${selectedTag === tag ? 'bg-gold text-navy' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+                    >
+                      {tag} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {groups.length === 0 && (
+            <div className="max-w-3xl mx-auto px-6 py-16 text-center">
+              <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6b6b80" strokeWidth="1.5">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold mb-2" style={{ fontFamily: "'Lora', serif" }}>No reflections yet</h2>
+              <p className="text-sm text-white/40 max-w-sm mx-auto mb-6">
+                Start reading a book and complete the exercise at the end of each chapter. Your answers will appear here as a personal growth journal.
+              </p>
+              <a href="/" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-light text-navy font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">
+                Browse Library
+              </a>
+            </div>
+          )}
+
+          {/* Book groups */}
+          <div className="max-w-3xl mx-auto px-6 pb-24 space-y-4">
+            {groups.map(group => {
+              const groupRefls = selectedTag 
+                ? group.reflections.filter(r => r.tags?.includes(selectedTag))
+                : group.reflections;
+                
+              if (groupRefls.length === 0) return null;
+
+              const isExpanded = expandedBook === group.bookId || selectedTag !== null;
+              return (
+                <div key={group.bookId} className="rounded-2xl border border-white/10 overflow-hidden">
+                  {/* Book header */}
+                  <button
+                    onClick={() => setExpandedBook(isExpanded && !selectedTag ? null : group.bookId)}
+                    className="w-full text-left"
+                  >
+                    <div className={`bg-gradient-to-r ${group.coverColor} p-4 flex items-center justify-between relative`}>
+                      <div className="absolute inset-0 bg-black/30" />
+                      <div className="relative z-10 flex items-center gap-3 min-w-0">
+                        <div>
+                          <h2 className="text-base font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>{group.bookTitle}</h2>
+                          <p className="text-[11px] text-white/50 mt-0.5">
+                            {group.bookAuthor} &middot; {groupRefls.length} reflection{groupRefls.length !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="relative z-10">
+                        <svg
+                          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"
+                          className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        >
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Reflections */}
+                  {isExpanded && (
+                    <div className="bg-navy-light divide-y divide-white/5">
+                      {groupRefls.map((r, i) => (
+                        <div key={i} className="px-5 py-5 relative">
+                          {/* Chapter badge */}
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">
+                              Chapter {r.chapterNumber}: {r.chapterTitle}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              {r.is_implemented && (
+                                <span className="bg-green-500/20 text-green-400 text-[10px] px-1.5 py-0.5 rounded-md font-bold">✓ APPLIED</span>
+                              )}
+                              {r.date && (
+                                <span className="text-[10px] text-white/20">{r.date}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Question */}
+                          <p className="text-xs text-white/40 italic mb-2 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
+                            &ldquo;{r.question}&rdquo;
+                          </p>
+
+                          {/* Answer */}
+                          <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap mb-3" style={{ fontFamily: "'Lora', serif" }}>
+                            {r.answer}
+                          </p>
+                          
+                          {/* Tags */}
+                          {r.tags && r.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {r.tags.map(t => (
+                                <span key={t} className="text-[10px] bg-white/5 text-white/40 px-2 py-0.5 rounded-md">{t}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+      
+      {/* Feature 5: Wins Gallery */}
+      {activeTab === 'wins' && (
+        <div className="max-w-3xl mx-auto px-6 pb-24">
+          {wins.length === 0 ? (
+            <div className="py-16 text-center">
+              <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl">🏆</span>
+              </div>
+              <h2 className="text-lg font-semibold mb-2 text-white" style={{ fontFamily: "'Lora', serif" }}>No wins yet</h2>
+              <p className="text-sm text-white/50 max-w-xs mx-auto mb-6">
+                Your wins will appear here when you mark commitments as completed or apply what you read. This is your proof of capability.
+              </p>
+              <button 
+                onClick={() => setActiveTab('reflections')}
+                className="text-gold text-sm font-semibold hover:underline"
+              >
+                Go back to Reflections
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {wins.map((win, i) => (
+                <div key={i} className="bg-navy-light rounded-2xl border border-gold/20 overflow-hidden relative group">
+                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${win.coverColor}`} />
+                  <div className="p-5 pt-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-8 h-8 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0 text-gold">
+                        ⭐
+                      </div>
+                      <span className="text-[10px] text-white/30 font-medium">{win.dateAchieved}</span>
+                    </div>
+                    <h3 className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1 line-clamp-1">{win.bookTitle} · {win.chapterTitle}</h3>
+                    <p className="text-sm text-white/90 font-medium leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
+                      "{win.what}"
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
-
-      {/* Book groups */}
-      <div className="max-w-3xl mx-auto px-6 pb-24 space-y-4">
-        {groups.map(group => {
-          const isExpanded = expandedBook === group.bookId;
-          return (
-            <div key={group.bookId} className="rounded-2xl border border-white/10 overflow-hidden">
-              {/* Book header */}
-              <button
-                onClick={() => setExpandedBook(isExpanded ? null : group.bookId)}
-                className="w-full text-left"
-              >
-                <div className={`bg-gradient-to-r ${group.coverColor} p-4 flex items-center justify-between relative`}>
-                  <div className="absolute inset-0 bg-black/30" />
-                  <div className="relative z-10 flex items-center gap-3 min-w-0">
-                    <div>
-                      <h2 className="text-base font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>{group.bookTitle}</h2>
-                      <p className="text-[11px] text-white/50 mt-0.5">
-                        {group.bookAuthor} &middot; {group.reflections.length} reflection{group.reflections.length !== 1 ? 's' : ''}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative z-10">
-                    <svg
-                      width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"
-                      className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                    >
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  </div>
-                </div>
-              </button>
-
-              {/* Reflections */}
-              {isExpanded && (
-                <div className="bg-navy-light divide-y divide-white/5">
-                  {group.reflections.map((r, i) => (
-                    <div key={i} className="px-5 py-5">
-                      {/* Chapter badge */}
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">
-                          Chapter {r.chapterNumber}: {r.chapterTitle}
-                        </span>
-                        {r.date && (
-                          <span className="text-[10px] text-white/20">{r.date}</span>
-                        )}
-                      </div>
-
-                      {/* Question */}
-                      <p className="text-xs text-white/40 italic mb-2 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
-                        &ldquo;{r.question}&rdquo;
-                      </p>
-
-                      {/* Answer */}
-                      <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Lora', serif" }}>
-                        {r.answer}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
     </main>
   );
 }

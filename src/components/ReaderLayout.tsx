@@ -193,10 +193,6 @@ export function ReaderLayout({
     if (!chapter.exerciseQuestion) return;
     setExerciseLoading(true);
 
-    // Save to Supabase
-    if (user?.id) {
-      saveReflection(user.id, bookId, chapter.number, chapter.exerciseQuestion, answer);
-    }
     setReflections(prev => ({ ...prev, [chapter.number]: answer }));
 
     // Save to localStorage fallback
@@ -220,11 +216,22 @@ export function ReaderLayout({
         }),
       });
       const data = await res.json();
+      
+      // Save to Supabase with tags
+      if (user?.id) {
+        saveReflection(user.id, bookId, chapter.number, chapter.exerciseQuestion, answer, data.tags || []);
+      }
+
       if (data.response) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
         setShowChat(true);
       }
-    } catch {}
+    } catch {
+      // Fallback save without tags if API fails
+      if (user?.id) {
+        saveReflection(user.id, bookId, chapter.number, chapter.exerciseQuestion, answer, []);
+      }
+    }
 
     setExerciseLoading(false);
 

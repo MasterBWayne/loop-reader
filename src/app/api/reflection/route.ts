@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateReflectionResponse } from '@/lib/gemini';
+import { generateReflectionResponse, categorizeReflectionTags } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,9 +8,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
     const response = await generateReflectionResponse(chapterTitle, questionText, answerText, profile);
-    return NextResponse.json({ response });
+    // Fetch tags async but we can wait for it here
+    const tags = await categorizeReflectionTags(answerText);
+    return NextResponse.json({ response, tags });
   } catch (error) {
     console.error('Reflection API error:', error);
-    return NextResponse.json({ error: 'Failed', response: '' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed', response: '', tags: [] }, { status: 500 });
   }
 }
