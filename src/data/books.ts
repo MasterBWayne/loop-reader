@@ -2,6 +2,7 @@ import { ART_OF_WAR_CHAPTERS } from './art-of-war';
 import { HOW_TO_GET_RICH_CHAPTERS } from './how-to-get-rich';
 import { WIN_FRIENDS_CHAPTERS } from './win-friends';
 import { SMALL_TALK_CHAPTERS } from './small-talk';
+import { NEVER_SPLIT_CHAPTERS } from './never-split';
 
 export interface Chapter {
   number: number;
@@ -10,7 +11,7 @@ export interface Chapter {
   exerciseQuestion?: string; // reflection question at end of chapter
 }
 
-export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership' | 'Communication';
+export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership' | 'Communication' | 'Negotiation';
 
 export interface Book {
   id: string;
@@ -27,7 +28,7 @@ export interface Book {
   chapters: Chapter[];
 }
 
-export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership', 'Communication'];
+export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership', 'Communication', 'Negotiation'];
 
 export const BOOKS: Book[] = [
   {
@@ -208,5 +209,19 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     featured: false,
     coverColor: 'from-violet-600 to-purple-900',
     chapters: SMALL_TALK_CHAPTERS,
+  },
+  {
+    id: 'never-split-the-difference',
+    title: 'Never Split the Difference',
+    subtitle: 'Book Six',
+    author: 'Chris Voss (adapted)',
+    bookNumber: 6,
+    description: 'An FBI hostage negotiator\'s field guide to getting what you want \u2014 in deals, relationships, and the conversation inside your own head.',
+    readTime: '~45 min read',
+    category: 'Negotiation',
+    tags: ['negotiation', 'empathy', 'influence', 'communication', 'conflict'],
+    featured: true,
+    coverColor: 'from-red-800 to-stone-900',
+    chapters: NEVER_SPLIT_CHAPTERS,
   },
 ];
