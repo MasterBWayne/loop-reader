@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { BottomNav } from '@/components/BottomNav';
 
 export const metadata: Metadata = {
   title: 'Loop Reader — The Architect Method',
@@ -15,7 +16,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
-        {children}
+        <div className="pb-20">{children}</div>
+        <BottomNav />
       </body>
     </html>
   );
