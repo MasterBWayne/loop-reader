@@ -19,8 +19,6 @@ import {
   type UserProfileData,
 } from '@/lib/supabase';
 import { UserProfile, UpgradeBanner } from '@/components/UserProfile';
-import { MaintenanceCard } from '@/components/MaintenanceCard';
-import { saveMaintenanceCheckin, hasCheckedInThisWeek } from '@/lib/supabase';
 
 type AppState = 'loading' | 'landing' | 'intake' | 'pace-select' | 'reading';
 type SortOption = 'featured' | 'newest' | 'az';
@@ -63,43 +61,40 @@ function getUnlockDate(cn: number, progress: ChapterProgress): Date | null {
 
 // ── Book Card ──────────────────────────────────────────────────────────────
 
-function BookCard({ book, progress, onSelect }: { book: Book; progress: ChapterProgress; onSelect: () => void }) {
+function BookCard({ book, progress, onSelect, isHorizontal = false }: { book: Book; progress: ChapterProgress; onSelect: () => void, isHorizontal?: boolean }) {
   const chaptersRead = Object.keys(progress).length;
   const contentChapters = book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'));
-  const isComplete = contentChapters.length > 0 && chaptersRead >= contentChapters.length;
+  const total = contentChapters.length > 0 ? contentChapters.length : book.chapters.length;
+  const percent = total > 0 ? Math.min(100, Math.round((chaptersRead / total) * 100)) : 0;
+  
   return (
-    <button onClick={onSelect} className="group w-full text-left rounded-2xl overflow-hidden border border-white/10 hover:border-gold/30 transition-all duration-300 bg-white/[0.03] hover:bg-white/[0.06]">
-      {/* Cover placeholder */}
-      <div className={`h-36 bg-gradient-to-br ${book.coverColor} relative flex items-end p-4`}>
-        <div className="absolute inset-0 bg-black/20" />
-        {isComplete && (
-          <div className="absolute top-3 right-3 bg-emerald-500/90 text-white text-[9px] font-bold px-2.5 py-1 rounded-full z-10 flex items-center gap-1">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
-            In Maintenance
+    <button onClick={onSelect} className={`flex flex-col gap-2 text-left group shrink-0 ${isHorizontal ? 'w-36 snap-start' : 'w-full'}`}>
+      <div className={`aspect-square w-full rounded-md bg-gradient-to-br ${book.coverColor} relative p-3 flex flex-col justify-end overflow-hidden shadow-sm`}>
+        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+        <h3 className="relative z-10 text-white font-bold leading-tight line-clamp-3 text-sm drop-shadow-md" style={{ fontFamily: "'Lora', serif" }}>
+          {book.title}
+        </h3>
+        {chaptersRead > 0 && (
+          <div className="absolute bottom-0 left-0 h-[3px] bg-white/20 w-full">
+            <div className="h-full bg-gold" style={{ width: `${percent}%` }} />
           </div>
         )}
-        <div className="relative z-10">
-          <span className="text-[9px] font-bold text-white/60 uppercase tracking-widest">{book.category}</span>
-          <h3 className="text-lg font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>{book.title}</h3>
-          <p className="text-[11px] text-white/50 mt-0.5">by {book.author}</p>
-        </div>
       </div>
-      <div className="p-4">
-        <p className="text-xs text-white/40 leading-relaxed line-clamp-2 mb-3">{book.description}</p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-white/25">{book.chapters.length} ch &middot; {book.readTime}</span>
-            {chaptersRead > 0 && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded ${isComplete ? 'text-emerald-400/70 bg-emerald-500/10' : 'text-gold/50 bg-gold/10'}`}>
-                {isComplete ? '✓ Read' : `${chaptersRead}/${book.chapters.length}`}
-              </span>
-            )}
-          </div>
-          <span className="text-[11px] text-gold/70 font-medium group-hover:text-gold transition-colors">
-            {isComplete ? 'Review \u2192' : chaptersRead > 0 ? 'Continue \u2192' : 'Read \u2192'}
-          </span>
-        </div>
+      <div>
+        <p className="text-xs text-white/60 truncate">{book.author}</p>
+        <p className="text-[10px] text-white/40 mt-0.5">
+          {chaptersRead > 0 ? `Ch ${chaptersRead} of ${total}` : `${total} chapters`}
+        </p>
       </div>
+    </button>
+  );
+}
+
+function JumpBackInCard({ book, onSelect }: { book: Book; onSelect: () => void }) {
+  return (
+    <button onClick={onSelect} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 rounded-md overflow-hidden transition-colors text-left w-full h-14 pr-2 group">
+      <div className={`w-14 h-14 bg-gradient-to-br ${book.coverColor} shrink-0 shadow-inner opacity-90 group-hover:opacity-100 transition-opacity`} />
+      <span className="font-semibold text-xs leading-tight line-clamp-2" style={{ fontFamily: "'Lora', serif" }}>{book.title}</span>
     </button>
   );
 }
@@ -122,8 +117,6 @@ export default function Home() {
   const [categoryFilter, setCategoryFilter] = useState<BookCategory | 'All'>('All');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [visibleCount, setVisibleCount] = useState(BOOKS_PER_PAGE);
-  const [maintenanceBooks, setMaintenanceBooks] = useState<{ book: Book; chapterIdx: number }[]>([]);
-  const [dismissedMaintenance, setDismissedMaintenance] = useState<Set<string>>(new Set());
 
   // ── Sync reading state to localStorage for BottomNav ─────────────────
   useEffect(() => {
@@ -199,7 +192,6 @@ export default function Home() {
                 setAllProgress(prev => ({ ...prev, [lastBookId]: init }));
               }
               setAppState('reading');
-              // Clean URL
               window.history.replaceState({}, '', '/');
               return;
             }
@@ -209,12 +201,10 @@ export default function Home() {
 
       setAppState('landing');
 
-      // Listen for auth state changes (login/logout) and reload data
       const { data: { subscription } } = (await import('@/lib/supabase')).supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user);
           setUserId(session.user.id);
-          // Reload intake for new user
           const newIntake = await loadIntake(session.user.id);
           if (newIntake) {
             setIntake(newIntake);
@@ -227,36 +217,9 @@ export default function Home() {
     init();
   }, []);
 
-  // ── Maintenance mode detection ─────────────────────────────────────────
-  useEffect(() => {
-    if (!userId || appState !== 'landing') return;
-    const uid = userId;
-    async function checkMaintenance() {
-      const results: { book: Book; chapterIdx: number }[] = [];
-      for (const book of BOOKS) {
-        const bookProgress = allProgress[book.id] || {};
-        const contentChapters = book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'));
-        const isComplete = contentChapters.length > 0 && Object.keys(bookProgress).length >= contentChapters.length;
-        if (!isComplete) continue;
-
-        const alreadyCheckedIn = await hasCheckedInThisWeek(uid, book.id);
-        if (alreadyCheckedIn) continue;
-
-        // Pick a rotating chapter based on week number
-        const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
-        const chapterIdx = weekNum % contentChapters.length;
-        results.push({ book, chapterIdx });
-      }
-      setMaintenanceBooks(results);
-    }
-    checkMaintenance();
-  }, [userId, appState, allProgress]);
-
   // ── Filtered + sorted books ───────────────────────────────────────────
   const filteredBooks = useMemo(() => {
     let books = [...BOOKS];
-
-    // Search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       books = books.filter(b =>
@@ -267,25 +230,32 @@ export default function Home() {
         b.category.toLowerCase().includes(q)
       );
     }
-
-    // Category filter
     if (categoryFilter !== 'All') {
       books = books.filter(b => b.category === categoryFilter);
     }
-
-    // Sort
     switch (sortBy) {
       case 'az': books.sort((a, b) => a.title.localeCompare(b.title)); break;
       case 'newest': books.sort((a, b) => b.bookNumber - a.bookNumber); break;
       case 'featured': books.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0)); break;
     }
-
     return books;
   }, [searchQuery, categoryFilter, sortBy]);
 
-  const featuredBooks = useMemo(() => BOOKS.filter(b => b.featured), []);
+  const startedBooks = useMemo(() => {
+    return BOOKS.filter(b => Object.keys(allProgress[b.id] || {}).length > 0)
+      .sort((a, b) => {
+        const aProg = allProgress[a.id];
+        const bProg = allProgress[b.id];
+        const aMax = Math.max(...Object.values(aProg).map(p => new Date(p.firstOpenedAt || p.unlockedAt || 0).getTime()));
+        const bMax = Math.max(...Object.values(bProg).map(p => new Date(p.firstOpenedAt || p.unlockedAt || 0).getTime()));
+        return bMax - aMax;
+      });
+  }, [allProgress]);
+
+  const recentBooks = startedBooks.slice(0, 4);
   const visibleBooks = filteredBooks.slice(0, visibleCount);
   const hasMore = visibleCount < filteredBooks.length;
+  const isSearching = searchQuery.trim() || categoryFilter !== 'All';
 
   // ── Handlers ──────────────────────────────────────────────────────────
   const handleIntakeComplete = useCallback(async (answers: IntakeAnswers) => {
@@ -331,7 +301,6 @@ export default function Home() {
 
   const handleChapterOpen = useCallback((chapterNumber: number) => {
     if (!selectedBook) return;
-    // Save reading bookmark for resume
     try {
       localStorage.setItem('loop-reader-last-book', selectedBook.id);
       localStorage.setItem('loop-reader-last-chapter', String(chapterNumber));
@@ -385,193 +354,117 @@ export default function Home() {
   }
 
   // ── Library ───────────────────────────────────────────────────────────
-  const isSearching = searchQuery.trim() || categoryFilter !== 'All';
-
   return (
-    <main className="min-h-screen bg-navy text-white">
-      {/* Nav */}
-      <nav className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto relative">
-        <Link href="/profile" className="flex items-center justify-center w-[36px] h-[36px] rounded-full border border-gold bg-navy shrink-0 z-10">
+    <main className="min-h-screen bg-navy text-white pb-24">
+      {/* 1. Top bar: Avatar + Search */}
+      <div className="px-4 pt-6 pb-2 flex items-center gap-3 max-w-xl mx-auto sticky top-0 bg-navy/95 backdrop-blur z-20">
+        <Link href="/profile" className="flex items-center justify-center w-8 h-8 rounded-full border border-gold bg-navy shrink-0">
           {user && !isAnonymousUser(user) && user.email ? (
-            <span className="text-gold font-bold text-sm">
-              {user.email.charAt(0).toUpperCase()}
-            </span>
+            <span className="text-gold font-bold text-xs">{user.email.charAt(0).toUpperCase()}</span>
           ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           )}
         </Link>
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-sm font-medium tracking-wide text-white/80" style={{ fontFamily: "'Lora', serif" }}>Loop Reader</span>
+        <div className="flex-1 relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => { setSearchQuery(e.target.value); setVisibleCount(BOOKS_PER_PAGE); }}
+            placeholder="Search books..."
+            className="w-full bg-white/10 rounded-md pl-9 pr-4 py-1.5 text-sm text-white placeholder:text-white/40 outline-none focus:bg-white/15 transition-colors"
+          />
         </div>
-        <div className="flex items-center gap-3 z-10">
+        <div className="shrink-0 flex items-center z-10">
           <UserProfile user={user} onSignOut={handleSignOut} />
         </div>
-      </nav>
-
-      {/* Upgrade banner */}
-      {intake && user && isAnonymousUser(user) && (
-        <div className="max-w-6xl mx-auto px-6 mb-4">
-          <div className="rounded-xl overflow-hidden"><UpgradeBanner user={user} /></div>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="max-w-6xl mx-auto px-6 pt-8 pb-6">
-        <p className="text-gold text-xs font-semibold tracking-[0.2em] uppercase mb-3">The Architect Method</p>
-        <h1 className="text-3xl font-bold leading-tight mb-2" style={{ fontFamily: "'Lora', serif" }}>Library</h1>
-        <p className="text-sm text-white/40 max-w-lg">Each book is a different lens on the same truth. The AI companion adapts to you across every book.</p>
       </div>
 
-      {/* Maintenance check-in cards */}
-      {maintenanceBooks.filter(m => !dismissedMaintenance.has(m.book.id)).length > 0 && (
-        <div className="max-w-6xl mx-auto px-6 mb-6">
-          {maintenanceBooks.filter(m => !dismissedMaintenance.has(m.book.id)).map(({ book, chapterIdx }) => {
-            const ch = book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'))[chapterIdx];
-            if (!ch) return null;
-            return (
-              <MaintenanceCard
-                key={book.id}
-                bookTitle={book.title}
-                chapterTitle={ch.title}
-                chapterNumber={ch.number}
-                onSubmit={async (rating, reflection) => {
-                  // Get AI response
-                  let aiResponse = '';
-                  try {
-                    const res = await fetch('/api/maintenance', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ chapterTitle: ch.title, rating, reflection, profile: userProfile }),
-                    });
-                    const data = await res.json();
-                    aiResponse = data.response || '';
-                  } catch {}
-                  // Save to Supabase
-                  if (userId) {
-                    await saveMaintenanceCheckin(userId, book.id, ch.number, rating, reflection, aiResponse);
-                  }
-                  return aiResponse;
-                }}
-                onDismiss={() => setDismissedMaintenance(prev => new Set([...prev, book.id]))}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {/* Featured (only when not searching) */}
-      {!isSearching && featuredBooks.length > 0 && (
-        <div className="max-w-6xl mx-auto px-6 mb-8">
-          <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4">Featured</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {featuredBooks.map(book => (
-              <button key={book.id} onClick={() => handleSelectBook(book)} className="group relative overflow-hidden rounded-2xl border border-white/10 hover:border-gold/30 transition-all">
-                <div className={`h-44 bg-gradient-to-br ${book.coverColor} p-6 flex flex-col justify-end relative`}>
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
-                  <div className="relative z-10">
-                    <span className="text-[9px] font-bold text-white/50 uppercase tracking-widest">{book.category}</span>
-                    <h3 className="text-2xl font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>{book.title}</h3>
-                    <p className="text-xs text-white/50 mt-1">by {book.author} &middot; {book.chapters.length} chapters</p>
-                    <p className="text-xs text-white/40 mt-2 line-clamp-1">{book.description}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
+      <div className="max-w-xl mx-auto mt-2">
+        {/* Upgrade banner */}
+        {intake && user && isAnonymousUser(user) && (
+          <div className="px-4 mb-6">
+            <div className="rounded-md overflow-hidden"><UpgradeBanner user={user} /></div>
           </div>
-        </div>
-      )}
-
-      {/* Search + Filters */}
-      <div className="max-w-6xl mx-auto px-6 mb-6">
-        {/* Search bar */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 relative">
-            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => { setSearchQuery(e.target.value); setVisibleCount(BOOKS_PER_PAGE); }}
-              placeholder="Search by title, author, or topic..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors"
-            />
-          </div>
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value as SortOption)}
-            className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white/60 outline-none focus:border-gold/40 appearance-none cursor-pointer"
-          >
-            <option value="featured">Featured</option>
-            <option value="newest">Newest</option>
-            <option value="az">A-Z</option>
-          </select>
-        </div>
-
-        {/* Category pills */}
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => { setCategoryFilter('All'); setVisibleCount(BOOKS_PER_PAGE); }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${categoryFilter === 'All' ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-white/5 text-white/40 border border-white/10 hover:border-white/20'}`}
-          >All</button>
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => { setCategoryFilter(cat); setVisibleCount(BOOKS_PER_PAGE); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${categoryFilter === cat ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-white/5 text-white/40 border border-white/10 hover:border-white/20'}`}
-            >{cat}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* Book grid */}
-      <div className="max-w-6xl mx-auto px-6 pb-12">
-        {isSearching && (
-          <p className="text-xs text-white/30 mb-4">{filteredBooks.length} book{filteredBooks.length !== 1 ? 's' : ''} found</p>
         )}
 
-        {visibleBooks.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-white/30 text-sm">No books match your search.</p>
-            <button onClick={() => { setSearchQuery(''); setCategoryFilter('All'); }} className="text-xs text-gold/60 hover:text-gold mt-2 transition-colors">Clear filters</button>
-          </div>
-        ) : (
+        {!isSearching && (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visibleBooks.map(book => (
-                <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} />
-              ))}
-            </div>
+            {/* 2. Jump back in */}
+            {recentBooks.length > 0 && (
+              <div className="px-4 mb-8">
+                <h2 className="text-xl font-bold mb-4" style={{ fontFamily: "'Lora', serif" }}>Jump back in</h2>
+                <div className="grid grid-cols-2 gap-2">
+                  {recentBooks.map(book => (
+                    <JumpBackInCard key={book.id} book={book} onSelect={() => handleSelectBook(book)} />
+                  ))}
+                </div>
+              </div>
+            )}
 
-            {hasMore && (
-              <div className="text-center mt-8">
-                <button
-                  onClick={() => setVisibleCount(v => v + BOOKS_PER_PAGE)}
-                  className="text-xs text-gold/60 hover:text-gold border border-gold/20 hover:border-gold/40 px-6 py-2 rounded-lg transition-colors"
-                >
-                  Show more
-                </button>
+            {/* 3. Continue Reading */}
+            {startedBooks.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-bold px-4 mb-4" style={{ fontFamily: "'Lora', serif" }}>Continue Reading</h2>
+                <div className="flex overflow-x-auto gap-3 px-4 pb-2 scrollbar-hide snap-x scroll-smooth">
+                  {startedBooks.map(book => (
+                    <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} isHorizontal />
+                  ))}
+                </div>
               </div>
             )}
           </>
         )}
-      </div>
 
-      {/* Features footer */}
-      <div className="max-w-6xl mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { icon: '\uD83D\uDCD6', title: 'Read at your pace', desc: 'Choose guided (1/day) or free reading for each book.' },
-            { icon: '\uD83E\uDD16', title: 'AI companion', desc: 'Ask questions, get personalized insights for each book.' },
-            { icon: '\uD83D\uDD04', title: 'Knows you deeply', desc: 'Your profile makes every book more relevant over time.' },
-          ].map((f, i) => (
-            <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-5">
-              <div className="text-xl mb-2">{f.icon}</div>
-              <h3 className="font-semibold text-xs mb-1">{f.title}</h3>
-              <p className="text-[11px] text-white/50 leading-relaxed">{f.desc}</p>
+        {/* 4. Category pills */}
+        <div className="mb-6">
+          <div className="flex overflow-x-auto gap-2 px-4 pb-2 scrollbar-hide snap-x scroll-smooth">
+            <button
+              onClick={() => { setCategoryFilter('All'); setVisibleCount(BOOKS_PER_PAGE); }}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === 'All' ? 'bg-gold text-navy' : 'bg-white/10 text-white'}`}
+            >All</button>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => { setCategoryFilter(cat); setVisibleCount(BOOKS_PER_PAGE); }}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === cat ? 'bg-gold text-navy' : 'bg-white/10 text-white'}`}
+              >{cat}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* 5. All Books Grid */}
+        <div className="px-4">
+          {!isSearching && <h2 className="text-xl font-bold mb-4" style={{ fontFamily: "'Lora', serif" }}>All Books</h2>}
+          {isSearching && <p className="text-xs text-white/40 mb-4">{filteredBooks.length} results</p>}
+          
+          {visibleBooks.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-white/40 text-sm">No books match your search.</p>
+              <button onClick={() => { setSearchQuery(''); setCategoryFilter('All'); }} className="text-xs text-white mt-2 font-medium">Clear filters</button>
             </div>
-          ))}
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                {visibleBooks.map(book => (
+                  <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} />
+                ))}
+              </div>
+
+              {hasMore && (
+                <div className="text-center mt-8">
+                  <button
+                    onClick={() => setVisibleCount(v => v + BOOKS_PER_PAGE)}
+                    className="text-xs text-white border border-white/20 px-6 py-2 rounded-full font-medium"
+                  >
+                    Load more
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </main>
