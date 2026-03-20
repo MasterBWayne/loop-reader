@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ReaderLayout } from '@/components/ReaderLayout';
+import { IntakeForm, type IntakeAnswers } from '@/components/IntakeForm';
 
-// Demo book content for testing — will be replaced with Supabase data
+// Demo book content — will be replaced with Supabase data
 const DEMO_CHAPTERS = [
   {
     number: 1,
@@ -110,22 +111,165 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     title: 'The Approval Addiction',
     content: `Coming soon.
 
-This chapter explores the roots of people-pleasing and the unconscious drive to earn love through usefulness. You'll learn why "being helpful" became your primary identity strategy and what it costs you in relationships, energy, and self-respect.
+This chapter explores the roots of people-pleasing and the unconscious drive to earn love through usefulness.
+
+*This chapter will be available when the book launches.*`,
+  },
+  {
+    number: 4,
+    title: 'The Fair Exchange Audit',
+    content: `Coming soon.
+
+*This chapter will be available when the book launches.*`,
+  },
+  {
+    number: 5,
+    title: 'Dissolving the Charge',
+    content: `Coming soon.
+
+*This chapter will be available when the book launches.*`,
+  },
+  {
+    number: 6,
+    title: 'The Optimization Trap',
+    content: `Coming soon.
+
+*This chapter will be available when the book launches.*`,
+  },
+  {
+    number: 7,
+    title: 'Breaking Anxious Attachment',
+    content: `Coming soon.
+
+*This chapter will be available when the book launches.*`,
+  },
+  {
+    number: 8,
+    title: 'The Q1 Matrix',
+    content: `Coming soon.
 
 *This chapter will be available when the book launches.*`,
   },
 ];
 
-export default function Home() {
-  const [started, setStarted] = useState(false);
+type AppState = 'landing' | 'intake' | 'reading';
 
-  if (started) {
-    return <ReaderLayout chapters={DEMO_CHAPTERS} bookTitle="Stop Chasing" />;
+const STORAGE_KEY_INTAKE = 'loop-reader-intake';
+const STORAGE_KEY_PROGRESS = 'loop-reader-progress';
+
+interface ChapterProgress {
+  [chapterNumber: number]: {
+    unlockedAt: string; // ISO date
+    firstOpenedAt?: string;
+  };
+}
+
+function getStoredIntake(): IntakeAnswers | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_INTAKE);
+    return stored ? JSON.parse(stored) : null;
+  } catch { return null; }
+}
+
+function getStoredProgress(): ChapterProgress {
+  if (typeof window === 'undefined') return {};
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_PROGRESS);
+    return stored ? JSON.parse(stored) : {};
+  } catch { return {}; }
+}
+
+function isChapterUnlocked(chapterNumber: number, progress: ChapterProgress): boolean {
+  if (chapterNumber === 1) return true; // Ch1 always unlocked
+
+  const prevChapter = progress[chapterNumber - 1];
+  if (!prevChapter?.firstOpenedAt) return false;
+
+  const openedAt = new Date(prevChapter.firstOpenedAt);
+  const unlockTime = new Date(openedAt.getTime() + 24 * 60 * 60 * 1000);
+  return new Date() >= unlockTime;
+}
+
+function getUnlockDate(chapterNumber: number, progress: ChapterProgress): Date | null {
+  if (chapterNumber === 1) return null;
+  const prevChapter = progress[chapterNumber - 1];
+  if (!prevChapter?.firstOpenedAt) return null;
+  return new Date(new Date(prevChapter.firstOpenedAt).getTime() + 24 * 60 * 60 * 1000);
+}
+
+export default function Home() {
+  const [appState, setAppState] = useState<AppState>('landing');
+  const [intake, setIntake] = useState<IntakeAnswers | null>(null);
+  const [progress, setProgress] = useState<ChapterProgress>({});
+
+  // Load persisted state
+  useEffect(() => {
+    const storedIntake = getStoredIntake();
+    const storedProgress = getStoredProgress();
+    if (storedIntake) setIntake(storedIntake);
+    if (Object.keys(storedProgress).length > 0) setProgress(storedProgress);
+  }, []);
+
+  const handleIntakeComplete = (answers: IntakeAnswers) => {
+    setIntake(answers);
+    localStorage.setItem(STORAGE_KEY_INTAKE, JSON.stringify(answers));
+
+    // Initialize chapter 1 progress
+    const initialProgress: ChapterProgress = {
+      1: { unlockedAt: new Date().toISOString(), firstOpenedAt: new Date().toISOString() },
+    };
+    setProgress(initialProgress);
+    localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(initialProgress));
+
+    setAppState('reading');
+  };
+
+  const handleChapterOpen = (chapterNumber: number) => {
+    setProgress(prev => {
+      const updated = { ...prev };
+      if (!updated[chapterNumber]) {
+        updated[chapterNumber] = {
+          unlockedAt: new Date().toISOString(),
+        };
+      }
+      if (!updated[chapterNumber].firstOpenedAt) {
+        updated[chapterNumber].firstOpenedAt = new Date().toISOString();
+      }
+      localStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleStartReading = () => {
+    if (intake) {
+      setAppState('reading');
+    } else {
+      setAppState('intake');
+    }
+  };
+
+  if (appState === 'intake') {
+    return <IntakeForm onComplete={handleIntakeComplete} />;
   }
 
+  if (appState === 'reading') {
+    return (
+      <ReaderLayout
+        chapters={DEMO_CHAPTERS}
+        bookTitle="Stop Chasing"
+        intake={intake!}
+        progress={progress}
+        onChapterOpen={handleChapterOpen}
+        isChapterUnlocked={isChapterUnlocked}
+        getUnlockDate={getUnlockDate}
+      />
+    );
+  }
+
+  // Landing page
   return (
     <main className="min-h-screen bg-navy text-white">
-      {/* Nav */}
       <nav className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-navy font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
@@ -133,7 +277,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero */}
       <div className="max-w-3xl mx-auto px-6 pt-20 pb-16 text-center">
         <p className="text-gold text-xs font-semibold tracking-[0.2em] uppercase mb-6">Book One · The Architect Method</p>
         <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6" style={{ fontFamily: "'Lora', serif" }}>
@@ -145,15 +288,18 @@ export default function Home() {
         <p className="text-sm text-white/40 mb-10">8 chapters · ~45 min read · AI companion included</p>
 
         <button
-          onClick={() => setStarted(true)}
+          onClick={handleStartReading}
           className="inline-flex items-center gap-2 bg-gold hover:bg-gold-light text-navy font-bold px-8 py-3.5 rounded-lg transition-colors text-sm tracking-wide"
         >
-          Start Reading
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+          {intake ? 'Continue Reading' : 'Start Reading'}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
         </button>
+
+        {intake && (
+          <p className="text-xs text-gold/50 mt-3">Welcome back — your progress is saved</p>
+        )}
       </div>
 
-      {/* Features */}
       <div className="max-w-4xl mx-auto px-6 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
