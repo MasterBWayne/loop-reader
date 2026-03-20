@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { IntakeAnswers } from './IntakeForm';
+import { ExerciseBox } from './ExerciseBox';
+import { saveReflection, loadReflections, type ReflectionRecord } from '@/lib/supabase';
 
 interface Chapter {
   number: number;
   title: string;
   content: string;
+  exerciseQuestion?: string;
 }
 
 interface ChapterProgress {
@@ -63,11 +66,28 @@ export function ReaderLayout({
   const [isTyping, setIsTyping] = useState(false);
   const [personalizedIntro, setPersonalizedIntro] = useState<string | null>(null);
   const [introLoading, setIntroLoading] = useState(false);
+  const [reflections, setReflections] = useState<Record<number, string>>({});
+  const [exerciseLoading, setExerciseLoading] = useState(false);
+  const [showJourney, setShowJourney] = useState(false);
+  const [journeySummary, setJourneySummary] = useState<string | null>(null);
+  const [journeyLoading, setJourneyLoading] = useState(false);
+  const bookId = bookTitle.toLowerCase().replace(/\s+/g, '-');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   const chapter = chapters[currentChapter];
   const unlocked = isChapterUnlocked(chapter.number, progress);
+
+  // Load reflections from Supabase
+  useEffect(() => {
+    if (user?.id) {
+      loadReflections(user.id, bookId).then(records => {
+        const map: Record<number, string> = {};
+        for (const r of records) map[r.chapter_number] = r.answer_text;
+        setReflections(map);
+      });
+    }
+  }, [user?.id, bookId]);
 
   // Track chapter open + fetch personalized intro
   useEffect(() => {
@@ -102,6 +122,9 @@ export function ReaderLayout({
           chapterContent: chapter.content,
           intake,
           profile: userProfile,
+          priorReflections: Object.entries(reflections)
+            .filter(([cn]) => parseInt(cn) < chapter.number)
+            .map(([cn, ans]) => ({ chapter: parseInt(cn), answer: ans })),
         }),
       });
       const data = await res.json();
@@ -113,12 +136,93 @@ export function ReaderLayout({
     }
   };
 
+  const handleExerciseSubmit = useCallback(async (answer: string) => {
+    if (!chapter.exerciseQuestion) return;
+    setExerciseLoading(true);
+
+    // Save to Supabase
+    if (user?.id) {
+      saveReflection(user.id, bookId, chapter.number, chapter.exerciseQuestion, answer);
+    }
+    setReflections(prev => ({ ...prev, [chapter.number]: answer }));
+
+    // Save to localStorage fallback
+    try {
+      const key = `loop-reader-reflections-${bookId}`;
+      const stored = JSON.parse(localStorage.getItem(key) || '{}');
+      stored[chapter.number] = answer;
+      localStorage.setItem(key, JSON.stringify(stored));
+    } catch {}
+
+    // Get AI response and push to chat
+    try {
+      const res = await fetch('/api/reflection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapterTitle: chapter.title,
+          questionText: chapter.exerciseQuestion,
+          answerText: answer,
+          profile: userProfile,
+        }),
+      });
+      const data = await res.json();
+      if (data.response) {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+        setShowChat(true);
+      }
+    } catch {}
+
+    setExerciseLoading(false);
+
+    // Check if this is the last chapter with content
+    const lastContentChapter = [...chapters].reverse().find(c => c.content && !c.content.startsWith('Coming soon'));
+    if (lastContentChapter && chapter.number === lastContentChapter.number) {
+      // Offer journey summary
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `You've completed all available chapters of *${bookTitle}*. Would you like to see your personal journey summary? It compiles your reflections into insights about what you discovered.\n\nType "show my journey" to see it.`,
+        }]);
+      }, 2000);
+    }
+  }, [chapter, user, bookId, bookTitle, chapters, userProfile]);
+
+  const handleShowJourney = useCallback(async () => {
+    setJourneyLoading(true);
+    setShowJourney(true);
+    try {
+      const reflArr = Object.entries(reflections).map(([cn, ans]) => {
+        const ch = chapters.find(c => c.number === parseInt(cn));
+        return { chapter_number: parseInt(cn), question_text: ch?.exerciseQuestion || '', answer_text: ans };
+      }).filter(r => r.answer_text);
+
+      const res = await fetch('/api/journey', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookTitle, reflections: reflArr, profile: userProfile }),
+      });
+      const data = await res.json();
+      setJourneySummary(data.summary || 'Could not generate summary.');
+    } catch {
+      setJourneySummary('Something went wrong generating your summary.');
+    }
+    setJourneyLoading(false);
+  }, [reflections, chapters, bookTitle, userProfile]);
+
   const [limitReached, setLimitReached] = useState(false);
 
   const handleSend = async () => {
     if (!input.trim() || limitReached) return;
     const userMsg = input.trim();
     setInput('');
+
+    // Journey trigger
+    if (userMsg.toLowerCase().includes('show my journey') || userMsg.toLowerCase().includes('journey summary')) {
+      setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+      handleShowJourney();
+      return;
+    }
     const newMessages = [...messages, { role: 'user' as const, content: userMsg }];
     setMessages(newMessages);
     setIsTyping(true);
@@ -321,6 +425,16 @@ export function ReaderLayout({
                 {renderText(chapter.content)}
               </div>
 
+              {/* Exercise box */}
+              {chapter.exerciseQuestion && (
+                <ExerciseBox
+                  question={chapter.exerciseQuestion}
+                  existingAnswer={reflections[chapter.number]}
+                  onSubmit={handleExerciseSubmit}
+                  loading={exerciseLoading}
+                />
+              )}
+
               {/* Chapter navigation */}
               <div className="mt-16 pt-8 border-t border-border flex items-center justify-between">
                 <button
@@ -414,6 +528,26 @@ export function ReaderLayout({
                   </div>
                 </div>
               )}
+
+              {/* Journey summary */}
+              {showJourney && (
+                <div className="animate-message-in">
+                  <div className="bg-gold/10 border border-gold/20 rounded-2xl px-5 py-4">
+                    <p className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest mb-2">Your Journey</p>
+                    {journeyLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-white/50">
+                        <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                        Compiling your journey...
+                      </div>
+                    ) : (
+                      <div className="text-sm text-white/80 leading-relaxed">
+                        {renderChatText(journeySummary || '')}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 

@@ -4,6 +4,7 @@ export interface Chapter {
   number: number;
   title: string;
   content: string;
+  exerciseQuestion?: string; // reflection question at end of chapter
 }
 
 export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership';
@@ -42,6 +43,7 @@ export const BOOKS: Book[] = [
       {
         number: 1,
         title: 'The 95% Illusion',
+    exerciseQuestion: 'What would you do with your time if you had nothing left to prove?',
         content: `You've done everything right.
 
 The degree. The career. The apartment. The body. The travel. The friends. You checked every box that was supposed to make life feel complete.
@@ -89,6 +91,7 @@ Write whatever comes up. Don't edit it. Don't judge it. This is the starting poi
       {
         number: 2,
         title: 'You Are Not The Roommate',
+    exerciseQuestion: 'How many times today did you catch yourself in a mental spiral? What was the loudest story your roommate told you?',
         content: `There's a voice in your head that never stops talking.
 
 It narrates your day. It judges your decisions. It replays conversations from three years ago and rehearses ones that haven't happened yet. It tells you that you should have said something different, done something better, been someone else.

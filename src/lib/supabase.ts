@@ -137,6 +137,42 @@ export async function loadIntake(userId: string): Promise<IntakeData | null> {
   } catch { return null; }
 }
 
+// ── Chapter Reflections ────────────────────────────────────────────────────
+
+export interface ReflectionRecord {
+  chapter_number: number;
+  question_text: string;
+  answer_text: string;
+  created_at: string;
+}
+
+export async function saveReflection(userId: string, bookId: string, chapterNumber: number, questionText: string, answerText: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('chapter_reflections').upsert({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      question_text: questionText,
+      answer_text: answerText,
+    }, { onConflict: 'user_id,book_id,chapter_number' });
+    if (error) { console.error('Save reflection error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadReflections(userId: string, bookId: string): Promise<ReflectionRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from('chapter_reflections')
+      .select('chapter_number, question_text, answer_text, created_at')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .order('chapter_number');
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
 // ── Chapter Progress ───────────────────────────────────────────────────────
 
 export interface ChapterProgressRecord {

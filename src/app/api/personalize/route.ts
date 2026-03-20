@@ -3,7 +3,7 @@ import { generatePersonalizedIntro } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
   try {
-    const { chapterTitle, chapterContent, intake, profile } = await req.json();
+    const { chapterTitle, chapterContent, intake, profile, priorReflections } = await req.json();
 
     if (!chapterTitle || !intake?.struggle) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
       chapterTitle,
       chapterContent || '',
       intake,
-      profile
+      profile,
+      priorReflections
     );
 
     return NextResponse.json({ intro });

@@ -4,6 +4,7 @@ export const ART_OF_WAR_CHAPTERS: Chapter[] = [
   {
     number: 1,
     title: 'Laying Plans',
+    exerciseQuestion: 'What is one negative mental loop you repeat every week, and what exact conditions trigger it?',
     content: `Sun Tzu didn't just write about armies; he wrote about the architecture of conflict. Today, our most brutal battlefields are entirely internal, where our old habits, anxieties, and automatic mental patterns act as an opposing force.
 
 The foundation of all victory is radical self-assessment. "If you know the enemy and know yourself, you need not fear the result of a hundred battles." In the context of your own life, the "enemy" is the unconscious programming that pulls you away from your goals \u2014 the urge to procrastinate, the impulse to over-function in relationships, or the inner roommate that feeds you anxiety. You don't win against these patterns by charging blindly into a stressful day and hoping you'll be strong enough to resist them. You win by mapping them out before the pressure ever hits.
@@ -21,6 +22,7 @@ Victory is decided before the battle even begins through radical self-awareness 
   {
     number: 2,
     title: 'Waging War',
+    exerciseQuestion: 'Where in your life are you fighting a long, exhausting internal battle? What decision could you make today to end it?',
     content: `Conflict is incredibly expensive, whether it's a protracted war between nations or the exhausting internal friction of second-guessing yourself. Prolonged struggles \u2014 both mental and physical \u2014 will inevitably drain your most valuable resources.
 
 Sun Tzu issued a stark warning: no country has ever benefited from a prolonged war. The exact same principle applies to your mental and emotional energy. When you spend weeks agonizing over a difficult decision, dwelling on a past mistake, or fighting a bad habit using sheer, grinding willpower, you are burning cognitive capital. You are bleeding energy that should be used for building your life and creating impact. The goal in personal development isn't to become a master of struggling; the goal is to resolve internal conflicts swiftly.
@@ -38,6 +40,7 @@ Prolonged internal conflict bankrupts your mental energy; you must resolve frict
   {
     number: 3,
     title: 'Attack by Stratagem',
+    exerciseQuestion: 'What goal have you been trying to achieve through brute force? How could you redesign your environment to make it automatic?',
     content: `The highest form of generalship is defeating the enemy without fighting at all. In the realm of personal growth, this means changing your life without relying on the exhausting, unreliable force of pure willpower.
 
 Brute force is a terrible strategy for self-improvement. If you are relying on discipline alone to break a deeply ingrained habit, you are fighting a battle of attrition you will eventually lose. Your willpower is a finite battery; it drains throughout the day. Instead of attacking the habit head-on, attack the strategy. You must restructure your environment so the bad habit becomes difficult and the good habit becomes inevitable.
@@ -55,6 +58,7 @@ The greatest victory is designing an environment where your desired behavior req
   {
     number: 4,
     title: 'Tactical Dispositions',
+    exerciseQuestion: 'Are your foundational habits currently a liability or an asset? What is one vulnerability you need to secure today?',
     content: `Good fighters put themselves beyond the possibility of defeat before they even attempt to win. It is about building a foundation so solid and unshakeable that external chaos cannot knock you off course.
 
 You don't control the ultimate outcome of your efforts, but you do entirely control your positioning. Sun Tzu taught that securing yourself against defeat is in your own hands, while the opportunity to defeat the enemy is provided by the enemy himself. Translated to your daily reality: you cannot control the economy, how other people choose to behave, or sudden crises that disrupt your plans. But you absolutely control your sleep schedule, your physical health, your financial baseline, and your emotional regulation.
@@ -72,6 +76,7 @@ Focus entirely on controlling your foundational habits; secure your baseline, an
   {
     number: 5,
     title: 'Energy',
+    exerciseQuestion: 'When during the day is your peak energy? Are you currently wasting it on low-value tasks?',
     content: `The devastating impact of a falling log depends entirely on the height from which it drops. This is the true nature of energy \u2014 it is not just about what you do, but the momentum, timing, and flow behind your actions.
 
 In war, energy is the difference between a pebble and a massive boulder rolling down a steep mountain. In your daily life, this translates to the concept of momentum and psychological flow states. Most people make the mistake of trying to expend maximum effort at all times, grinding through their days with flat, uninspired energy. A strategist operates differently. You need to recognize when your energy naturally peaks and align your most difficult, highest-leverage tasks with that specific window.
@@ -89,6 +94,7 @@ Stop fighting your natural rhythms and start organizing your hardest tasks aroun
   {
     number: 6,
     title: 'Weak Points and Strong',
+    exerciseQuestion: 'What feels like effortless play to you but hard work to others? How can you spend more time doing exactly that?',
     content: `Water shapes its course according to the nature of the ground over which it flows. To achieve your goals, you must learn to strike at emptiness and strictly avoid attacking what is solid.
 
 Stop trying to be perfectly well-rounded. Sun Tzu advises generals to avoid the enemy's heavily fortified strengths and instead strike at their undefended weaknesses. In personal development, we often do the exact opposite: we obsess over fixing our innate weaknesses while ignoring the massive leverage of our natural strengths. We spend years trying to turn a glaring weakness into mediocrity, while our greatest talents lay dormant.
@@ -106,6 +112,7 @@ Double down aggressively on your natural advantages and build systems to bypass 
   {
     number: 7,
     title: 'Maneuvering',
+    exerciseQuestion: 'What recent setback frustrated you? If you were forced to find a hidden advantage in it, what would it be?',
     content: `The hardest part of any journey is turning the crooked into the straight and transforming a sudden disadvantage into an advantage. This is the fine art of maneuvering.
 
 Nothing ever goes exactly according to your perfectly crafted plan. The road to your goals will be continuously littered with detours, delays, and unexpected obstacles. Sun Tzu's concept of maneuvering is entirely about agility \u2014 the ability to adapt instantly when the map you drew no longer matches the terrain you are standing on.
@@ -125,6 +132,7 @@ Flexibility in execution is a superpower; never fall in love with your plan at t
   {
     number: 8,
     title: 'Variation in Tactics',
+    exerciseQuestion: 'What old habit or identity used to serve you well but is now holding you back? Are you willing to drop it today?',
     content: `A general who doesn't understand the absolute need to vary their tactics will fail, even if they know the terrain perfectly. Rigidity is the enemy of both survival and growth.
 
 What got you to where you are today will not get you to where you want to go tomorrow. The habits, mindsets, and systems that helped you succeed in one season of your life are often the exact things holding you back in the next. If you are deeply analytical, there are times when overthinking will paralyze your progress. If you are aggressively action-oriented, there are times when you need to sit entirely still and let a situation unfold.
