@@ -490,6 +490,19 @@ export function ReaderLayout({
           )}
         </div>
 
+        {/* Floating chat FAB — mobile only, visible when chat is closed */}
+        {!showChat && (
+          <button
+            onClick={() => setShowChat(true)}
+            className="fixed bottom-20 right-4 z-40 md:hidden w-14 h-14 bg-gold rounded-full flex items-center justify-center shadow-lg shadow-gold/30 hover:bg-gold-light active:scale-95 transition-all"
+            aria-label="Open AI Companion"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
+        )}
+
         {/* AI Companion panel */}
         {showChat && (
           <div className="flex flex-col bg-navy-light border-l border-white/10 z-10 w-full md:w-[380px] lg:w-[420px] shrink-0">
