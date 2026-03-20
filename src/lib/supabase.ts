@@ -171,7 +171,16 @@ export async function loadIntake(userId: string): Promise<IntakeData | null> {
       .select('intake_struggle, intake_duration, intake_impact, intake_tried, intake_vision, intake_completed')
       .eq('id', userId)
       .single();
-    if (error || !data?.intake_completed) return null;
+    
+    if (error) {
+      console.error('loadIntake Supabase error:', error.message);
+      return null;
+    }
+    
+    if (!data?.intake_completed && !data?.intake_struggle) {
+      return null;
+    }
+
     return {
       struggle: data.intake_struggle || '',
       duration: data.intake_duration || '',
@@ -179,7 +188,10 @@ export async function loadIntake(userId: string): Promise<IntakeData | null> {
       tried: data.intake_tried || '',
       vision: data.intake_vision || '',
     };
-  } catch { return null; }
+  } catch (err) {
+    console.error('loadIntake exception:', err);
+    return null;
+  }
 }
 
 // ── Chapter Reflections ────────────────────────────────────────────────────

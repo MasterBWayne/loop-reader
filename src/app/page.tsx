@@ -145,10 +145,14 @@ export default function Home() {
       let loadedIntake: IntakeAnswers | null = null;
       if (uid) {
         loadedIntake = await loadIntake(uid);
+        console.log('Intake loaded from Supabase:', loadedIntake);
         const profile = await loadUserProfile(uid);
         if (profile) setUserProfile(profile);
       }
-      if (!loadedIntake) loadedIntake = getLocalIntake();
+      if (!loadedIntake) {
+        loadedIntake = getLocalIntake();
+        console.log('Intake loaded from localStorage fallback:', loadedIntake);
+      }
       if (loadedIntake) {
         setIntake(loadedIntake);
         localStorage.setItem(STORAGE_KEY_INTAKE, JSON.stringify(loadedIntake));
@@ -199,7 +203,13 @@ export default function Home() {
         }
       }
 
-      setAppState('landing');
+      if (!loadedIntake) {
+        console.log('No intake found in DB or localStorage. Showing intake form.');
+        setAppState('intake');
+      } else {
+        console.log('Intake found, proceeding to landing.');
+        setAppState('landing');
+      }
 
       const { data: { subscription } } = (await import('@/lib/supabase')).supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
@@ -262,7 +272,11 @@ export default function Home() {
     setIntake(answers);
     localStorage.setItem(STORAGE_KEY_INTAKE, JSON.stringify(answers));
     if (userId) saveIntake(userId, answers);
-    if (selectedBook) setAppState('pace-select');
+    if (selectedBook) {
+      setAppState('pace-select');
+    } else {
+      setAppState('landing');
+    }
   }, [userId, selectedBook]);
 
   const handlePaceSelect = useCallback((pace: ReadingPace) => {
