@@ -428,6 +428,7 @@ export function ReaderLayout({
               {/* Exercise box */}
               {chapter.exerciseQuestion && (
                 <ExerciseBox
+                  key={`exercise-${chapter.number}`}
                   question={chapter.exerciseQuestion}
                   existingAnswer={reflections[chapter.number]}
                   onSubmit={handleExerciseSubmit}
