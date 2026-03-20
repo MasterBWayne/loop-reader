@@ -1,5 +1,7 @@
 import { ART_OF_WAR_CHAPTERS } from './art-of-war';
 import { HOW_TO_GET_RICH_CHAPTERS } from './how-to-get-rich';
+import { WIN_FRIENDS_CHAPTERS } from './win-friends';
+import { SMALL_TALK_CHAPTERS } from './small-talk';
 
 export interface Chapter {
   number: number;
@@ -8,7 +10,7 @@ export interface Chapter {
   exerciseQuestion?: string; // reflection question at end of chapter
 }
 
-export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership';
+export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership' | 'Communication';
 
 export interface Book {
   id: string;
@@ -25,7 +27,7 @@ export interface Book {
   chapters: Chapter[];
 }
 
-export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership'];
+export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership', 'Communication'];
 
 export const BOOKS: Book[] = [
   {
@@ -178,5 +180,33 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     featured: true,
     coverColor: 'from-emerald-700 to-green-900',
     chapters: HOW_TO_GET_RICH_CHAPTERS,
+  },
+  {
+    id: 'win-friends',
+    title: 'How to Win Friends and Influence People',
+    subtitle: 'Book Four',
+    author: 'Dale Carnegie (adapted)',
+    bookNumber: 4,
+    description: 'The timeless blueprint for human connection, rewritten for a generation that forgot how to talk to people. 12 principles that actually work.',
+    readTime: '~60 min read',
+    category: 'Relationships',
+    tags: ['people skills', 'influence', 'communication', 'empathy', 'leadership'],
+    featured: false,
+    coverColor: 'from-blue-700 to-indigo-900',
+    chapters: WIN_FRIENDS_CHAPTERS,
+  },
+  {
+    id: 'small-talk',
+    title: 'The Fine Art of Small Talk',
+    subtitle: 'Book Five',
+    author: 'Debra Fine (adapted)',
+    bookNumber: 5,
+    description: 'How to start a conversation with anyone, keep it going, and turn strangers into connections. The skill nobody taught you.',
+    readTime: '~40 min read',
+    category: 'Communication',
+    tags: ['networking', 'social skills', 'conversation', 'introvert', 'confidence'],
+    featured: false,
+    coverColor: 'from-violet-600 to-purple-900',
+    chapters: SMALL_TALK_CHAPTERS,
   },
 ];
