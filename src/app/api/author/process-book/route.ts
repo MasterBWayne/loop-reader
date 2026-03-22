@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import pdfParse from 'pdf-parse';
+// pdf-parse loaded dynamically to avoid bundling canvas/DOM polyfills at build time
+async function parsePdf(buffer: Buffer): Promise<string> {
+  const { PDFParse } = await import('pdf-parse');
+  const parser = new PDFParse({ data: new Uint8Array(buffer) });
+  const result = await parser.getText();
+  await parser.destroy();
+  return result.text;
+}
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -31,8 +38,7 @@ export async function POST(req: NextRequest) {
 
     if (file) {
       const buffer = Buffer.from(await file.arrayBuffer());
-      const pdfData = await pdfParse(buffer);
-      fullText = pdfData.text;
+      fullText = await parsePdf(buffer);
     }
 
     if (!fullText.trim()) {
@@ -133,7 +139,7 @@ Return ONLY valid JSON like this:
           config: { temperature: 0.3 }
         });
         
-        const text = response.text() || '';
+        const text = String(response.text ?? '') || '';
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
