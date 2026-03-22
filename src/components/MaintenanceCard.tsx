@@ -35,13 +35,13 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
       </div>
 
       <p className="text-xs text-muted mb-1">{bookTitle}</p>
-      <p className="text-sm font-medium text-ink/80 mb-4" style={{ fontFamily: "'Lora', serif" }}>
+      <p className="text-sm font-medium text-ink/80 mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
         Ch. {chapterNumber}: {chapterTitle} — Did you practice this principle this week?
       </p>
 
       {aiResponse ? (
-        <div className="bg-white/60 border border-violet-200/30 rounded-xl p-4">
-          <p className="text-sm text-ink/70 italic leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
+        <div className="bg-ink/60 border border-violet-200/30 rounded-xl p-4">
+          <p className="text-sm text-ink/70 italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             {aiResponse}
           </p>
           <div className="flex items-center gap-2 mt-3">
@@ -72,7 +72,7 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
                     ? 'bg-violet-500 text-white shadow-sm'
                     : rating !== null && n <= rating
                     ? 'bg-violet-200 text-violet-700'
-                    : 'bg-white/60 text-ink/30 hover:bg-violet-100/50'
+                    : 'bg-ink/60 text-ink/30 hover:bg-violet-100/50'
                 }`}
               >
                 {n}
@@ -86,8 +86,8 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
             value={reflection}
             onChange={e => setReflection(e.target.value)}
             placeholder="One sentence — what happened? (optional)"
-            className="w-full bg-white/60 border border-violet-200/30 rounded-xl px-4 py-2.5 text-sm text-ink/70 placeholder:text-ink/20 outline-none focus:border-violet-300 transition-colors mb-3"
-            style={{ fontFamily: "'Lora', serif" }}
+            className="w-full bg-ink/60 border border-violet-200/30 rounded-xl px-4 py-2.5 text-sm text-ink/70 placeholder:text-ink/20 outline-none focus:border-violet-300 transition-colors mb-3"
+            style={{ fontFamily: "'Cormorant Garamond', serif" }}
           />
 
           <button

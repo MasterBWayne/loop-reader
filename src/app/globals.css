@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #1a1a2e;
-  --color-navy-light: #232340;
-  --color-gold: #c9a84c;
-  --color-gold-light: #d4b86a;
-  --color-cream: #faf8f5;
-  --color-warm-gray: #f0ede8;
-  --color-ink: #1f1f2e;
-  --color-muted: #6b6b80;
-  --color-border: #e8e5df;
+  /* ReadKindled brand — cream + amber */
+  --color-navy: #F5ECD7;          /* cream (was dark navy) */
+  --color-navy-light: #FAF6EE;    /* lighter cream (was lighter navy) */
+  --color-gold: #C97D2E;          /* deep amber (was gold) */
+  --color-gold-light: #F5C87A;    /* light amber (was light gold) */
+  --color-cream: #FFFDF8;         /* off-white */
+  --color-warm-gray: #EDE5D4;     /* warm border tone */
+  --color-ink: #1A1410;           /* dark brown text */
+  --color-muted: #6B5744;         /* warm taupe muted */
+  --color-border: #E8D5BA;        /* amber-tinted border */
 }
 
 /* Smooth scrollbar for reader */

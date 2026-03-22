@@ -88,7 +88,7 @@ export function HabitTracker({ bookId, bookTitle, userId }: HabitTrackerProps) {
     <div className="max-w-2xl mx-auto px-6 md:px-12 py-8">
       <div className="mb-6">
         <p className="text-xs text-muted font-semibold tracking-[0.15em] uppercase mb-2">Weekly Practice</p>
-        <h2 className="text-xl font-bold text-ink" style={{ fontFamily: "'Lora', serif" }}>
+        <h2 className="text-xl font-bold text-ink" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
           {bookTitle}
         </h2>
         <div className="flex items-center gap-3 mt-3">
@@ -110,7 +110,7 @@ export function HabitTracker({ bookId, bookTitle, userId }: HabitTrackerProps) {
             className={`text-left w-full flex items-start gap-3 p-4 rounded-xl border transition-all ${
               habit.completedToday
                 ? 'bg-gold/5 border-gold/20'
-                : 'bg-white/50 border-border hover:border-gold/30'
+                : 'bg-ink/50 border-border hover:border-gold/30'
             }`}
           >
             <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
@@ -119,13 +119,13 @@ export function HabitTracker({ bookId, bookTitle, userId }: HabitTrackerProps) {
                 : 'border-border'
             }`}>
               {habit.completedToday && (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="3" strokeLinecap="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A1410" strokeWidth="3" strokeLinecap="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-sm leading-relaxed ${habit.completedToday ? 'text-ink/50 line-through' : 'text-ink/80'}`} style={{ fontFamily: "'Lora', serif" }}>
+              <p className={`text-sm leading-relaxed ${habit.completedToday ? 'text-ink/50 line-through' : 'text-ink/80'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 {habit.habit_text}
               </p>
               <div className="flex items-center gap-3 mt-2">

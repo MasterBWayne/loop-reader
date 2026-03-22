@@ -82,7 +82,7 @@ export default function TodayPage() {
   const displayName = profile?.display_name || (user && !isAnonymousUser(user) && user.email ? user.email.split('@')[0] : '');
 
   return (
-    <main className="min-h-screen bg-navy text-white pb-24">
+    <main className="min-h-screen bg-navy text-ink pb-24">
       {/* Top Bar */}
       <nav className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto relative">
         <Link href="/profile" className="flex items-center justify-center w-[36px] h-[36px] rounded-full border border-gold bg-navy shrink-0 z-10">
@@ -91,13 +91,13 @@ export default function TodayPage() {
               {displayName.charAt(0).toUpperCase()}
             </span>
           ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           )}
         </Link>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-sm font-medium tracking-wide text-white/80" style={{ fontFamily: "'Lora', serif" }}>Loop Reader</span>
+          <span className="text-sm font-medium tracking-wide text-ink/80" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Loop Reader</span>
         </div>
       </nav>
 
@@ -105,21 +105,21 @@ export default function TodayPage() {
       <div className="max-w-xl mx-auto px-6 pt-6 space-y-8">
         {/* Greeting */}
         <div>
-          <h1 className="text-3xl font-bold leading-tight" style={{ fontFamily: "'Lora', serif" }}>
+          <h1 className="text-3xl font-bold leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             Good morning{displayName ? `, ${displayName}` : ''}
           </h1>
-          <p className="text-white/50 text-sm mt-1">Here is your focus for today.</p>
+          <p className="text-ink/50 text-sm mt-1">Here is your focus for today.</p>
         </div>
 
         {/* Reading Goal */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+        <div className="bg-ink/5 border border-ink/10 rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-3">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             </svg>
             <span className="text-xs font-semibold text-gold uppercase tracking-widest">Today's Focus</span>
           </div>
-          <p className="text-white/90 font-medium mb-1">
+          <p className="text-ink/90 font-medium mb-1">
             Read 1 chapter of {lastBook ? lastBook.title : 'your book'}
           </p>
           <Link href="/?resume=true" className="inline-block mt-3 text-xs bg-gold/10 text-gold px-4 py-2 rounded-lg font-medium hover:bg-gold/20 transition-colors">
@@ -129,25 +129,25 @@ export default function TodayPage() {
 
         {/* Pending Commitments */}
         <div>
-          <h2 className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-3">Action Items</h2>
+          <h2 className="text-sm font-semibold text-ink/40 uppercase tracking-widest mb-3">Action Items</h2>
           {loading ? (
-            <div className="text-white/20 text-sm">Loading...</div>
+            <div className="text-ink/20 text-sm">Loading...</div>
           ) : commitments.length > 0 ? (
             <div className="space-y-3">
               {commitments.map(c => (
-                <div key={c.id || c.chapter_number} className="bg-white/5 border border-white/10 rounded-xl p-4 flex gap-3">
+                <div key={c.id || c.chapter_number} className="bg-ink/5 border border-ink/10 rounded-xl p-4 flex gap-3">
                   <div className="mt-0.5 w-4 h-4 rounded-full border border-gold/50 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-white/90 leading-relaxed">{c.commitment_text}</p>
-                    <p className="text-[10px] text-white/40 mt-1">Due {new Date(c.due_date).toLocaleDateString()}</p>
+                    <p className="text-sm text-ink/90 leading-relaxed">{c.commitment_text}</p>
+                    <p className="text-[10px] text-ink/40 mt-1">Due {new Date(c.due_date).toLocaleDateString()}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-5 text-center">
-              <p className="text-white/50 text-sm italic">"Knowledge is only potential power. Action is power."</p>
-              <p className="text-white/30 text-[10px] mt-2">You have no pending commitments.</p>
+            <div className="bg-ink/5 border border-ink/10 rounded-xl p-5 text-center">
+              <p className="text-ink/50 text-sm italic">"Knowledge is only potential power. Action is power."</p>
+              <p className="text-ink/30 text-[10px] mt-2">You have no pending commitments.</p>
             </div>
           )}
         </div>
@@ -155,7 +155,7 @@ export default function TodayPage() {
         {/* Maintenance */}
         {maintenance && (
           <div>
-            <h2 className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-3">Check-in</h2>
+            <h2 className="text-sm font-semibold text-ink/40 uppercase tracking-widest mb-3">Check-in</h2>
             <MaintenanceCard
               bookTitle={maintenance.book.title}
               chapterTitle={maintenance.book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'))[maintenance.chapterIdx].title}

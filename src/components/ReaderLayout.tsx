@@ -415,19 +415,19 @@ export function ReaderLayout({
       {/* Top bar */}
       <header className="bg-navy px-4 py-3 flex items-center justify-between shrink-0 z-30">
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowNav(!showNav)} className="text-white/60 hover:text-white transition-colors p-1">
+          <button onClick={() => setShowNav(!showNav)} className="text-ink/60 hover:text-white transition-colors p-1">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
           </button>
           <div>
             <p className="text-xs text-gold/80 font-medium tracking-wide">{bookTitle}</p>
-            <p className="text-sm text-white/90 font-medium">Ch. {chapter.number}: {chapter.title}</p>
+            <p className="text-sm text-ink/90 font-medium">Ch. {chapter.number}: {chapter.title}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-white/40 mr-2 hidden sm:block">{currentChapter + 1} of {chapters.length}</span>
+          <span className="text-xs text-ink/40 mr-2 hidden sm:block">{currentChapter + 1} of {chapters.length}</span>
           <button
             onClick={() => setShowChat(!showChat)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showChat ? 'bg-gold text-navy' : 'bg-white/10 text-white/70 hover:bg-white/15 hover:text-white'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showChat ? 'bg-gold text-ink' : 'bg-ink/10 text-ink/70 hover:bg-ink/15 hover:text-white'}`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             AI Companion
@@ -436,13 +436,13 @@ export function ReaderLayout({
       </header>
 
       {/* Tab switcher: Chapters | Practice */}
-      <div className="bg-navy border-b border-white/10 px-4 flex gap-1 shrink-0">
+      <div className="bg-navy border-b border-ink/10 px-4 flex gap-1 shrink-0">
         <button
           onClick={() => setActiveTab('chapters')}
           className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
             activeTab === 'chapters'
               ? 'text-gold border-gold'
-              : 'text-white/40 border-transparent hover:text-white/60'
+              : 'text-ink/40 border-transparent hover:text-ink/60'
           }`}
         >
           Chapters
@@ -452,7 +452,7 @@ export function ReaderLayout({
           className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
             activeTab === 'practice'
               ? 'text-gold border-gold'
-              : 'text-white/40 border-transparent hover:text-white/60'
+              : 'text-ink/40 border-transparent hover:text-ink/60'
           }`}
         >
           Practice
@@ -464,12 +464,12 @@ export function ReaderLayout({
         {showNav && (
           <>
             <div className="fixed inset-0 bg-black/20 z-20 md:hidden" onClick={() => setShowNav(false)} />
-            <aside className="absolute md:relative left-0 top-0 bottom-0 w-64 bg-navy-light border-r border-white/10 z-20 overflow-y-auto">
+            <aside className="absolute md:relative left-0 top-0 bottom-0 w-64 bg-navy-light border-r border-ink/10 z-20 overflow-y-auto">
               <div className="p-4">
                 {onBackToLibrary && (
                   <button
                     onClick={onBackToLibrary}
-                    className="flex items-center gap-2 text-xs text-white/40 hover:text-white/70 mb-4 transition-colors"
+                    className="flex items-center gap-2 text-xs text-ink/40 hover:text-ink/70 mb-4 transition-colors"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
                     Back to Library
@@ -487,10 +487,10 @@ export function ReaderLayout({
                         disabled={locked}
                         className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
                           locked
-                            ? 'text-white/20 cursor-not-allowed'
+                            ? 'text-ink/20 cursor-not-allowed'
                             : i === currentChapter
                             ? 'bg-gold/15 text-gold font-medium'
-                            : 'text-white/50 hover:text-white/80 hover:bg-white/5'
+                            : 'text-ink/50 hover:text-ink/80 hover:bg-ink/5'
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -505,7 +505,7 @@ export function ReaderLayout({
                           )}
                         </div>
                         {locked && unlockDate && (
-                          <span className="text-[10px] text-white/15 ml-5 block mt-0.5">
+                          <span className="text-[10px] text-ink/15 ml-5 block mt-0.5">
                             {formatUnlockDate(unlockDate)}
                           </span>
                         )}
@@ -544,10 +544,10 @@ export function ReaderLayout({
                     </div>
                     <button onClick={() => setFollowUpDismissed(true)} className="text-amber-400 hover:text-amber-600 text-xs">Later</button>
                   </div>
-                  <p className="text-sm text-ink/70 mb-2" style={{ fontFamily: "'Lora', serif" }}>
+                  <p className="text-sm text-ink/70 mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     You committed: <em>"{pendingFollowUp.commitment_text}"</em>
                   </p>
-                  <p className="text-sm text-ink/80 font-medium mb-3" style={{ fontFamily: "'Lora', serif" }}>
+                  <p className="text-sm text-ink/80 font-medium mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     What happened?
                   </p>
                   <textarea
@@ -556,8 +556,8 @@ export function ReaderLayout({
                     placeholder="I did it / I didn't get to it because..."
                     rows={2}
                     disabled={followUpLoading}
-                    className="w-full bg-white/70 border border-amber-200/40 rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-amber-400/50 transition-colors resize-none leading-relaxed disabled:opacity-50"
-                    style={{ fontFamily: "'Lora', serif" }}
+                    className="w-full bg-ink/70 border border-amber-200/40 rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-amber-400/50 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
                   />
                   <div className="flex justify-end mt-3">
                     <button
@@ -566,7 +566,7 @@ export function ReaderLayout({
                       className="flex items-center gap-2 bg-amber-500/90 hover:bg-amber-500 disabled:bg-ink/10 disabled:text-ink/30 text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
                     >
                       {followUpLoading ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-ink/30 border-t-white rounded-full animate-spin" />
                       ) : (
                         'Share what happened'
                       )}
@@ -585,7 +585,7 @@ export function ReaderLayout({
                       Personalizing this chapter for you...
                     </div>
                   ) : (
-                    <p className="text-sm text-ink/70 leading-relaxed italic" style={{ fontFamily: "'Lora', serif" }}>
+                    <p className="text-sm text-ink/70 leading-relaxed italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       {personalizedIntro}
                     </p>
                   )}
@@ -595,14 +595,14 @@ export function ReaderLayout({
               {/* Chapter header */}
               <div className="mb-12">
                 <p className="text-xs text-muted font-semibold tracking-[0.15em] uppercase mb-3">Chapter {chapter.number}</p>
-                <h1 className="text-3xl md:text-4xl font-bold text-ink leading-tight" style={{ fontFamily: "'Lora', serif" }}>
+                <h1 className="text-3xl md:text-4xl font-bold text-ink leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   {chapter.title}
                 </h1>
                 <div className="w-12 h-0.5 bg-gold mt-6" />
               </div>
 
               {/* Content */}
-              <div className="text-base text-ink/80" style={{ fontFamily: "'Lora', serif" }}>
+              <div className="text-base text-ink/80" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 {renderText(chapter.content)}
               </div>
 
@@ -656,10 +656,10 @@ export function ReaderLayout({
           ) : (
             /* Locked chapter state */
             <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-              <div className="w-16 h-16 bg-white/80 border border-border rounded-2xl flex items-center justify-center mb-6">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b6b80" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div className="w-16 h-16 bg-ink/80 border border-border rounded-2xl flex items-center justify-center mb-6">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6B5744" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
-              <h2 className="text-xl font-semibold text-ink mb-2" style={{ fontFamily: "'Lora', serif" }}>
+              <h2 className="text-xl font-semibold text-ink mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 Chapter {chapter.number} is locked
               </h2>
               <p className="text-sm text-muted max-w-sm">
@@ -680,7 +680,7 @@ export function ReaderLayout({
             className="fixed bottom-20 right-4 z-40 md:hidden w-14 h-14 bg-gold rounded-full flex items-center justify-center shadow-lg shadow-gold/30 hover:bg-gold-light active:scale-95 transition-all"
             aria-label="Open AI Companion"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1410" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           </button>
@@ -688,18 +688,18 @@ export function ReaderLayout({
 
         {/* AI Companion panel */}
         {showChat && (
-          <div className="flex flex-col bg-navy-light border-l border-white/10 z-10 w-full md:w-[380px] lg:w-[420px] shrink-0">
-            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+          <div className="flex flex-col bg-navy-light border-l border-ink/10 z-10 w-full md:w-[380px] lg:w-[420px] shrink-0">
+            <div className="px-4 py-3 border-b border-ink/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 bg-gold/20 rounded-full flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white/90">AI Companion</p>
-                  <p className="text-[10px] text-white/40">Reading Ch. {chapter.number}</p>
+                  <p className="text-sm font-medium text-ink/90">AI Companion</p>
+                  <p className="text-[10px] text-ink/40">Reading Ch. {chapter.number}</p>
                 </div>
               </div>
-              <button onClick={() => setShowChat(false)} className="text-white/40 hover:text-white/70 transition-colors p-1 md:hidden">
+              <button onClick={() => setShowChat(false)} className="text-ink/40 hover:text-ink/70 transition-colors p-1 md:hidden">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
@@ -710,7 +710,7 @@ export function ReaderLayout({
                   <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed max-w-[90%] ${
                     msg.role === 'user'
                       ? 'bg-gold/20 text-gold-light rounded-br-md'
-                      : 'bg-white/5 text-white/80 rounded-bl-md'
+                      : 'bg-ink/5 text-ink/80 rounded-bl-md'
                   }`}>
                     {renderChatText(msg.content)}
                   </div>
@@ -718,10 +718,10 @@ export function ReaderLayout({
               ))}
               {isTyping && (
                 <div className="animate-message-in">
-                  <div className="bg-white/5 rounded-2xl rounded-bl-md px-4 py-3 inline-flex gap-1.5">
-                    <div className="w-2 h-2 bg-white/30 rounded-full typing-dot" />
-                    <div className="w-2 h-2 bg-white/30 rounded-full typing-dot" />
-                    <div className="w-2 h-2 bg-white/30 rounded-full typing-dot" />
+                  <div className="bg-ink/5 rounded-2xl rounded-bl-md px-4 py-3 inline-flex gap-1.5">
+                    <div className="w-2 h-2 bg-ink/30 rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-ink/30 rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-ink/30 rounded-full typing-dot" />
                   </div>
                 </div>
               )}
@@ -732,12 +732,12 @@ export function ReaderLayout({
                   <div className="bg-gold/10 border border-gold/20 rounded-2xl px-5 py-4">
                     <p className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest mb-2">Your Journey</p>
                     {journeyLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-white/50">
+                      <div className="flex items-center gap-2 text-sm text-ink/50">
                         <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
                         Compiling your journey...
                       </div>
                     ) : (
-                      <div className="text-sm text-white/80 leading-relaxed">
+                      <div className="text-sm text-ink/80 leading-relaxed">
                         {renderChatText(journeySummary || '')}
                       </div>
                     )}
@@ -748,8 +748,8 @@ export function ReaderLayout({
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 border-t border-white/10">
-              <div className="flex items-center gap-2 bg-white/5 rounded-xl px-4 py-2.5">
+            <div className="p-3 border-t border-ink/10">
+              <div className="flex items-center gap-2 bg-ink/5 rounded-xl px-4 py-2.5">
                 <input
                   ref={chatInputRef}
                   type="text"
@@ -758,7 +758,7 @@ export function ReaderLayout({
                   onKeyDown={handleKeyDown}
                   placeholder={limitReached ? "Monthly limit reached" : "Ask about this chapter..."}
                   disabled={limitReached}
-                  className="flex-1 bg-transparent text-sm text-white/90 placeholder:text-white/30 outline-none disabled:opacity-40"
+                  className="flex-1 bg-transparent text-sm text-ink/90 placeholder:text-ink/30 outline-none disabled:opacity-40"
                 />
                 {!limitReached && (
                   <MicButton 
@@ -769,12 +769,12 @@ export function ReaderLayout({
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isTyping || limitReached}
-                  className="text-gold hover:text-gold-light disabled:text-white/20 disabled:cursor-not-allowed transition-colors p-1"
+                  className="text-gold hover:text-gold-light disabled:text-ink/20 disabled:cursor-not-allowed transition-colors p-1"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
               </div>
-              <p className="text-[10px] text-white/20 text-center mt-2">Personalized to your journey</p>
+              <p className="text-[10px] text-ink/20 text-center mt-2">Personalized to your journey</p>
             </div>
           </div>
         )}

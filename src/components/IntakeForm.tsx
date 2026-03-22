@@ -98,10 +98,10 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
       {/* Progress */}
       <div className="w-full max-w-md mb-12">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-white/30 font-medium">Question {step + 1} of {QUESTIONS.length}</span>
+          <span className="text-xs text-ink/30 font-medium">Question {step + 1} of {QUESTIONS.length}</span>
           <span className="text-xs text-gold/60 font-medium">{Math.round(((step + 1) / QUESTIONS.length) * 100)}%</span>
         </div>
-        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+        <div className="h-1 bg-ink/10 rounded-full overflow-hidden">
           <div
             className="h-full bg-gold rounded-full transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }}
@@ -118,11 +118,11 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
         <p className="text-xs text-gold/70 font-semibold tracking-[0.15em] uppercase mb-4">Before we begin</p>
         <h2
           className="text-2xl font-semibold text-white mb-3 leading-snug"
-          style={{ fontFamily: "'Lora', serif" }}
+          style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
           {question.label}
         </h2>
-        <p className="text-sm text-white/40 mb-8">{question.hint}</p>
+        <p className="text-sm text-ink/40 mb-8">{question.hint}</p>
 
         <div className="relative">
           <textarea
@@ -135,7 +135,7 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
             onKeyDown={handleKeyDown}
             placeholder={question.placeholder}
             autoFocus
-            className="w-full min-h-[120px] bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pb-10 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed overflow-y-auto"
+            className="w-full min-h-[120px] bg-ink/5 border border-ink/10 rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed overflow-y-auto"
           />
           <MicButton 
             currentText={currentAnswer} 
@@ -148,7 +148,7 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
           <button
             onClick={handleBack}
             disabled={step === 0}
-            className="text-sm text-white/30 hover:text-white/60 disabled:opacity-0 disabled:cursor-default transition-colors"
+            className="text-sm text-ink/30 hover:text-ink/60 disabled:opacity-0 disabled:cursor-default transition-colors"
           >
             ← Back
           </button>
@@ -156,7 +156,7 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
           <button
             onClick={handleNext}
             disabled={!currentAnswer.trim()}
-            className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-white/10 disabled:text-white/30 text-navy font-semibold px-6 py-2.5 rounded-lg transition-all text-sm"
+            className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-ink/10 disabled:text-ink/30 text-ink font-semibold px-6 py-2.5 rounded-lg transition-all text-sm"
           >
             {isLast ? 'Start Reading' : 'Continue'}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
@@ -164,7 +164,7 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
         </div>
 
         {!isLast && (
-          <p className="text-[10px] text-white/20 text-center mt-8">⌘ + Enter to continue</p>
+          <p className="text-[10px] text-ink/20 text-center mt-8">⌘ + Enter to continue</p>
         )}
       </div>
     </div>

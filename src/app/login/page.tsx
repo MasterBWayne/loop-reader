@@ -45,11 +45,11 @@ export default function LoginPage() {
       <main className="min-h-screen bg-navy flex items-center justify-center px-6">
         <div className="w-full max-w-sm text-center">
           <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
           </div>
-          <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Check your email</h1>
-          <p className="text-sm text-white/50">We sent a confirmation link to <span className="text-gold">{email}</span>. Click it to activate your account.</p>
-          <a href="/" className="inline-block mt-8 text-xs text-white/30 hover:text-white/60 transition-colors">Back to reading</a>
+          <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Check your email</h1>
+          <p className="text-sm text-ink/50">We sent a confirmation link to <span className="text-gold">{email}</span>. Click it to activate your account.</p>
+          <a href="/" className="inline-block mt-8 text-xs text-ink/30 hover:text-ink/60 transition-colors">Back to reading</a>
         </div>
       </main>
     );
@@ -60,21 +60,21 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-10">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-navy font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
-          <span className="text-sm font-medium tracking-wide text-white/80">THE ARCHITECT METHOD</span>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <span className="text-sm font-medium tracking-wide text-ink/80">THE ARCHITECT METHOD</span>
         </div>
 
-        <h1 className="text-2xl font-bold text-white text-center mb-2" style={{ fontFamily: "'Lora', serif" }}>
+        <h1 className="text-2xl font-bold text-white text-center mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
           {mode === 'login' ? 'Welcome back' : 'Create your account'}
         </h1>
-        <p className="text-sm text-white/40 text-center mb-8">
+        <p className="text-sm text-ink/40 text-center mb-8">
           {mode === 'login' ? 'Sign in to access your reading progress' : 'Save your progress and personalization permanently'}
         </p>
 
         {/* Google button */}
         <button
           onClick={handleGoogle}
-          className="w-full flex items-center justify-center gap-3 bg-white hover:bg-white/95 text-navy font-medium py-3 rounded-xl transition-colors text-sm mb-4"
+          className="w-full flex items-center justify-center gap-3 bg-white hover:bg-ink/95 text-ink font-medium py-3 rounded-xl transition-colors text-sm mb-4"
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -87,9 +87,9 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-xs text-white/30">or</span>
-          <div className="flex-1 h-px bg-white/10" />
+          <div className="flex-1 h-px bg-ink/10" />
+          <span className="text-xs text-ink/30">or</span>
+          <div className="flex-1 h-px bg-ink/10" />
         </div>
 
         {/* Email form */}
@@ -100,7 +100,7 @@ export default function LoginPage() {
             onChange={e => setEmail(e.target.value)}
             placeholder="Email"
             required
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors"
+            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors"
           />
           <input
             type="password"
@@ -109,7 +109,7 @@ export default function LoginPage() {
             placeholder="Password"
             required
             minLength={6}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors"
+            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors"
           />
 
           {error && (
@@ -119,14 +119,14 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gold hover:bg-gold-light disabled:bg-white/10 text-navy font-semibold py-3 rounded-xl transition-colors text-sm"
+            className="w-full bg-gold hover:bg-gold-light disabled:bg-ink/10 text-ink font-semibold py-3 rounded-xl transition-colors text-sm"
           >
             {loading ? 'Loading...' : mode === 'login' ? 'Sign in' : 'Create account'}
           </button>
         </form>
 
         {/* Toggle mode */}
-        <p className="text-center text-xs text-white/30 mt-6">
+        <p className="text-center text-xs text-ink/30 mt-6">
           {mode === 'login' ? (
             <>No account? <button onClick={() => { setMode('signup'); setError(''); }} className="text-gold hover:text-gold-light transition-colors">Sign up</button></>
           ) : (
@@ -134,7 +134,7 @@ export default function LoginPage() {
           )}
         </p>
 
-        <a href="/" className="block text-center mt-6 text-xs text-white/20 hover:text-white/40 transition-colors">
+        <a href="/" className="block text-center mt-6 text-xs text-ink/20 hover:text-ink/40 transition-colors">
           Continue reading without an account
         </a>
       </div>

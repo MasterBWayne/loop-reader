@@ -55,18 +55,18 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
       <div className="bg-gradient-to-br from-gold/5 to-amber-900/5 border border-gold/15 rounded-2xl p-6 md:p-8">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-7 h-7 bg-gold/15 rounded-lg flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2" strokeLinecap="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
           </div>
           <span className="text-[11px] font-semibold text-gold/60 uppercase tracking-widest">Your reflection</span>
         </div>
 
-        <p className="text-base font-medium text-ink/90 mb-5 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
+        <p className="text-base font-medium text-ink/90 mb-5 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
           {question}
         </p>
 
         {submitted && !loading ? (
-          <div className="bg-white/60 border border-border rounded-xl p-4">
-            <p className="text-sm text-ink/70 leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Lora', serif" }}>{answer}</p>
+          <div className="bg-ink/60 border border-border rounded-xl p-4">
+            <p className="text-sm text-ink/70 leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{answer}</p>
             <button
               onClick={() => setSubmitted(false)}
               className="text-[11px] text-muted hover:text-ink mt-3 transition-colors"
@@ -86,8 +86,8 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
                 }}
                 placeholder="Write your response here..."
                 disabled={loading}
-                className="w-full min-h-[120px] bg-white/70 border border-border rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/80 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50 overflow-y-auto"
-                style={{ fontFamily: "'Lora', serif" }}
+                className="w-full min-h-[120px] bg-ink/5 border border-border rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/80 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50 overflow-y-auto"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
               />
               {!loading && (
                 <MicButton 
@@ -102,7 +102,7 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
               <button
                 onClick={handleSubmit}
                 disabled={!answer.trim() || loading}
-                className="flex items-center gap-2 bg-gold/90 hover:bg-gold disabled:bg-ink/10 disabled:text-ink/30 text-navy font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                className="flex items-center gap-2 bg-gold/90 hover:bg-gold disabled:bg-ink/10 disabled:text-ink/30 text-ink font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
               >
                 {loading ? (
                   <>
@@ -128,7 +128,7 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
             <span className="text-lg">🎯</span>
             <span className="text-[11px] font-semibold text-emerald-600/80 uppercase tracking-widest">Make it real</span>
           </div>
-          <p className="text-sm text-ink/70 mb-4 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
+          <p className="text-sm text-ink/70 mb-4 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             When will you apply this? Set a specific intention:
           </p>
           <p className="text-xs text-muted mb-3 italic">
@@ -140,8 +140,8 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
               onChange={e => setCommitment(e.target.value)}
               placeholder="e.g. I will mirror my partner's words tonight when they tell me about their day"
               rows={2}
-              className="w-full bg-white/70 border border-emerald-200/50 rounded-xl px-4 py-3 pb-10 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-emerald-400/50 transition-colors resize-none leading-relaxed"
-              style={{ fontFamily: "'Lora', serif" }}
+              className="w-full bg-ink/5 border border-emerald-200/50 rounded-xl px-4 py-3 pb-10 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-emerald-400/50 transition-colors resize-none leading-relaxed"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             />
             <MicButton 
               currentText={commitment} 
@@ -172,7 +172,7 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
             <span className="text-sm">🎯</span>
             <span className="text-[10px] font-semibold text-emerald-600/60 uppercase tracking-widest">Your commitment</span>
           </div>
-          <p className="text-sm text-ink/60 italic" style={{ fontFamily: "'Lora', serif" }}>"{commitment}"</p>
+          <p className="text-sm text-ink/60 italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>"{commitment}"</p>
           <p className="text-[10px] text-muted/40 mt-2">The Architect will check in on this tomorrow.</p>
         </div>
       )}

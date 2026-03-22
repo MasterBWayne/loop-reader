@@ -21,10 +21,14 @@
     "@types/react": "^19.2.14",
     "next": "^16.2.0",
     "openai": "^6.32.0",
+    "pdf-parse": "^2.4.5",
     "postcss": "^8.5.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/pdf-parse": "^1.1.5"
   }
 }

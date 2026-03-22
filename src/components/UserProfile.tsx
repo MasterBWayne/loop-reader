@@ -45,7 +45,7 @@ export function UserProfile({ user, onSignOut }: UserProfileProps) {
     return (
       <a
         href="/login"
-        className="flex items-center gap-1.5 text-[11px] text-white/40 hover:text-gold transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
+        className="flex items-center gap-1.5 text-[11px] text-ink/40 hover:text-gold transition-colors px-2 py-1 rounded-lg hover:bg-ink/5"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Sign in
@@ -57,7 +57,7 @@ export function UserProfile({ user, onSignOut }: UserProfileProps) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors"
+        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-ink/5 transition-colors"
       >
         {avatar ? (
           <img src={avatar} alt="" className="w-6 h-6 rounded-full" />
@@ -66,19 +66,26 @@ export function UserProfile({ user, onSignOut }: UserProfileProps) {
             {initial}
           </div>
         )}
-        <span className="text-xs text-white/60 hidden sm:block max-w-[120px] truncate">{name}</span>
+        <span className="text-xs text-ink/60 hidden sm:block max-w-[120px] truncate">{name}</span>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-56 bg-navy-light border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden animate-message-in">
-          <div className="px-4 py-3 border-b border-white/10">
-            <p className="text-sm font-medium text-white/90 truncate">{name}</p>
-            {user.email && <p className="text-[11px] text-white/40 truncate">{user.email}</p>}
+        <div className="absolute right-0 top-full mt-2 w-56 bg-navy-light border border-ink/10 rounded-xl shadow-2xl z-50 overflow-hidden animate-message-in">
+          <div className="px-4 py-3 border-b border-ink/10">
+            <p className="text-sm font-medium text-ink/90 truncate">{name}</p>
+            {user.email && <p className="text-[11px] text-ink/40 truncate">{user.email}</p>}
           </div>
           <div className="p-2">
+            <a
+              href="/author"
+              className="w-full text-left px-3 py-2 text-xs text-ink/50 hover:text-ink/80 hover:bg-ink/5 rounded-lg transition-colors flex items-center gap-2 mb-1"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              Author Dashboard
+            </a>
             <button
               onClick={handleSignOut}
-              className="w-full text-left px-3 py-2 text-xs text-white/50 hover:text-white/80 hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2"
+              className="w-full text-left px-3 py-2 text-xs text-ink/50 hover:text-ink/80 hover:bg-ink/5 rounded-lg transition-colors flex items-center gap-2"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               Sign out
@@ -103,7 +110,7 @@ export function UpgradeBanner({ user }: { user: { is_anonymous?: boolean } | nul
   return (
     <div className="bg-gold/10 border border-gold/20 px-4 py-3 flex items-center justify-between gap-3">
       <div className="flex items-center gap-2 min-w-0">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <p className="text-xs text-gold/80 truncate">
           Save your progress permanently
         </p>
@@ -111,7 +118,7 @@ export function UpgradeBanner({ user }: { user: { is_anonymous?: boolean } | nul
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={handleUpgrade}
-          className="bg-gold hover:bg-gold-light text-navy font-semibold text-[11px] px-3 py-1.5 rounded-lg transition-colors"
+          className="bg-gold hover:bg-gold-light text-ink font-semibold text-[11px] px-3 py-1.5 rounded-lg transition-colors"
         >
           Sign in with Google
         </button>
@@ -123,7 +130,7 @@ export function UpgradeBanner({ user }: { user: { is_anonymous?: boolean } | nul
         </a>
         <button
           onClick={() => setDismissed(true)}
-          className="text-white/20 hover:text-white/50 transition-colors p-0.5"
+          className="text-ink/20 hover:text-ink/50 transition-colors p-0.5"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>

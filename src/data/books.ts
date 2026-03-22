@@ -26,6 +26,8 @@ export interface Book {
   featured: boolean;
   coverColor: string; // gradient accent for placeholder covers
   chapters: Chapter[];
+  price?: number;
+  is_author_upload?: boolean;
 }
 
 export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership', 'Communication', 'Negotiation'];

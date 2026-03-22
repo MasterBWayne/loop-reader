@@ -89,51 +89,51 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-navy text-white">
+    <main className="min-h-screen bg-navy text-ink">
       <nav className="px-6 py-4 flex items-center justify-between max-w-3xl mx-auto">
         <a href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-navy font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
-          <span className="text-sm font-medium tracking-wide text-white/80">THE ARCHITECT METHOD</span>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <span className="text-sm font-medium tracking-wide text-ink/80">THE ARCHITECT METHOD</span>
         </a>
-        <a href="/" className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1">
+        <a href="/" className="text-xs text-ink/40 hover:text-ink/70 transition-colors flex items-center gap-1">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
           Library
         </a>
       </nav>
 
       <div className="max-w-lg mx-auto px-6 pt-8 pb-24">
-        <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Lora', serif" }}>Your Profile</h1>
-        <p className="text-sm text-white/40 mb-8">The more the AI knows about you, the more relevant its insights become \u2014 across every book you read.</p>
+        <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Your Profile</h1>
+        <p className="text-sm text-ink/40 mb-8">The more the AI knows about you, the more relevant its insights become \u2014 across every book you read.</p>
 
         <div className="space-y-5">
           {/* Name */}
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">Name</label>
+            <label className="block text-[11px] font-semibold text-ink/50 uppercase tracking-wider mb-1.5">Name</label>
             <input
               type="text"
               value={profile.display_name}
               onChange={e => update('display_name', e.target.value)}
               placeholder="What should we call you?"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors"
             />
           </div>
 
           {/* Age */}
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">Age</label>
+            <label className="block text-[11px] font-semibold text-ink/50 uppercase tracking-wider mb-1.5">Age</label>
             <input
               type="number"
               value={profile.age || ''}
               onChange={e => update('age', e.target.value ? parseInt(e.target.value) : null)}
               placeholder="28"
               min={13} max={120}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors"
             />
           </div>
 
           {/* Career stage */}
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">Career stage</label>
+            <label className="block text-[11px] font-semibold text-ink/50 uppercase tracking-wider mb-1.5">Career stage</label>
             <div className="flex flex-wrap gap-2">
               {CAREER_OPTIONS.map(opt => (
                 <button
@@ -142,7 +142,7 @@ export default function ProfilePage() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     profile.career_stage === opt
                       ? 'bg-gold/20 text-gold border border-gold/30'
-                      : 'bg-white/5 text-white/50 border border-white/10 hover:border-white/20'
+                      : 'bg-ink/5 text-ink/50 border border-ink/10 hover:border-ink/20'
                   }`}
                 >
                   {opt}
@@ -153,7 +153,7 @@ export default function ProfilePage() {
 
           {/* Relationship status */}
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">Relationship status</label>
+            <label className="block text-[11px] font-semibold text-ink/50 uppercase tracking-wider mb-1.5">Relationship status</label>
             <div className="flex flex-wrap gap-2">
               {RELATIONSHIP_OPTIONS.map(opt => (
                 <button
@@ -162,7 +162,7 @@ export default function ProfilePage() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     profile.relationship_status === opt
                       ? 'bg-gold/20 text-gold border border-gold/30'
-                      : 'bg-white/5 text-white/50 border border-white/10 hover:border-white/20'
+                      : 'bg-ink/5 text-ink/50 border border-ink/10 hover:border-ink/20'
                   }`}
                 >
                   {opt}
@@ -173,37 +173,37 @@ export default function ProfilePage() {
 
           {/* Life situation */}
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">Life situation</label>
+            <label className="block text-[11px] font-semibold text-ink/50 uppercase tracking-wider mb-1.5">Life situation</label>
             <textarea
               value={profile.life_situation}
               onChange={e => update('life_situation', e.target.value)}
               placeholder="A short description of where you are in life right now..."
               rows={3}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none"
             />
           </div>
 
           {/* Current goals */}
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">Current goals</label>
+            <label className="block text-[11px] font-semibold text-ink/50 uppercase tracking-wider mb-1.5">Current goals</label>
             <textarea
               value={profile.current_goals}
               onChange={e => update('current_goals', e.target.value)}
               placeholder="What are you actively working toward right now?"
               rows={3}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none"
             />
           </div>
 
           {/* Biggest challenges */}
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5">Biggest challenges</label>
+            <label className="block text-[11px] font-semibold text-ink/50 uppercase tracking-wider mb-1.5">Biggest challenges</label>
             <textarea
               value={profile.biggest_challenges}
               onChange={e => update('biggest_challenges', e.target.value)}
               placeholder="What keeps getting in your way?"
               rows={3}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/90 placeholder:text-white/25 outline-none focus:border-gold/40 transition-colors resize-none"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none"
             />
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function ProfilePage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-gold hover:bg-gold-light disabled:bg-white/10 text-navy font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+            className="bg-gold hover:bg-gold-light disabled:bg-ink/10 text-ink font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
           >
             {saving ? 'Saving...' : 'Save profile'}
           </button>
@@ -225,7 +225,16 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <p className="text-[11px] text-white/20 mt-4">Your profile is used only to personalize your reading experience. It is never shared.</p>
+        <p className="text-[11px] text-ink/20 mt-4">Your profile is used only to personalize your reading experience. It is never shared.</p>
+      </div>
+
+      <div className="max-w-lg mx-auto px-6 pb-24 border-t border-ink/10 pt-8 mt-8">
+        <h2 className="text-xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Author Portal</h2>
+        <p className="text-sm text-ink/40 mb-6">Are you a creator? Publish your own book, complete with an AI companion experience.</p>
+        <a href="/author" className="inline-flex items-center gap-2 bg-ink/5 hover:bg-ink/10 text-white font-medium px-5 py-2.5 rounded-lg border border-ink/10 transition-colors text-sm">
+          Publish Your Book
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
     </main>
   );

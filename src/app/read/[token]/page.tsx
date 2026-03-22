@@ -75,7 +75,7 @@ export default function TokenAccessPage() {
             <div className="w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
           )}
           {status === 'valid' && (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
           )}
           {(status === 'invalid' || status === 'error') && (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
@@ -84,30 +84,30 @@ export default function TokenAccessPage() {
 
         {status === 'loading' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Activating your access...</h1>
-            <p className="text-sm text-white/40">Verifying your link</p>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Activating your access...</h1>
+            <p className="text-sm text-ink/40">Verifying your link</p>
           </>
         )}
 
         {status === 'valid' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>You're in.</h1>
-            <p className="text-sm text-white/40">Redirecting to your library...</p>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>You're in.</h1>
+            <p className="text-sm text-ink/40">Redirecting to your library...</p>
           </>
         )}
 
         {status === 'invalid' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Invalid link</h1>
-            <p className="text-sm text-white/40 mb-6">This access link isn't valid or has expired.</p>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Invalid link</h1>
+            <p className="text-sm text-ink/40 mb-6">This access link isn't valid or has expired.</p>
             <a href="/" className="text-sm text-gold hover:text-gold-light transition-colors">Go to library</a>
           </>
         )}
 
         {status === 'error' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Something went wrong</h1>
-            <p className="text-sm text-white/40 mb-6">Please try again or contact support.</p>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Something went wrong</h1>
+            <p className="text-sm text-ink/40 mb-6">Please try again or contact support.</p>
             <a href="/" className="text-sm text-gold hover:text-gold-light transition-colors">Go to library</a>
           </>
         )}
