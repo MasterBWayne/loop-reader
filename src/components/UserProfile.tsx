@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { signOut, linkWithGoogle, isAnonymousUser } from '@/lib/supabase';
+import { ThemeToggle } from './ThemeToggle';
 
 interface UserProfileProps {
   user: {
@@ -83,6 +84,7 @@ export function UserProfile({ user, onSignOut }: UserProfileProps) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
               Author Dashboard
             </a>
+            <ThemeToggle />
             <button
               onClick={handleSignOut}
               className="w-full text-left px-3 py-2 text-xs text-ink/50 hover:text-ink/80 hover:bg-ink/5 rounded-lg transition-colors flex items-center gap-2"
