@@ -1,16 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  /* ReadKindled brand — cream + amber */
-  --color-navy: #F5ECD7;          /* cream (was dark navy) */
-  --color-navy-light: #FAF6EE;    /* lighter cream (was lighter navy) */
-  --color-gold: #C97D2E;          /* deep amber (was gold) */
-  --color-gold-light: #F5C87A;    /* light amber (was light gold) */
-  --color-cream: #FFFDF8;         /* off-white */
-  --color-warm-gray: #EDE5D4;     /* warm border tone */
-  --color-ink: #1A1410;           /* dark brown text */
-  --color-muted: #6B5744;         /* warm taupe muted */
-  --color-border: #E8D5BA;        /* amber-tinted border */
+  /* ReadKindled canonical brand tokens (source: brand-tokens.css) */
+  --color-navy: #F5ECD7;          /* rk-bg: warm cream */
+  --color-navy-light: #FAF6EE;    /* rk-bg-card */
+  --color-gold: #C97D2E;          /* rk-accent: deep amber */
+  --color-gold-light: #F5C87A;    /* rk-accent-light */
+  --color-cream: #FFFDF8;         /* rk-text-inverse / off-white */
+  --color-warm-gray: #F0EBE1;     /* rk-bg-surface */
+  --color-ink: #1A1410;           /* rk-text: primary */
+  --color-muted: #6B5744;         /* rk-text-secondary */
+  --color-muted-soft: #9B8878;    /* rk-text-muted */
+  --color-border: #E8D5BA;        /* rk-border */
+  --color-border-strong: #D4B896; /* rk-border-strong */
+  --color-accent-hover: #B56D1E;  /* rk-accent-hover */
+  --color-accent-pale: #FDECD4;   /* rk-accent-pale */
+}
+
+/* Dark mode — matches canonical [data-theme="dark"] */
+[data-theme="dark"] {
+  --color-navy: #1A1410;
+  --color-navy-light: #241C15;
+  --color-gold: #C97D2E;
+  --color-gold-light: #F5C87A;
+  --color-cream: #F5ECD7;
+  --color-warm-gray: #2E231A;
+  --color-ink: #F5ECD7;
+  --color-muted: #C4A882;
+  --color-muted-soft: #8A7060;
+  --color-border: rgba(255,255,255,0.10);
+  --color-border-strong: rgba(255,255,255,0.18);
 }
 
 /* Smooth scrollbar for reader */
