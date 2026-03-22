@@ -245,8 +245,14 @@ export default function Home() {
       }
 
       if (!loadedIntake) {
-        console.log('No intake found in DB or localStorage. Showing intake form.');
-        setAppState('intake');
+        const skipped = localStorage.getItem('rk_intake_skipped');
+        if (skipped) {
+          console.log('Intake skipped previously. Going to library.');
+          setAppState('landing');
+        } else {
+          console.log('No intake found in DB or localStorage. Showing intake form.');
+          setAppState('intake');
+        }
       } else {
         console.log('Intake found, proceeding to landing.');
         setAppState('landing');
@@ -313,6 +319,7 @@ export default function Home() {
   const handleIntakeComplete = useCallback(async (answers: IntakeAnswers) => {
     setIntake(answers);
     localStorage.setItem(STORAGE_KEY_INTAKE, JSON.stringify(answers));
+    localStorage.removeItem('rk_intake_skipped');
     if (userId) saveIntake(userId, answers);
     if (selectedBook) {
       setAppState('pace-select');
@@ -320,6 +327,11 @@ export default function Home() {
       setAppState('landing');
     }
   }, [userId, selectedBook]);
+
+  const handleIntakeSkip = useCallback(() => {
+    localStorage.setItem('rk_intake_skipped', 'true');
+    setAppState('landing');
+  }, []);
 
   const handlePaceSelect = useCallback((pace: ReadingPace) => {
     if (!selectedBook) return;
@@ -391,7 +403,7 @@ export default function Home() {
     );
   }
 
-  if (appState === 'intake') return <IntakeForm onComplete={handleIntakeComplete} />;
+  if (appState === 'intake') return <IntakeForm onComplete={handleIntakeComplete} onSkip={handleIntakeSkip} />;
   if (appState === 'pace-select' && selectedBook) return <PaceSelector bookTitle={selectedBook.title} onSelect={handlePaceSelect} />;
 
   if (appState === 'purchase' && selectedBook) {
@@ -479,6 +491,21 @@ export default function Home() {
         {intake && user && isAnonymousUser(user) && (
           <div className="px-4 mb-6">
             <div className="rounded-md overflow-hidden"><UpgradeBanner user={user} /></div>
+          </div>
+        )}
+
+        {/* Intake skipped nudge */}
+        {!intake && (
+          <div className="px-4 mb-6">
+            <div className="flex items-center justify-between bg-ink/5 border border-ink/10 rounded-lg px-4 py-3">
+              <p className="text-xs text-ink/50">Complete your reading profile for personalized recommendations</p>
+              <button
+                onClick={() => setAppState('intake')}
+                className="text-xs text-gold font-medium whitespace-nowrap ml-3 hover:text-gold-light transition-colors"
+              >
+                Set up now &rarr;
+              </button>
+            </div>
           </div>
         )}
 

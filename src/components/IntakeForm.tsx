@@ -46,9 +46,10 @@ const QUESTIONS = [
 
 interface IntakeFormProps {
   onComplete: (answers: IntakeAnswers) => void;
+  onSkip?: () => void;
 }
 
-export function IntakeForm({ onComplete }: IntakeFormProps) {
+export function IntakeForm({ onComplete, onSkip }: IntakeFormProps) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<IntakeAnswers>({
     struggle: '',
@@ -165,6 +166,15 @@ export function IntakeForm({ onComplete }: IntakeFormProps) {
 
         {!isLast && (
           <p className="text-[10px] text-ink/20 text-center mt-8">⌘ + Enter to continue</p>
+        )}
+
+        {onSkip && (
+          <button
+            onClick={onSkip}
+            className="block mx-auto mt-6 text-xs text-ink/30 hover:text-ink/50 transition-colors"
+          >
+            Skip for now &rarr;
+          </button>
         )}
       </div>
     </div>
