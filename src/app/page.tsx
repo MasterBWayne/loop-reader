@@ -396,7 +396,7 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-navy flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-[#121212] font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
           <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
         </div>
       </main>
@@ -428,7 +428,7 @@ export default function Home() {
             href="https://gumroad.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="w-full bg-gold hover:bg-gold-light text-ink font-semibold px-6 py-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+            className="w-full bg-gold hover:bg-gold-light text-[#121212] font-semibold px-6 py-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
           >
             Buy Now for ${(selectedBook.price! / 100).toFixed(2)}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -543,13 +543,13 @@ export default function Home() {
           <div className="flex overflow-x-auto gap-2 px-4 pb-2 scrollbar-hide snap-x scroll-smooth">
             <button
               onClick={() => { setCategoryFilter('All'); setVisibleCount(BOOKS_PER_PAGE); }}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === 'All' ? 'bg-gold text-ink' : 'bg-ink/10 text-white'}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === 'All' ? 'bg-gold text-[#121212]' : 'bg-ink/10 text-white'}`}
             >All</button>
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => { setCategoryFilter(cat); setVisibleCount(BOOKS_PER_PAGE); }}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === cat ? 'bg-gold text-ink' : 'bg-ink/10 text-white'}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === cat ? 'bg-gold text-[#121212]' : 'bg-ink/10 text-white'}`}
               >{cat}</button>
             ))}
           </div>

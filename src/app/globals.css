@@ -42,35 +42,35 @@
 }
 
 @theme {
-  /* ReadKindled canonical brand tokens (source: brand-tokens.css) */
-  --color-navy: #F5ECD7;          /* rk-bg: warm cream */
-  --color-navy-light: #FAF6EE;    /* rk-bg-card */
+  /* Spotify-dark: all surfaces are dark, gold accent pops */
+  --color-navy: #121212;          /* Spotify base black */
+  --color-navy-light: #181818;    /* Spotify card/surface */
   --color-gold: #C97D2E;          /* rk-accent: deep amber */
   --color-gold-light: #F5C87A;    /* rk-accent-light */
-  --color-cream: #FFFDF8;         /* rk-text-inverse / off-white */
-  --color-warm-gray: #F0EBE1;     /* rk-bg-surface */
-  --color-ink: #1A1410;           /* rk-text: primary */
-  --color-muted: #6B5744;         /* rk-text-secondary */
-  --color-muted-soft: #9B8878;    /* rk-text-muted */
-  --color-border: #E8D5BA;        /* rk-border */
-  --color-border-strong: #D4B896; /* rk-border-strong */
+  --color-cream: #121212;         /* reader bg — now dark */
+  --color-warm-gray: #282828;     /* elevated surface */
+  --color-ink: #E8E6E3;           /* primary text — high contrast off-white */
+  --color-muted: #A7A7A7;         /* secondary text */
+  --color-muted-soft: #6A6A6A;    /* tertiary/disabled text */
+  --color-border: rgba(255,255,255,0.08); /* subtle dividers */
+  --color-border-strong: rgba(255,255,255,0.16); /* stronger dividers */
   --color-accent-hover: #B56D1E;  /* rk-accent-hover */
   --color-accent-pale: #FDECD4;   /* rk-accent-pale */
 }
 
-/* Dark mode — matches canonical [data-theme="dark"] */
+/* Dark mode override — same palette since base is already dark */
 [data-theme="dark"] {
-  --color-navy: #1A1410;
-  --color-navy-light: #241C15;
+  --color-navy: #121212;
+  --color-navy-light: #181818;
   --color-gold: #C97D2E;
   --color-gold-light: #F5C87A;
-  --color-cream: #F5ECD7;
-  --color-warm-gray: #2E231A;
-  --color-ink: #F5ECD7;
-  --color-muted: #C4A882;
-  --color-muted-soft: #8A7060;
-  --color-border: rgba(255,255,255,0.10);
-  --color-border-strong: rgba(255,255,255,0.18);
+  --color-cream: #121212;
+  --color-warm-gray: #282828;
+  --color-ink: #E8E6E3;
+  --color-muted: #A7A7A7;
+  --color-muted-soft: #6A6A6A;
+  --color-border: rgba(255,255,255,0.08);
+  --color-border-strong: rgba(255,255,255,0.16);
 }
 
 /* Smooth scrollbar for reader */
@@ -81,11 +81,11 @@
   background: transparent;
 }
 .reader-scroll::-webkit-scrollbar-thumb {
-  background: #d1cdc6;
+  background: #383838;
   border-radius: 3px;
 }
 .reader-scroll::-webkit-scrollbar-thumb:hover {
-  background: #b0aba3;
+  background: #484848;
 }
 
 /* Chat messages animation */

@@ -33,7 +33,7 @@ export default function ReadingPage() {
         </div>
         <h1 className="text-xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Pick a book to start</h1>
         <p className="text-sm text-ink/40 mb-6">Choose something from the library and your reading will resume here next time.</p>
-        <a href="/" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">
+        <a href="/" className="inline-flex items-center gap-2 bg-gold hover:bg-gold-light text-[#121212] font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">
           Browse Library
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
         </a>

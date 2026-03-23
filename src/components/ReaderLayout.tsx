@@ -566,13 +566,13 @@ export function ReaderLayout({
             <article className="max-w-2xl mx-auto px-6 md:px-12 py-12">
               {/* Commitment follow-up banner */}
               {pendingFollowUp && !followUpDismissed && (
-                <div className="mb-6 bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/60 rounded-2xl p-5 animate-message-in">
+                <div className="mb-6 bg-warm-gray border border-border-strong rounded-2xl p-5 animate-message-in">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">🎯</span>
-                      <span className="text-[11px] font-semibold text-amber-700/70 uppercase tracking-widest">Check-in</span>
+                      <span className="text-[11px] font-semibold text-gold/70 uppercase tracking-widest">Check-in</span>
                     </div>
-                    <button onClick={() => setFollowUpDismissed(true)} className="text-amber-400 hover:text-amber-600 text-xs">Later</button>
+                    <button onClick={() => setFollowUpDismissed(true)} className="text-muted hover:text-ink text-xs">Later</button>
                   </div>
                   <p className="text-sm text-ink/70 mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     You committed: <em>"{pendingFollowUp.commitment_text}"</em>
@@ -586,14 +586,14 @@ export function ReaderLayout({
                     placeholder="I did it / I didn't get to it because..."
                     rows={2}
                     disabled={followUpLoading}
-                    className="w-full bg-ink/70 border border-amber-200/40 rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-ink/20 outline-none focus:border-amber-400/50 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                    className="w-full bg-navy-light border border-border rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-muted-soft outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50"
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                   />
                   <div className="flex justify-end mt-3">
                     <button
                       onClick={handleFollowUpSubmit}
                       disabled={!followUpInput.trim() || followUpLoading}
-                      className="flex items-center gap-2 bg-amber-500/90 hover:bg-amber-500 disabled:bg-ink/10 disabled:text-ink/30 text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                      className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-warm-gray disabled:text-muted-soft text-navy font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
                     >
                       {followUpLoading ? (
                         <div className="w-4 h-4 border-2 border-ink/30 border-t-white rounded-full animate-spin" />
@@ -607,7 +607,7 @@ export function ReaderLayout({
 
               {/* Personalized intro */}
               {(personalizedIntro || introLoading) && (
-                <div className="mb-10 bg-gold/5 border border-gold/15 rounded-2xl px-6 py-5">
+                <div className="mb-10 bg-warm-gray border border-gold/15 rounded-2xl px-6 py-5">
                   <p className="text-[10px] text-gold/60 font-semibold tracking-[0.15em] uppercase mb-2">For you</p>
                   {introLoading ? (
                     <div className="flex items-center gap-2 text-sm text-muted">
@@ -686,8 +686,8 @@ export function ReaderLayout({
           ) : (
             /* Locked chapter state */
             <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-              <div className="w-16 h-16 bg-ink/80 border border-border rounded-2xl flex items-center justify-center mb-6">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6B5744" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div className="w-16 h-16 bg-warm-gray border border-border rounded-2xl flex items-center justify-center mb-6">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A7A7A7" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
               <h2 className="text-xl font-semibold text-ink mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 Chapter {chapter.number} is locked
