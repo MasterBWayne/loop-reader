@@ -311,7 +311,7 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     author: 'Amir Levine & Rachel Heller (adapted)',
     bookNumber: 8,
     description: 'The science of adult bonding and how understanding your relational wiring can transform the way you love, fight, and connect.',
-    readTime: '~35 min read',
+    readTime: '~90 min read',
     category: 'Relationships',
     tags: ['attachment', 'relationships', 'love', 'communication', 'self-awareness'],
     featured: false,
