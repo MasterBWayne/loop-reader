@@ -746,4 +746,228 @@ export async function loadChapterReflection(userId: string, bookId: string, chap
   } catch { return null; }
 }
 
+// ── Reading Session Tracking ──────────────────────────────────────────
+
+export interface ReadingSessionRecord {
+  id?: string;
+  user_id: string;
+  book_id: string;
+  chapter_number: number;
+  started_at: string;
+  ended_at?: string;
+  duration_seconds?: number;
+  reading_speed_wpm?: number;
+  completion_percentage?: number;
+}
+
+export async function startReadingSession(
+  userId: string,
+  bookId: string,
+  chapterNumber: number
+): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.from('reading_sessions').insert({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      started_at: new Date().toISOString(),
+    }).select('id').single();
+    if (error || !data) { console.error('Start reading session error:', error?.message); return null; }
+    return data.id;
+  } catch { return null; }
+}
+
+export async function endReadingSession(
+  sessionId: string,
+  durationSeconds: number,
+  readingSpeedWpm?: number,
+  completionPercentage?: number
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('reading_sessions').update({
+      ended_at: new Date().toISOString(),
+      duration_seconds: durationSeconds,
+      reading_speed_wpm: readingSpeedWpm || null,
+      completion_percentage: completionPercentage || 100,
+    }).eq('id', sessionId);
+    if (error) { console.error('End reading session error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadReadingSessions(
+  userId: string,
+  bookId: string
+): Promise<ReadingSessionRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from('reading_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .order('started_at', { ascending: false });
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+export async function getChapterReadingTime(
+  userId: string,
+  bookId: string,
+  chapterNumber: number
+): Promise<number | null> {
+  try {
+    const { data, error } = await supabase
+      .from('reading_sessions')
+      .select('duration_seconds')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .eq('chapter_number', chapterNumber)
+      .not('duration_seconds', 'is', null)
+      .order('started_at', { ascending: false })
+      .limit(1);
+    if (error || !data || data.length === 0) return null;
+    return data[0].duration_seconds;
+  } catch { return null; }
+}
+
+// ── Coaching Message History ──────────────────────────────────────────
+
+export interface CoachingMessageRecord {
+  id?: string;
+  user_id: string;
+  book_id: string;
+  chapter_number: number;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at?: string;
+}
+
+export async function saveCoachingMessage(
+  userId: string,
+  bookId: string,
+  chapterNumber: number,
+  role: 'user' | 'assistant',
+  content: string
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('coaching_messages').insert({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      role,
+      content,
+    });
+    if (error) { console.error('Save coaching message error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadCoachingMessages(
+  userId: string,
+  bookId: string,
+  limit: number = 20
+): Promise<CoachingMessageRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from('coaching_messages')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    // Return in chronological order
+    return data.reverse();
+  } catch { return []; }
+}
+
+// ── Reading Streak ──────────────────────────────────────────────────────
+
+export async function updateReadingStreak(userId: string): Promise<number> {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get current streak data
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('streak_count, last_read_date')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) {
+      // User might not have these columns yet; try to set them
+      await supabase.from('users').update({
+        streak_count: 1,
+        last_read_date: today,
+      }).eq('id', userId);
+      return 1;
+    }
+
+    const lastRead = user.last_read_date;
+    let newStreak = user.streak_count || 0;
+
+    if (lastRead === today) {
+      // Already read today, no change
+      return newStreak;
+    }
+
+    if (lastRead) {
+      const lastDate = new Date(lastRead);
+      const todayDate = new Date(today);
+      const diffMs = todayDate.getTime() - lastDate.getTime();
+      const diffHours = diffMs / (1000 * 60 * 60);
+
+      if (diffHours <= 48) {
+        // Within 48 hours — increment streak
+        newStreak += 1;
+      } else {
+        // More than 48h gap — reset streak
+        newStreak = 1;
+      }
+    } else {
+      // First reading ever
+      newStreak = 1;
+    }
+
+    await supabase.from('users').update({
+      streak_count: newStreak,
+      last_read_date: today,
+    }).eq('id', userId);
+
+    return newStreak;
+  } catch { return 0; }
+}
+
+export async function getReadingStreak(userId: string): Promise<{ streakCount: number; lastReadDate: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('streak_count, last_read_date')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) return { streakCount: 0, lastReadDate: null };
+
+    // Check if streak is still valid (not expired past 48h)
+    if (data.last_read_date) {
+      const lastDate = new Date(data.last_read_date);
+      const now = new Date();
+      const diffHours = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60);
+      if (diffHours > 48) {
+        // Streak expired — reset
+        await supabase.from('users').update({
+          streak_count: 0,
+        }).eq('id', userId);
+        return { streakCount: 0, lastReadDate: data.last_read_date };
+      }
+    }
+
+    return {
+      streakCount: data.streak_count || 0,
+      lastReadDate: data.last_read_date || null,
+    };
+  } catch { return { streakCount: 0, lastReadDate: null }; }
+}
+
 

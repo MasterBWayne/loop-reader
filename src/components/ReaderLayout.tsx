@@ -97,6 +97,18 @@ export function ReaderLayout({
   // Feature 4: Living Summary
   const [showPersonalSummary, setShowPersonalSummary] = useState(false);
 
+  // Week 3-4: Reading Session Tracking
+  const [readingSessionId, setReadingSessionId] = useState<string | null>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [chapterReadTime, setChapterReadTime] = useState<number | null>(null);
+  const [showReadTimeToast, setShowReadTimeToast] = useState(false);
+
+  // Week 3-4: Coaching Message History
+  const [coachingHistoryLoaded, setCoachingHistoryLoaded] = useState(false);
+
+  // Week 3-4: Exercise Response History (tab in nav)
+  const [showExerciseHistory, setShowExerciseHistory] = useState(false);
+
   const bookId = bookTitle.toLowerCase().replace(/\s+/g, '-');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
@@ -165,11 +177,67 @@ export function ReaderLayout({
             } catch {}
           }
         });
+
+        // Load previous reading time for this chapter
+        getChapterReadingTime(user.id, bookId, chapter.number).then(seconds => {
+          setChapterReadTime(seconds);
+        });
       }
     } else {
       setPersonalizedIntro(null);
     }
   }, [currentChapter, unlocked, user?.id, bookId, chapter.number]);
+
+  // Week 3-4: Reading Session Tracking — start/stop session on chapter change
+  useEffect(() => {
+    if (!user?.id || !unlocked) return;
+
+    // End previous session
+    if (readingSessionId && sessionStartTime) {
+      const durationSec = Math.round((Date.now() - sessionStartTime) / 1000);
+      if (durationSec > 5) { // only save sessions > 5 seconds
+        const wordCount = chapter.content ? chapter.content.split(/\s+/).length : 0;
+        const wpm = durationSec > 0 && wordCount > 0 ? Math.round((wordCount / durationSec) * 60) : undefined;
+        endReadingSession(readingSessionId, durationSec, wpm, 100);
+      }
+    }
+
+    // Start new session
+    setSessionStartTime(Date.now());
+    setShowReadTimeToast(false);
+    startReadingSession(user.id, bookId, chapter.number).then(id => {
+      setReadingSessionId(id);
+    });
+
+    // Update reading streak
+    updateReadingStreak(user.id);
+
+    // Cleanup: end session on unmount
+    return () => {
+      // We capture in the effect cleanup, but sessionId may be stale
+      // The next render will handle ending the session
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChapter, user?.id, bookId, unlocked]);
+
+  // Week 3-4: Load coaching message history on mount
+  useEffect(() => {
+    if (!user?.id || coachingHistoryLoaded) return;
+    loadCoachingMessages(user.id, bookId, 20).then(history => {
+      if (history.length > 0) {
+        const historyMessages: Message[] = history.map(m => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        }));
+        // Prepend history before the welcome message, then add welcome
+        setMessages(prev => {
+          const welcome = prev[0]; // Keep the welcome message
+          return [...historyMessages, welcome];
+        });
+      }
+      setCoachingHistoryLoaded(true);
+    });
+  }, [user?.id, bookId, coachingHistoryLoaded]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -359,6 +427,11 @@ export function ReaderLayout({
     setMessages(newMessages);
     setIsTyping(true);
 
+    // Persist user message to coaching_messages
+    if (user?.id) {
+      saveCoachingMessage(user.id, bookId, chapter.number, 'user', userMsg);
+    }
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -376,6 +449,11 @@ export function ReaderLayout({
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
       if (data.limitReached) setLimitReached(true);
+
+      // Persist assistant response to coaching_messages
+      if (user?.id && data.response) {
+        saveCoachingMessage(user.id, bookId, chapter.number, 'assistant', data.response);
+      }
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Something went wrong. Try again in a moment.' }]);
     } finally {
@@ -393,9 +471,26 @@ export function ReaderLayout({
   const navigateChapter = (index: number) => {
     const ch = chapters[index];
     if (!isChapterUnlocked(ch.number, progress)) return;
+
+    // End current reading session and show toast
+    if (readingSessionId && sessionStartTime && user?.id) {
+      const durationSec = Math.round((Date.now() - sessionStartTime) / 1000);
+      if (durationSec > 5) {
+        const wordCount = chapter.content ? chapter.content.split(/\s+/).length : 0;
+        const wpm = durationSec > 0 && wordCount > 0 ? Math.round((wordCount / durationSec) * 60) : undefined;
+        endReadingSession(readingSessionId, durationSec, wpm, 100);
+        setChapterReadTime(durationSec);
+        setShowReadTimeToast(true);
+        setTimeout(() => setShowReadTimeToast(false), 5000);
+      }
+      setReadingSessionId(null);
+      setSessionStartTime(null);
+    }
+
     setCurrentChapter(index);
     setShowNav(false);
     setPersonalizedIntro(null);
+    setShowExerciseHistory(false);
   };
 
   const renderText = (text: string) => {
@@ -473,12 +568,12 @@ export function ReaderLayout({
         </div>
       </header>
 
-      {/* Tab switcher: Chapters | Practice */}
+      {/* Tab switcher: Chapters | Practice | My Responses */}
       <div className="bg-[#111111] border-b border-[rgba(255,255,255,0.08)] px-4 flex gap-1 shrink-0">
         <button
-          onClick={() => setActiveTab('chapters')}
+          onClick={() => { setActiveTab('chapters'); setShowExerciseHistory(false); }}
           className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
-            activeTab === 'chapters'
+            activeTab === 'chapters' && !showExerciseHistory
               ? 'text-gold border-gold'
               : 'text-[#999999] border-transparent hover:text-[#E8E8E8]'
           }`}
@@ -486,7 +581,7 @@ export function ReaderLayout({
           Chapters
         </button>
         <button
-          onClick={() => setActiveTab('practice')}
+          onClick={() => { setActiveTab('practice'); setShowExerciseHistory(false); }}
           className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
             activeTab === 'practice'
               ? 'text-gold border-gold'
@@ -495,6 +590,18 @@ export function ReaderLayout({
         >
           Practice
         </button>
+        {user?.id && (
+          <button
+            onClick={() => { setShowExerciseHistory(true); setActiveTab('chapters'); }}
+            className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
+              showExerciseHistory
+                ? 'text-gold border-gold'
+                : 'text-[#999999] border-transparent hover:text-[#E8E8E8]'
+            }`}
+          >
+            My Responses
+          </button>
+        )}
       </div>
 
       <div className="flex flex-1 overflow-hidden relative">
@@ -568,8 +675,34 @@ export function ReaderLayout({
           </div>
         )}
 
+        {/* Exercise Response History panel */}
+        {showExerciseHistory && user?.id && (
+          <div className={`flex-1 overflow-y-auto reader-scroll bg-[#111111] ${showChat ? 'hidden md:block' : ''}`}>
+            <div className="max-w-[740px] mx-auto">
+              <ExerciseHistory userId={user.id} bookId={bookId} chapters={chapters} />
+            </div>
+          </div>
+        )}
+
+        {/* Reading time toast */}
+        {showReadTimeToast && chapterReadTime && chapterReadTime > 5 && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#252525] border border-gold/30 rounded-xl px-5 py-3 shadow-lg animate-message-in flex items-center gap-2">
+            <span className="text-lg">📖</span>
+            <span className="text-sm text-[#E8E8E8]">
+              You read that in <span className="text-gold font-semibold">
+                {chapterReadTime >= 60 
+                  ? `${Math.floor(chapterReadTime / 60)} min${chapterReadTime >= 120 ? 's' : ''}`
+                  : `${chapterReadTime} sec`}
+              </span>
+            </span>
+            <button onClick={() => setShowReadTimeToast(false)} className="text-[#666666] hover:text-[#999999] ml-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        )}
+
         {/* Reader panel */}
-        <div className={`flex-1 overflow-y-auto reader-scroll transition-all duration-300 ${activeTab !== 'chapters' ? 'hidden' : ''} ${showChat ? 'hidden md:block' : ''}`}>
+        <div className={`flex-1 overflow-y-auto reader-scroll transition-all duration-300 ${activeTab !== 'chapters' || showExerciseHistory ? 'hidden' : ''} ${showChat ? 'hidden md:block' : ''}`}>
           {unlocked ? (
             <article className="max-w-[740px] mx-auto px-4 md:px-6 py-12">
               {/* Commitment follow-up banner */}
@@ -632,7 +765,16 @@ export function ReaderLayout({
 
               {/* Chapter header */}
               <div className="mb-8" style={{ marginBottom: '32px' }}>
-                <p className="text-[11px] text-[#999999] font-semibold tracking-[0.1em] uppercase mb-3">Chapter {chapter.number}</p>
+                <div className="flex items-center gap-3 mb-3">
+                  <p className="text-[11px] text-[#999999] font-semibold tracking-[0.1em] uppercase">Chapter {chapter.number}</p>
+                  {chapterReadTime && chapterReadTime > 5 && (
+                    <span className="text-[10px] text-gold/60 bg-gold/10 px-2 py-0.5 rounded-full">
+                      📖 Read in {chapterReadTime >= 60
+                        ? `${Math.floor(chapterReadTime / 60)} min${chapterReadTime >= 120 ? 's' : ''}`
+                        : `${chapterReadTime} sec`}
+                    </span>
+                  )}
+                </div>
                 <h1 className="text-[28px] font-semibold text-heading leading-[1.3]" style={{ fontFamily: "var(--rk-font-heading)" }}>
                   {chapter.title}
                 </h1>

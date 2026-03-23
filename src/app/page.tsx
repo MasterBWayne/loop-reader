@@ -19,6 +19,7 @@ import {
   type UserProfileData,
 } from '@/lib/supabase';
 import { UserProfile, UpgradeBanner } from '@/components/UserProfile';
+import { ReadingStreak } from '@/components/ReadingStreak';
 
 type AppState = 'loading' | 'landing' | 'intake' | 'pace-select' | 'reading' | 'purchase';
 type SortOption = 'featured' | 'newest' | 'az';
@@ -488,6 +489,13 @@ export default function Home() {
       </div>
 
       <div className="max-w-xl mx-auto mt-2">
+        {/* Reading streak badge */}
+        {userId && (
+          <div className="px-4 mb-4">
+            <ReadingStreak userId={userId} />
+          </div>
+        )}
+
         {/* Upgrade banner */}
         {intake && user && isAnonymousUser(user) && (
           <div className="px-4 mb-6">
