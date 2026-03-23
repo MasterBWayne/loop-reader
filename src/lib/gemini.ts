@@ -505,3 +505,48 @@ Return ONLY the JSON.`;
     return { reframe: "It's normal to need time to process before acting.", microStep: "Pick just one sentence from this reflection to keep in mind today." };
   }
 }
+
+
+// ── Spaced Repetition Card Generation ───────────────────────────────
+
+export async function generateReviewCards(
+  chapterTitle: string,
+  chapterContent: string,
+  exerciseQuestion: string
+): Promise<{ question: string; correct_answer: string }[]> {
+  const prompt = `You are generating spaced repetition review cards for a self-improvement book chapter.
+
+CHAPTER: "${chapterTitle}"
+CONTENT (first 2000 chars): ${chapterContent.slice(0, 2000)}
+EXERCISE: "${exerciseQuestion}"
+
+Generate exactly 3 review cards that test the reader's understanding of the KEY CONCEPTS. Each card should:
+- Test a different core idea from the chapter
+- Be answerable in 1-3 sentences
+- Focus on practical understanding, not trivia
+- Be phrased as a question the reader could answer from memory
+
+Output MUST be a valid JSON array:
+[
+  { "question": "...", "correct_answer": "..." },
+  { "question": "...", "correct_answer": "..." },
+  { "question": "...", "correct_answer": "..." }
+]
+
+The correct_answer should be a concise, clear answer (1-2 sentences). Return ONLY the JSON array.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.4, maxOutputTokens: 500 },
+  });
+
+  try {
+    const text = response.text?.replace(/```json/g, '').replace(/```/g, '').trim() || '[]';
+    const cards = JSON.parse(text);
+    if (Array.isArray(cards) && cards.length > 0) return cards;
+    return [];
+  } catch {
+    return [];
+  }
+}

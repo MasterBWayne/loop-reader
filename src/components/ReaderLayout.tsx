@@ -11,6 +11,7 @@ import {
   startReadingSession, endReadingSession, getChapterReadingTime,
   saveCoachingMessage, loadCoachingMessages,
   updateReadingStreak,
+  createReviewCards, hasReviewCardsForChapter,
   type ReflectionRecord, type CommitmentRecord,
 } from '@/lib/supabase';
 import { ActiveRecallGate } from './ActiveRecallGate';
@@ -324,6 +325,28 @@ export function ReaderLayout({
     }
 
     setExerciseLoading(false);
+
+    // Generate spaced repetition review cards (fire and forget)
+    if (user?.id && chapter.content) {
+      hasReviewCardsForChapter(user.id, bookId, chapter.number).then(async (exists) => {
+        if (exists) return;
+        try {
+          const res = await fetch('/api/review-cards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chapterTitle: chapter.title,
+              chapterContent: chapter.content,
+              exerciseQuestion: chapter.exerciseQuestion,
+            }),
+          });
+          const data = await res.json();
+          if (data.cards?.length > 0) {
+            await createReviewCards(user.id, bookId, chapter.number, data.cards);
+          }
+        } catch (e) { console.error('Review card generation error:', e); }
+      });
+    }
 
     // Feature 1: Trigger Active Recall Gate after exercise submission
     // Only show if there's a next chapter and current chapter has real content

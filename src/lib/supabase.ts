@@ -971,3 +971,135 @@ export async function getReadingStreak(userId: string): Promise<{ streakCount: n
 }
 
 
+// ── Spaced Repetition Review Cards ─────────────────────────────────────
+
+export interface ReviewCard {
+  id?: string;
+  user_id: string;
+  book_id: string;
+  chapter_number: number;
+  question: string;
+  correct_answer: string;
+  interval_days: number;     // current interval: 1, 3, 7, 21, 60
+  next_review_at: string;    // ISO date
+  ease_factor: number;       // multiplier (default 2.5)
+  review_count: number;
+  last_reviewed_at?: string;
+  created_at?: string;
+}
+
+const INTERVALS = [1, 3, 7, 21, 60]; // days between reviews
+
+export async function createReviewCards(
+  userId: string, bookId: string, chapterNumber: number, cards: { question: string; correct_answer: string }[]
+): Promise<boolean> {
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextReview = tomorrow.toISOString();
+
+    const rows = cards.map(c => ({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      question: c.question,
+      correct_answer: c.correct_answer,
+      interval_days: 1,
+      next_review_at: nextReview,
+      ease_factor: 2.5,
+      review_count: 0,
+    }));
+
+    const { error } = await supabase.from('review_cards').insert(rows);
+    if (error) { console.error('Create review cards error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function getDueReviewCards(userId: string, limit = 5): Promise<ReviewCard[]> {
+  try {
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from('review_cards')
+      .select('*')
+      .eq('user_id', userId)
+      .lte('next_review_at', now)
+      .order('next_review_at', { ascending: true })
+      .limit(limit);
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+export async function updateReviewCard(
+  cardId: string, remembered: boolean
+): Promise<boolean> {
+  try {
+    // Fetch current card
+    const { data: card, error: fetchErr } = await supabase
+      .from('review_cards')
+      .select('*')
+      .eq('id', cardId)
+      .single();
+    if (fetchErr || !card) return false;
+
+    let newInterval: number;
+    let newEase = card.ease_factor;
+
+    if (remembered) {
+      // Move to next interval level
+      const currentIdx = INTERVALS.indexOf(card.interval_days);
+      const nextIdx = Math.min((currentIdx >= 0 ? currentIdx : 0) + 1, INTERVALS.length - 1);
+      newInterval = INTERVALS[nextIdx];
+      newEase = Math.min(card.ease_factor + 0.1, 3.0);
+    } else {
+      // Reset to 1 day
+      newInterval = 1;
+      newEase = Math.max(card.ease_factor - 0.2, 1.5);
+    }
+
+    const nextReview = new Date();
+    nextReview.setDate(nextReview.getDate() + newInterval);
+
+    const { error } = await supabase.from('review_cards').update({
+      interval_days: newInterval,
+      next_review_at: nextReview.toISOString(),
+      ease_factor: newEase,
+      review_count: (card.review_count || 0) + 1,
+      last_reviewed_at: new Date().toISOString(),
+    }).eq('id', cardId);
+
+    if (error) { console.error('Update review card error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function getReviewStats(userId: string): Promise<{ total: number; due: number; mastered: number }> {
+  try {
+    const { data: all, error: e1 } = await supabase
+      .from('review_cards')
+      .select('id, next_review_at, interval_days')
+      .eq('user_id', userId);
+    if (e1 || !all) return { total: 0, due: 0, mastered: 0 };
+
+    const now = new Date().toISOString();
+    const due = all.filter(c => c.next_review_at <= now).length;
+    const mastered = all.filter(c => c.interval_days >= 60).length;
+    return { total: all.length, due, mastered };
+  } catch { return { total: 0, due: 0, mastered: 0 }; }
+}
+
+export async function hasReviewCardsForChapter(userId: string, bookId: string, chapterNumber: number): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('review_cards')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .eq('chapter_number', chapterNumber)
+      .limit(1);
+    if (error) return false;
+    return (data?.length || 0) > 0;
+  } catch { return false; }
+}
+
