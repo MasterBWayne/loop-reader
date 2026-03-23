@@ -3,6 +3,16 @@ import { HOW_TO_GET_RICH_CHAPTERS } from './how-to-get-rich';
 import { WIN_FRIENDS_CHAPTERS } from './win-friends';
 import { SMALL_TALK_CHAPTERS } from './small-talk';
 import { NEVER_SPLIT_CHAPTERS } from './never-split';
+import { FOUR_AGREEMENTS_CHAPTERS } from './four-agreements';
+import { ATTACHED_CHAPTERS } from './attached';
+import { MOUNTAIN_IS_YOU_CHAPTERS } from './mountain-is-you';
+import { POWER_OF_NOW_CHAPTERS } from './power-of-now';
+import { THINK_GROW_RICH_CHAPTERS } from './think-grow-rich';
+import { ATOMIC_HABITS_CHAPTERS } from './atomic-habits';
+import { SUBTLE_ART_CHAPTERS } from './subtle-art';
+import { UNTETHERED_SOUL_CHAPTERS } from './untethered-soul';
+import { MINDSET_CHAPTERS } from './mindset';
+import { DEEP_WORK_CHAPTERS } from './deep-work';
 
 export interface Chapter {
   number: number;
@@ -11,7 +21,7 @@ export interface Chapter {
   exerciseQuestion?: string; // reflection question at end of chapter
 }
 
-export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership' | 'Communication' | 'Negotiation';
+export type BookCategory = 'Self-Help' | 'Business' | 'Philosophy' | 'Relationships' | 'Psychology' | 'Spirituality' | 'Leadership' | 'Communication' | 'Negotiation' | 'Habits/Productivity';
 
 export interface Book {
   id: string;
@@ -30,7 +40,7 @@ export interface Book {
   is_author_upload?: boolean;
 }
 
-export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership', 'Communication', 'Negotiation'];
+export const CATEGORIES: BookCategory[] = ['Self-Help', 'Business', 'Philosophy', 'Relationships', 'Psychology', 'Spirituality', 'Leadership', 'Communication', 'Negotiation', 'Habits/Productivity'];
 
 export const BOOKS: Book[] = [
   {
@@ -225,5 +235,145 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     featured: true,
     coverColor: 'from-red-800 to-stone-900',
     chapters: NEVER_SPLIT_CHAPTERS,
+  },
+  {
+    id: 'four-agreements',
+    title: 'The Four Agreements',
+    subtitle: 'Book Seven',
+    author: 'Don Miguel Ruiz (adapted)',
+    bookNumber: 7,
+    description: 'Ancient Toltec wisdom distilled into a practical guide for breaking self-limiting beliefs and living with authentic freedom.',
+    readTime: '~35 min read',
+    category: 'Spirituality',
+    tags: ['mindset', 'self-awareness', 'beliefs', 'freedom', 'integrity'],
+    featured: false,
+    coverColor: '#E9C46A',
+    chapters: FOUR_AGREEMENTS_CHAPTERS,
+  },
+  {
+    id: 'attached',
+    title: 'Attached',
+    subtitle: 'Book Eight',
+    author: 'Amir Levine & Rachel Heller (adapted)',
+    bookNumber: 8,
+    description: 'The science of adult bonding and how understanding your relational wiring can transform the way you love, fight, and connect.',
+    readTime: '~35 min read',
+    category: 'Relationships',
+    tags: ['attachment', 'relationships', 'love', 'communication', 'self-awareness'],
+    featured: false,
+    coverColor: '#E07A5F',
+    chapters: ATTACHED_CHAPTERS,
+  },
+  {
+    id: 'mountain-is-you',
+    title: 'The Mountain Is You',
+    subtitle: 'Book Nine',
+    author: 'Brianna Wiest (adapted)',
+    bookNumber: 9,
+    description: 'A deep dive into self-sabotage — why you do it, how to recognize it, and the inner transformation required to finally get out of your own way.',
+    readTime: '~35 min read',
+    category: 'Psychology',
+    tags: ['self-sabotage', 'self-awareness', 'emotional intelligence', 'identity', 'growth'],
+    featured: false,
+    coverColor: '#7B6FA0',
+    chapters: MOUNTAIN_IS_YOU_CHAPTERS,
+  },
+  {
+    id: 'power-of-now',
+    title: 'The Power of Now',
+    subtitle: 'Book Ten',
+    author: 'Eckhart Tolle (adapted)',
+    bookNumber: 10,
+    description: 'A guide to escaping the prison of compulsive thinking and discovering the profound peace that exists in the present moment.',
+    readTime: '~30 min read',
+    category: 'Spirituality',
+    tags: ['presence', 'mindfulness', 'consciousness', 'inner peace', 'surrender'],
+    featured: false,
+    coverColor: '#6A4C93',
+    chapters: POWER_OF_NOW_CHAPTERS,
+  },
+  {
+    id: 'think-grow-rich',
+    title: 'Think and Grow Rich',
+    subtitle: 'Book Eleven',
+    author: 'Napoleon Hill (adapted)',
+    bookNumber: 11,
+    description: 'The timeless principles of wealth creation distilled from decades of studying the most successful people in history. Desire, conviction, and relentless execution.',
+    readTime: '~35 min read',
+    category: 'Business',
+    tags: ['wealth', 'mindset', 'desire', 'persistence', 'success'],
+    featured: false,
+    coverColor: '#F4A261',
+    chapters: THINK_GROW_RICH_CHAPTERS,
+  },
+  {
+    id: 'atomic-habits',
+    title: 'Atomic Habits',
+    subtitle: 'Book Twelve',
+    author: 'James Clear (adapted)',
+    bookNumber: 12,
+    description: 'A proven framework for building good habits and breaking bad ones. Tiny changes, remarkable results.',
+    readTime: '~40 min read',
+    category: 'Habits/Productivity',
+    tags: ['habits', 'productivity', 'behavior change', 'systems', 'self-improvement'],
+    featured: false,
+    coverColor: '#2D6A4F',
+    chapters: ATOMIC_HABITS_CHAPTERS,
+  },
+  {
+    id: 'subtle-art',
+    title: 'The Subtle Art of Not Giving a F*ck',
+    subtitle: 'Book Thirteen',
+    author: 'Mark Manson (adapted)',
+    bookNumber: 13,
+    description: 'A counterintuitive approach to living a good life by choosing what to care about — and letting go of everything else.',
+    readTime: '~40 min read',
+    category: 'Self-Help',
+    tags: ['values', 'responsibility', 'acceptance', 'mindset', 'authenticity'],
+    featured: false,
+    coverColor: '#E63946',
+    chapters: SUBTLE_ART_CHAPTERS,
+  },
+  {
+    id: 'untethered-soul',
+    title: 'The Untethered Soul',
+    subtitle: 'Book Fourteen',
+    author: 'Michael Singer (adapted)',
+    bookNumber: 14,
+    description: 'A journey beyond yourself — learning to let go of the habitual thoughts and emotions that limit your consciousness.',
+    readTime: '~35 min read',
+    category: 'Spirituality',
+    tags: ['consciousness', 'inner freedom', 'letting go', 'awareness', 'presence'],
+    featured: false,
+    coverColor: '#264653',
+    chapters: UNTETHERED_SOUL_CHAPTERS,
+  },
+  {
+    id: 'mindset',
+    title: 'Mindset',
+    subtitle: 'Book Fifteen',
+    author: 'Carol Dweck (adapted)',
+    bookNumber: 15,
+    description: 'How the way you think about your abilities shapes everything — and why a growth mindset is the key to reaching your potential.',
+    readTime: '~35 min read',
+    category: 'Psychology',
+    tags: ['growth mindset', 'learning', 'resilience', 'potential', 'self-belief'],
+    featured: false,
+    coverColor: '#4CC9F0',
+    chapters: MINDSET_CHAPTERS,
+  },
+  {
+    id: 'deep-work',
+    title: 'Deep Work',
+    subtitle: 'Book Sixteen',
+    author: 'Cal Newport (adapted)',
+    bookNumber: 16,
+    description: 'Rules for focused success in a distracted world. How to cultivate the rare ability to concentrate without distraction.',
+    readTime: '~40 min read',
+    category: 'Habits/Productivity',
+    tags: ['focus', 'productivity', 'deep work', 'distraction', 'craftsmanship'],
+    featured: false,
+    coverColor: '#2B2D42',
+    chapters: DEEP_WORK_CHAPTERS,
   },
 ];
