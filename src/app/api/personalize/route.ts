@@ -1,18 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generatePersonalizedIntro } from '@/lib/gemini';
+import { loadIntakeServer } from '@/lib/server-supabase';
 
 export async function POST(req: NextRequest) {
   try {
-    const { chapterTitle, chapterContent, intake, profile, priorReflections } = await req.json();
+    const { chapterTitle, chapterContent, intake, profile, priorReflections, userId } = await req.json();
 
-    if (!chapterTitle || !intake?.struggle) {
+    // Feature 2: Load intake from Supabase (authoritative) with client fallback
+    const serverIntake = await loadIntakeServer(userId, intake);
+
+    if (!chapterTitle || !serverIntake?.struggle) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const intro = await generatePersonalizedIntro(
       chapterTitle,
       chapterContent || '',
-      intake,
+      serverIntake,
       profile,
       priorReflections
     );

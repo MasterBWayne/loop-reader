@@ -6,6 +6,8 @@ import { ExerciseBox } from './ExerciseBox';
 import { HabitTracker } from './HabitTracker';
 import { MicButton } from './MicButton';
 import { saveReflection, loadReflections, loadChapterReflection, saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp, type ReflectionRecord, type CommitmentRecord } from '@/lib/supabase';
+import { ActiveRecallGate } from './ActiveRecallGate';
+import { PersonalSummaryView } from './PersonalSummaryView';
 
 interface Chapter {
   number: number;
@@ -39,6 +41,7 @@ interface ReaderLayoutProps {
   onSignOut?: () => void;
   pace?: 'guided' | 'free';
   userProfile?: any;
+  coverColor?: string;
 }
 
 export function ReaderLayout({
@@ -54,6 +57,7 @@ export function ReaderLayout({
   onSignOut,
   pace,
   userProfile,
+  coverColor,
 }: ReaderLayoutProps) {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [showChat, setShowChat] = useState(false);
@@ -79,6 +83,12 @@ export function ReaderLayout({
   const [followUpDismissed, setFollowUpDismissed] = useState(false);
   const [journeySummary, setJourneySummary] = useState<string | null>(null);
   const [journeyLoading, setJourneyLoading] = useState(false);
+  // Feature 1: Active Recall Gate
+  const [showRecallGate, setShowRecallGate] = useState(false);
+  const [recallChapter, setRecallChapter] = useState<number | null>(null);
+  // Feature 4: Living Summary
+  const [showPersonalSummary, setShowPersonalSummary] = useState(false);
+
   const bookId = bookTitle.toLowerCase().replace(/\s+/g, '-');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLInputElement>(null);
@@ -176,6 +186,7 @@ export function ReaderLayout({
           chapterContent: chapter.content,
           intake,
           profile: userProfile,
+          userId: user?.id,
           priorReflections: Object.entries(reflections)
             .filter(([cn]) => parseInt(cn) < chapter.number)
             .map(([cn, ans]) => ({ chapter: parseInt(cn), answer: ans })),
@@ -214,6 +225,7 @@ export function ReaderLayout({
           questionText: chapter.exerciseQuestion,
           answerText: answer,
           profile: userProfile,
+          userId: user?.id,
         }),
       });
       const data = await res.json();
@@ -235,6 +247,13 @@ export function ReaderLayout({
     }
 
     setExerciseLoading(false);
+
+    // Feature 1: Trigger Active Recall Gate after exercise submission
+    // Only show if there's a next chapter and current chapter has real content
+    if (chapter.content && !chapter.content.startsWith('Coming soon')) {
+      setRecallChapter(chapter.number);
+      setShowRecallGate(true);
+    }
 
     // Check if this is the last chapter with content
     const lastContentChapter = [...chapters].reverse().find(c => c.content && !c.content.startsWith('Coming soon'));
@@ -274,6 +293,7 @@ export function ReaderLayout({
           chapterTitle: chapters.find(c => c.number === pendingFollowUp.chapter_number)?.title || '',
           outcomeText: followUpInput.trim(),
           profile: userProfile,
+          userId: user?.id,
         }),
       });
       const data = await res.json();
@@ -425,6 +445,16 @@ export function ReaderLayout({
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-ink/40 mr-2 hidden sm:block">{currentChapter + 1} of {chapters.length}</span>
+          {/* Feature 4: Living Summary button */}
+          {user?.id && (
+            <button
+              onClick={() => setShowPersonalSummary(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-ink/10 text-ink/70 hover:bg-ink/15 hover:text-white transition-all hidden sm:flex"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              My {bookTitle.length > 15 ? bookTitle.slice(0, 15) + '...' : bookTitle}
+            </button>
+          )}
           <button
             onClick={() => setShowChat(!showChat)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showChat ? 'bg-gold text-ink' : 'bg-ink/10 text-ink/70 hover:bg-ink/15 hover:text-white'}`}
@@ -684,6 +714,47 @@ export function ReaderLayout({
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           </button>
+        )}
+
+        {/* Feature 1: Active Recall Gate overlay */}
+        {showRecallGate && recallChapter !== null && (() => {
+          const recallCh = chapters.find(c => c.number === recallChapter);
+          if (!recallCh) return null;
+          return (
+            <ActiveRecallGate
+              chapterTitle={recallCh.title}
+              chapterNumber={recallCh.number}
+              chapterContent={recallCh.content}
+              exerciseQuestion={recallCh.exerciseQuestion}
+              bookId={bookId}
+              userId={user?.id}
+              onPass={() => {
+                setShowRecallGate(false);
+                setRecallChapter(null);
+                // Auto-advance to next chapter if available
+                const nextIdx = chapters.findIndex(c => c.number === recallChapter) + 1;
+                if (nextIdx < chapters.length && isChapterUnlocked(chapters[nextIdx].number, progress)) {
+                  navigateChapter(nextIdx);
+                }
+              }}
+              onReRead={() => {
+                setShowRecallGate(false);
+                setRecallChapter(null);
+              }}
+            />
+          );
+        })()}
+
+        {/* Feature 4: Personal Summary overlay */}
+        {showPersonalSummary && user?.id && (
+          <PersonalSummaryView
+            bookId={bookId}
+            bookTitle={bookTitle}
+            userId={user.id}
+            coverColor={coverColor || 'from-amber-600 to-orange-800'}
+            onClose={() => setShowPersonalSummary(false)}
+            userProfile={userProfile}
+          />
         )}
 
         {/* AI Companion panel */}

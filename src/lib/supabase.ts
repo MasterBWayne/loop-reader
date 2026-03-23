@@ -638,6 +638,100 @@ export async function loadChapterProgress(userId: string): Promise<ChapterProgre
   } catch { return []; }
 }
 
+// ── Exercise Responses (Active Recall) ────────────────────────────────
+
+export interface ExerciseResponseRecord {
+  id?: string;
+  user_id: string;
+  book_id: string;
+  chapter_number: number;
+  type: string;
+  prompt_text?: string;
+  response_text: string;
+  ai_feedback?: { understood: boolean; feedback: string; missed: string };
+  created_at?: string;
+}
+
+export async function saveExerciseResponse(
+  userId: string,
+  bookId: string,
+  chapterNumber: number,
+  exerciseType: string,
+  responseText: string,
+  promptText?: string,
+  aiFeedback?: { understood: boolean; feedback: string; missed: string }
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('exercise_responses').insert({
+      user_id: userId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      type: exerciseType,
+      prompt_text: promptText,
+      response_text: responseText,
+      ai_feedback: aiFeedback,
+    });
+    if (error) { console.error('Save exercise response error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadExerciseResponses(userId: string, bookId: string): Promise<ExerciseResponseRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from('exercise_responses')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .order('created_at');
+    if (error || !data) return [];
+    return data;
+  } catch { return []; }
+}
+
+// ── Personal Book Summaries (Living Summary) ─────────────────────────
+
+export interface PersonalSummaryRecord {
+  id?: string;
+  user_id: string;
+  book_id: string;
+  summary_text: string;
+  generated_at: string;
+  response_count: number;
+}
+
+export async function savePersonalSummary(
+  userId: string,
+  bookId: string,
+  summaryText: string,
+  responseCount: number
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('personal_book_summaries').upsert({
+      user_id: userId,
+      book_id: bookId,
+      summary_text: summaryText,
+      generated_at: new Date().toISOString(),
+      response_count: responseCount,
+    }, { onConflict: 'user_id,book_id' });
+    if (error) { console.error('Save personal summary error:', error.message); return false; }
+    return true;
+  } catch { return false; }
+}
+
+export async function loadPersonalSummary(userId: string, bookId: string): Promise<PersonalSummaryRecord | null> {
+  try {
+    const { data, error } = await supabase
+      .from('personal_book_summaries')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('book_id', bookId)
+      .maybeSingle();
+    if (error || !data) return null;
+    return data;
+  } catch { return null; }
+}
+
 export async function loadChapterReflection(userId: string, bookId: string, chapterNumber: number): Promise<string | null> {
   try {
     const { data, error } = await supabase
@@ -651,3 +745,5 @@ export async function loadChapterReflection(userId: string, bookId: string, chap
     return data.answer_text;
   } catch { return null; }
 }
+
+

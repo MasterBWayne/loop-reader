@@ -142,14 +142,18 @@ export async function generateMaintenanceResponse(
   chapterTitle: string,
   rating: number,
   reflection: string,
-  profile?: UserProfileContext
+  profile?: UserProfileContext,
+  intake?: { struggle: string; vision: string; impact: string }
 ): Promise<string> {
   const profileCtx = profile
     ? `\nReader: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}`
     : '';
+  const intakeCtx = intake?.struggle
+    ? `\nUser context: This person is working on: ${intake.struggle}. Their vision: ${intake.vision}. Always connect your response to their specific situation.`
+    : '';
 
   const prompt = `You are The Architect doing a weekly check-in with a reader who finished a book.
-
+${intakeCtx}
 The principle from "${chapterTitle}" was revisited this week.
 Their self-rating: ${rating}/10
 ${reflection ? `Their reflection: "${reflection}"` : 'No reflection provided.'}
@@ -180,14 +184,18 @@ export async function generateCommitmentFollowUp(
   commitmentText: string,
   chapterTitle: string,
   outcomeText: string,
-  profile?: UserProfileContext
+  profile?: UserProfileContext,
+  intake?: { struggle: string; vision: string; impact: string }
 ): Promise<string> {
   const profileCtx = profile
     ? `\nReader: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}`
     : '';
+  const intakeCtx = intake?.struggle
+    ? `\nUser context: This person is working on: ${intake.struggle}. Their vision: ${intake.vision}. Always connect your response to their specific situation.`
+    : '';
 
   const prompt = `You are The Architect. A reader made a commitment after reading "${chapterTitle}":
-
+${intakeCtx}
 Their commitment: "${commitmentText}"
 What happened: "${outcomeText}"
 ${profileCtx}
@@ -216,14 +224,18 @@ export async function generateReflectionResponse(
   chapterTitle: string,
   questionText: string,
   answerText: string,
-  profile?: UserProfileContext
+  profile?: UserProfileContext,
+  intake?: { struggle: string; vision: string; impact: string }
 ): Promise<string> {
   const profileCtx = profile
     ? `\nReader: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}`
     : '';
+  const intakeCtx = intake?.struggle
+    ? `\nUser context: This person is working on: ${intake.struggle}. Their vision: ${intake.vision}. Always connect your response to their specific situation.`
+    : '';
 
   const prompt = `You are The Architect, a personal development author who is deeply insightful and direct.
-
+${intakeCtx}
 A reader just completed the reflection exercise for the chapter "${chapterTitle}".
 
 Question asked: "${questionText}"
@@ -354,6 +366,118 @@ Output format MUST be a valid JSON array of strings, e.g. ["Focus", "Habits"]. R
   } catch (e) {
     return [];
   }
+}
+
+// ── Active Recall Gate ────────────────────────────────────────────────
+
+export async function evaluateActiveRecall(
+  userResponse: string,
+  chapterTitle: string,
+  chapterContent: string,
+  exerciseQuestion?: string
+): Promise<{ understood: boolean; feedback: string; missed: string }> {
+  const prompt = `You are evaluating whether a reader grasped the core idea of a book chapter.
+
+CHAPTER: "${chapterTitle}"
+CHAPTER CONTENT (first 1200 chars): ${chapterContent.slice(0, 1200)}
+${exerciseQuestion ? `EXERCISE QUESTION: "${exerciseQuestion}"` : ''}
+
+READER'S RECALL RESPONSE: "${userResponse}"
+
+Task: Evaluate whether they captured the chapter's CORE idea. They don't need perfect recall — just evidence they understood the main concept, not surface-level or tangential points.
+
+Output MUST be valid JSON:
+{
+  "understood": true/false,
+  "feedback": "1-2 sentences. If understood: brief positive acknowledgment of what they got right. If not: gentle note about what their response focused on.",
+  "missed": "If understood: empty string. If not: 1 sentence describing the core idea they missed, stated simply and directly."
+}
+Return ONLY the JSON.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.3, maxOutputTokens: 200 },
+  });
+
+  try {
+    const text = response.text?.replace(/```json/g, '').replace(/```/g, '').trim() || '{}';
+    return JSON.parse(text);
+  } catch {
+    return { understood: true, feedback: 'Thanks for reflecting on this chapter.', missed: '' };
+  }
+}
+
+// ── Adaptive Check-in Follow-up ──────────────────────────────────────
+
+export async function generateAdaptiveFollowup(
+  chapterTitle: string,
+  blockerDescription: string,
+  profile?: UserProfileContext
+): Promise<string> {
+  const profileCtx = profile
+    ? `\nReader: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}`
+    : '';
+
+  const prompt = `You are The Architect. A reader admitted they didn't practice the principle from "${chapterTitle}" this week.
+
+What got in their way: "${blockerDescription}"
+${profileCtx}
+
+Give them a SMALLER, more achievable version of the practice. Something they could do in under 5 minutes, today, with zero preparation.
+
+Rules:
+- 2-3 sentences max
+- Name the specific micro-action (not "try to be more mindful" — more like "set one phone alarm labeled 'notice the roommate' at 2pm")
+- Acknowledge the blocker without judgment
+- Sound like a coach adjusting the workout, not lowering the bar`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.7, maxOutputTokens: 150 },
+  });
+  return response.text?.trim() || 'Start even smaller: pick one moment today to pause and notice.';
+}
+
+// ── Living Summary (Personal Narrative) ──────────────────────────────
+
+export async function generatePersonalSummary(
+  bookTitle: string,
+  reflections: { chapter_number: number; question_text: string; answer_text: string }[],
+  checkins: { chapter_number: number; rating: number; reflection?: string }[],
+  profile?: UserProfileContext
+): Promise<string> {
+  const profileCtx = profile
+    ? `\nReader: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}${profile.current_goals ? '. Goals: ' + profile.current_goals : ''}`
+    : '';
+
+  const reflText = reflections.map(r => `Ch${r.chapter_number}: Q: "${r.question_text}" A: "${r.answer_text}"`).join('\n');
+  const checkinText = checkins.length > 0
+    ? '\nCheck-in history:\n' + checkins.map(c => `Ch${c.chapter_number}: ${c.rating}/10${c.reflection ? ` — "${c.reflection}"` : ''}`).join('\n')
+    : '';
+
+  const prompt = `Based on these responses from a reader of "${bookTitle}", write a 300-word personal narrative in second person ("you") summarizing what this book meant to them, what they discovered about themselves, and what changed. Use their actual words and insights. Make it feel like their personal story with this book.
+
+THEIR REFLECTIONS:
+${reflText}
+${checkinText}
+${profileCtx}
+
+Rules:
+- Write in second person ("you")
+- Quote their actual phrases (use italics with *)
+- Structure: what they came in with → what the book revealed → what shifted → where they're heading
+- No generic self-help conclusions — every sentence should reference something THEY wrote
+- Sound like a biographer who captured their transformation
+- Exactly 250-300 words`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-lite',
+    contents: prompt,
+    config: { temperature: 0.8, maxOutputTokens: 600 },
+  });
+  return response.text?.trim() || '';
 }
 
 export async function generateFlashbackReframe(answerText: string): Promise<{ reframe: string; microStep: string }> {

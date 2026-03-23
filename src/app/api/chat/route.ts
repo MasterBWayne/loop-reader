@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateCompanionResponse } from '@/lib/gemini';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin, loadIntakeServer } from '@/lib/server-supabase';
 
 const MONTHLY_LIMIT = 100;
-
-// Use service role for server-side usage tracking (bypasses RLS)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 async function checkAndIncrementUsage(userId: string): Promise<{ allowed: boolean; remaining: number }> {
   try {
@@ -82,12 +76,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Feature 2: Load intake from Supabase (authoritative) with client fallback
+    const serverIntake = await loadIntakeServer(userId, intake);
+
     const response = await generateCompanionResponse(
       chapterTitle,
       chapterContent || '',
       message,
       chatHistory || [],
-      intake,
+      serverIntake || undefined,
       profile
     );
 

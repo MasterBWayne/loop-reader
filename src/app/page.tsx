@@ -453,6 +453,7 @@ export default function Home() {
         onSignOut={handleSignOut}
         pace={paceMap[selectedBook.id]}
         userProfile={userProfile}
+        coverColor={selectedBook.coverColor}
       />
     );
   }

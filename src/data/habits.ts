@@ -60,6 +60,26 @@ export const BOOK_HABITS: BookHabit[] = [
       { id: 'ns-5', habitText: "Avoided saying 'yes' as a fake commitment — got a real answer", frequency: 'weekly' },
     ],
   },
+  {
+    bookId: 'four-agreements',
+    habits: [
+      { id: 'fa-1', habitText: "Caught myself repeating an inherited belief and questioned it", frequency: 'daily' },
+      { id: 'fa-2', habitText: "Used my words intentionally — zero gossip, zero self-criticism", frequency: 'daily' },
+      { id: 'fa-3', habitText: "Noticed a triggered reaction and traced it to a pre-existing wound", frequency: 'daily' },
+      { id: 'fa-4', habitText: "Asked a direct question instead of making an assumption", frequency: 'daily' },
+      { id: 'fa-5', habitText: "Gave my genuine best effort without comparing to a peak day", frequency: 'daily' },
+    ],
+  },
+  {
+    bookId: 'attached',
+    habits: [
+      { id: 'at-1', habitText: "Noticed an attachment reaction and named the pattern before acting on it", frequency: 'daily' },
+      { id: 'at-2', habitText: "Expressed a need directly instead of using a protest behavior", frequency: 'daily' },
+      { id: 'at-3', habitText: "Separated the sensation from the story — felt the feeling without believing the narrative", frequency: 'daily' },
+      { id: 'at-4', habitText: "Reached out for connection without testing or keeping score", frequency: 'daily' },
+      { id: 'at-5', habitText: "Repaired a small rupture within 24 hours instead of letting it fester", frequency: 'weekly' },
+    ],
+  },
 ];
 
 export function getHabitsForBook(bookId: string): { habitText: string; frequency: string }[] {
