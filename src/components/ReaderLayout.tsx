@@ -705,47 +705,6 @@ export function ReaderLayout({
         <div className={`flex-1 overflow-y-auto reader-scroll transition-all duration-300 ${activeTab !== 'chapters' || showExerciseHistory ? 'hidden' : ''} ${showChat ? 'hidden md:block' : ''}`}>
           {unlocked ? (
             <article className="max-w-[740px] mx-auto px-4 md:px-6 py-12">
-              {/* Commitment follow-up banner */}
-              {pendingFollowUp && !followUpDismissed && (
-                <div className="mb-8 bg-[#252525] border border-[rgba(201,125,46,0.3)] rounded-xl p-5 pl-7 border-l-[3px] border-l-gold animate-message-in">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">🎯</span>
-                      <span className="text-[11px] font-semibold text-[#999999] uppercase tracking-[0.1em]">Check-in</span>
-                    </div>
-                    <button onClick={() => setFollowUpDismissed(true)} className="text-[#999999] hover:text-[#E8E8E8] text-xs">Later</button>
-                  </div>
-                  <p className="text-sm text-[#E8E8E8]/70 mb-2" style={{ fontFamily: "var(--rk-font-heading)" }}>
-                    You committed: <em className="text-gold-light">"{pendingFollowUp.commitment_text}"</em>
-                  </p>
-                  <p className="text-sm text-[#E8E8E8] font-medium mb-3" style={{ fontFamily: "var(--rk-font-heading)" }}>
-                    What happened?
-                  </p>
-                  <textarea
-                    value={followUpInput}
-                    onChange={e => setFollowUpInput(e.target.value)}
-                    placeholder="I did it / I didn't get to it because..."
-                    rows={2}
-                    disabled={followUpLoading}
-                    className="w-full bg-[#2A2A2A] border border-[rgba(255,255,255,0.12)] rounded-lg px-4 py-3 text-sm text-[#E8E8E8] placeholder:text-[#666666] outline-none focus:border-gold transition-colors resize-none leading-relaxed disabled:opacity-50"
-                    style={{ fontFamily: "var(--rk-font-heading)" }}
-                  />
-                  <div className="flex justify-end mt-3">
-                    <button
-                      onClick={handleFollowUpSubmit}
-                      disabled={!followUpInput.trim() || followUpLoading}
-                      className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-[#2A2A2A] disabled:text-[#666666] text-[#111111] font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
-                    >
-                      {followUpLoading ? (
-                        <div className="w-4 h-4 border-2 border-[#111111]/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        'Share what happened'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {/* Personalized intro — subtle, blends with page */}
               {(personalizedIntro || introLoading) && (
                 <div className="mb-8 pl-4 border-l-2 border-gold/20">
@@ -796,6 +755,47 @@ export function ReaderLayout({
                   onCommitmentSubmit={user?.id ? handleCommitmentSubmit : undefined}
                   loading={exerciseLoading}
                 />
+              )}
+
+              {/* Commitment follow-up — appears after exercise, not before chapter */}
+              {pendingFollowUp && !followUpDismissed && (
+                <div className="mt-10 bg-[#252525] border border-[rgba(201,125,46,0.3)] rounded-xl p-5 pl-7 border-l-[3px] border-l-gold animate-message-in">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🎯</span>
+                      <span className="text-[11px] font-semibold text-[#999999] uppercase tracking-[0.1em]">Check-in</span>
+                    </div>
+                    <button onClick={() => setFollowUpDismissed(true)} className="text-[#999999] hover:text-[#E8E8E8] text-xs">Later</button>
+                  </div>
+                  <p className="text-sm text-[#E8E8E8]/70 mb-2" style={{ fontFamily: "var(--rk-font-heading)" }}>
+                    You committed: <em className="text-gold-light">"{pendingFollowUp.commitment_text}"</em>
+                  </p>
+                  <p className="text-sm text-[#E8E8E8] font-medium mb-3" style={{ fontFamily: "var(--rk-font-heading)" }}>
+                    What happened?
+                  </p>
+                  <textarea
+                    value={followUpInput}
+                    onChange={e => setFollowUpInput(e.target.value)}
+                    placeholder="I did it / I didn't get to it because..."
+                    rows={2}
+                    disabled={followUpLoading}
+                    className="w-full bg-[#2A2A2A] border border-[rgba(255,255,255,0.12)] rounded-lg px-4 py-3 text-sm text-[#E8E8E8] placeholder:text-[#666666] outline-none focus:border-gold transition-colors resize-none leading-relaxed disabled:opacity-50"
+                    style={{ fontFamily: "var(--rk-font-heading)" }}
+                  />
+                  <div className="flex justify-end mt-3">
+                    <button
+                      onClick={handleFollowUpSubmit}
+                      disabled={!followUpInput.trim() || followUpLoading}
+                      className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-[#2A2A2A] disabled:text-[#666666] text-[#111111] font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                    >
+                      {followUpLoading ? (
+                        <div className="w-4 h-4 border-2 border-[#111111]/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        'Share what happened'
+                      )}
+                    </button>
+                  </div>
+                </div>
               )}
 
               {/* Chapter navigation */}
