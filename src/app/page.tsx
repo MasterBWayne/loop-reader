@@ -6,6 +6,7 @@ import { ReaderLayout } from '@/components/ReaderLayout';
 import { IntakeForm, type IntakeAnswers } from '@/components/IntakeForm';
 import { BOOKS, CATEGORIES, type Book, type BookCategory } from '@/data/books';
 import { PaceSelector, type ReadingPace } from '@/components/PaceSelector';
+import { BOOK_COVERS } from '@/data/covers';
 import {
   ensureAnonymousUser,
   getCurrentUser,
@@ -68,22 +69,31 @@ function BookCard({ book, progress, onSelect, isHorizontal = false }: { book: Bo
   const total = contentChapters.length > 0 ? contentChapters.length : book.chapters.length;
   const percent = total > 0 ? Math.min(100, Math.round((chaptersRead / total) * 100)) : 0;
   
+  const coverBg = BOOK_COVERS[book.id] || book.coverColor;
+  // Check if coverColor is a Tailwind gradient class or a CSS value
+  const isCssValue = coverBg?.startsWith('linear-gradient') || coverBg?.startsWith('radial-gradient') || coverBg?.startsWith('#');
+
   return (
-    <button onClick={onSelect} className={`flex flex-col gap-2 text-left group shrink-0 ${isHorizontal ? 'w-36 snap-start' : 'w-full'}`}>
-      <div className={`aspect-square w-full rounded-md bg-gradient-to-br ${book.coverColor} relative p-3 flex flex-col justify-end overflow-hidden shadow-sm`}>
-        <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
-        <h3 className="relative z-10 text-white font-bold leading-tight line-clamp-3 text-sm drop-shadow-md" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-          {book.title}
-        </h3>
+    <button onClick={onSelect} className={`flex flex-col gap-1.5 text-left group shrink-0 ${isHorizontal ? 'w-32 snap-start' : 'w-full'}`}>
+      <div className="aspect-[3/4] w-full rounded-lg relative overflow-hidden shadow-md shadow-black/40"
+           style={isCssValue ? { background: coverBg } : undefined}>
+        {!isCssValue && <div className={`absolute inset-0 bg-gradient-to-br ${coverBg}`} />}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
+        <div className="absolute inset-0 group-hover:bg-white/5 transition-colors" />
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <h3 className="text-white font-bold leading-tight line-clamp-2 text-[13px] drop-shadow-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            {book.title}
+          </h3>
+        </div>
         {chaptersRead > 0 && (
-          <div className="absolute bottom-0 left-0 h-[3px] bg-ink/20 w-full">
-            <div className="h-full bg-gold" style={{ width: `${percent}%` }} />
+          <div className="absolute bottom-0 left-0 h-[3px] w-full bg-black/30">
+            <div className="h-full bg-gold rounded-r-full" style={{ width: `${percent}%` }} />
           </div>
         )}
       </div>
-      <div>
-        <p className="text-xs text-ink/60 truncate">{book.author}</p>
-        <p className="text-[10px] text-ink/40 mt-0.5">
+      <div className="px-0.5">
+        <p className="text-[11px] text-muted truncate">{book.author}</p>
+        <p className="text-[10px] text-muted-soft mt-0.5">
           {chaptersRead > 0 ? `Ch ${chaptersRead} of ${total}` : `${total} chapters`}
         </p>
       </div>
@@ -92,10 +102,15 @@ function BookCard({ book, progress, onSelect, isHorizontal = false }: { book: Bo
 }
 
 function JumpBackInCard({ book, onSelect }: { book: Book; onSelect: () => void }) {
+  const coverBg = BOOK_COVERS[book.id] || book.coverColor;
+  const isCssValue = coverBg?.startsWith('linear-gradient') || coverBg?.startsWith('radial-gradient') || coverBg?.startsWith('#');
   return (
-    <button onClick={onSelect} className="flex items-center gap-2 bg-ink/5 hover:bg-ink/10 rounded-md overflow-hidden transition-colors text-left w-full h-14 pr-2 group">
-      <div className={`w-14 h-14 bg-gradient-to-br ${book.coverColor} shrink-0 shadow-inner opacity-90 group-hover:opacity-100 transition-opacity`} />
-      <span className="font-semibold text-xs leading-tight line-clamp-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{book.title}</span>
+    <button onClick={onSelect} className="flex items-center gap-2.5 bg-[#181818] hover:bg-[#282828] rounded-lg overflow-hidden transition-colors text-left w-full h-14 pr-3 group">
+      <div className="w-14 h-14 shrink-0 opacity-90 group-hover:opacity-100 transition-opacity"
+           style={isCssValue ? { background: coverBg } : undefined}>
+        {!isCssValue && <div className={`w-full h-full bg-gradient-to-br ${coverBg}`} />}
+      </div>
+      <span className="font-semibold text-[13px] text-ink leading-tight line-clamp-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{book.title}</span>
     </button>
   );
 }
@@ -413,7 +428,7 @@ export default function Home() {
         <div className="w-full max-w-md bg-navy-light border border-ink/10 rounded-2xl p-8 text-center relative overflow-hidden">
           <button onClick={() => setAppState('landing')} className="absolute top-4 right-4 text-ink/40 hover:text-ink/80 p-2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           
-          <div className="w-20 h-28 mx-auto mb-6 rounded shadow-lg flex items-end justify-center pb-4 relative" style={{ background: selectedBook.coverColor }}>
+          <div className="w-20 h-28 mx-auto mb-6 rounded shadow-lg flex items-end justify-center pb-4 relative" style={{ background: BOOK_COVERS[selectedBook.id] || selectedBook.coverColor }}>
              <h3 className="relative z-10 text-white font-bold leading-tight line-clamp-2 text-[10px] text-center px-2 drop-shadow-md" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{selectedBook.title}</h3>
           </div>
           

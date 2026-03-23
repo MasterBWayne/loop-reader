@@ -88,6 +88,7 @@ export interface Book {
   tags: string[];
   featured: boolean;
   coverColor: string; // gradient accent for placeholder covers
+  coverImage?: string; // URL to cover image
   chapters: Chapter[];
   price?: number;
   is_author_upload?: boolean;
