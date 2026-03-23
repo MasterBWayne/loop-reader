@@ -5,9 +5,17 @@ import type { IntakeAnswers } from './IntakeForm';
 import { ExerciseBox } from './ExerciseBox';
 import { HabitTracker } from './HabitTracker';
 import { MicButton } from './MicButton';
-import { saveReflection, loadReflections, loadChapterReflection, saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp, type ReflectionRecord, type CommitmentRecord } from '@/lib/supabase';
+import {
+  saveReflection, loadReflections, loadChapterReflection,
+  saveCommitment, loadCommitment, loadPendingCommitments, markCommitmentFollowedUp,
+  startReadingSession, endReadingSession, getChapterReadingTime,
+  saveCoachingMessage, loadCoachingMessages,
+  updateReadingStreak,
+  type ReflectionRecord, type CommitmentRecord,
+} from '@/lib/supabase';
 import { ActiveRecallGate } from './ActiveRecallGate';
 import { PersonalSummaryView } from './PersonalSummaryView';
+import { ExerciseHistory } from './ExerciseHistory';
 
 interface Chapter {
   number: number;
@@ -394,12 +402,12 @@ export function ReaderLayout({
     return text.split('\n').map((line, i) => {
       if (line.trim() === '') return <br key={i} />;
       if (line.startsWith('**') && line.endsWith('**')) {
-        return <h3 key={i} className="text-lg font-semibold mt-8 mb-3 text-ink">{line.slice(2, -2)}</h3>;
+        return <h3 key={i} className="text-base font-semibold mt-6 mb-3 text-heading">{line.slice(2, -2)}</h3>;
       }
       if (line.startsWith('*') && line.endsWith('*') && !line.startsWith('**')) {
         return <p key={i} className="italic text-muted my-4 pl-4 border-l-2 border-gold/30">{line.slice(1, -1)}</p>;
       }
-      return <p key={i} className="mb-4 leading-[1.85]">{line}</p>;
+      return <p key={i} className="mb-5 leading-[1.8]">{line}</p>;
     });
   };
 
@@ -431,25 +439,25 @@ export function ReaderLayout({
   };
 
   return (
-    <div className="h-screen flex flex-col bg-cream">
+    <div className="h-screen flex flex-col bg-[#111111]">
       {/* Top bar */}
-      <header className="bg-navy px-4 py-3 flex items-center justify-between shrink-0 z-30">
+      <header className="bg-[#111111] border-b border-[rgba(255,255,255,0.06)] px-4 py-3 flex items-center justify-between shrink-0 z-30 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowNav(!showNav)} className="text-ink/60 hover:text-white transition-colors p-1">
+          <button onClick={() => setShowNav(!showNav)} className="text-[#999999] hover:text-[#E8E8E8] transition-colors p-1">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
           </button>
           <div>
             <p className="text-xs text-gold/80 font-medium tracking-wide">{bookTitle}</p>
-            <p className="text-sm text-ink/90 font-medium">Ch. {chapter.number}: {chapter.title}</p>
+            <p className="text-sm text-[#E8E8E8] font-medium">Ch. {chapter.number}: {chapter.title}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-ink/40 mr-2 hidden sm:block">{currentChapter + 1} of {chapters.length}</span>
+          <span className="text-xs text-[#666666] mr-2 hidden sm:block">{currentChapter + 1} of {chapters.length}</span>
           {/* Feature 4: Living Summary button */}
           {user?.id && (
             <button
               onClick={() => setShowPersonalSummary(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-ink/10 text-ink/70 hover:bg-ink/15 hover:text-white transition-all hidden sm:flex"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[rgba(255,255,255,0.05)] text-[#999999] hover:bg-[rgba(255,255,255,0.1)] hover:text-[#E8E8E8] transition-all hidden sm:flex"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
               My {bookTitle.length > 15 ? bookTitle.slice(0, 15) + '...' : bookTitle}
@@ -457,7 +465,7 @@ export function ReaderLayout({
           )}
           <button
             onClick={() => setShowChat(!showChat)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showChat ? 'bg-gold text-ink' : 'bg-ink/10 text-ink/70 hover:bg-ink/15 hover:text-white'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showChat ? 'bg-gold text-[#111111]' : 'bg-[rgba(255,255,255,0.05)] text-[#999999] hover:bg-[rgba(255,255,255,0.1)] hover:text-[#E8E8E8]'}`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             AI Companion
@@ -466,13 +474,13 @@ export function ReaderLayout({
       </header>
 
       {/* Tab switcher: Chapters | Practice */}
-      <div className="bg-navy border-b border-ink/10 px-4 flex gap-1 shrink-0">
+      <div className="bg-[#111111] border-b border-[rgba(255,255,255,0.08)] px-4 flex gap-1 shrink-0">
         <button
           onClick={() => setActiveTab('chapters')}
           className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
             activeTab === 'chapters'
               ? 'text-gold border-gold'
-              : 'text-ink/40 border-transparent hover:text-ink/60'
+              : 'text-[#999999] border-transparent hover:text-[#E8E8E8]'
           }`}
         >
           Chapters
@@ -482,7 +490,7 @@ export function ReaderLayout({
           className={`px-4 py-2 text-xs font-medium transition-all border-b-2 ${
             activeTab === 'practice'
               ? 'text-gold border-gold'
-              : 'text-ink/40 border-transparent hover:text-ink/60'
+              : 'text-[#999999] border-transparent hover:text-[#E8E8E8]'
           }`}
         >
           Practice
@@ -494,18 +502,18 @@ export function ReaderLayout({
         {showNav && (
           <>
             <div className="fixed inset-0 bg-black/20 z-20 md:hidden" onClick={() => setShowNav(false)} />
-            <aside className="absolute md:relative left-0 top-0 bottom-0 w-64 bg-navy-light border-r border-ink/10 z-20 overflow-y-auto">
+            <aside className="absolute md:relative left-0 top-0 bottom-0 w-64 bg-[#1C1C1C] border-r border-[rgba(255,255,255,0.08)] z-20 overflow-y-auto">
               <div className="p-4">
                 {onBackToLibrary && (
                   <button
                     onClick={onBackToLibrary}
-                    className="flex items-center gap-2 text-xs text-ink/40 hover:text-ink/70 mb-4 transition-colors"
+                    className="flex items-center gap-2 text-xs text-gold hover:text-gold-light mb-4 transition-colors"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
                     Back to Library
                   </button>
                 )}
-                <p className="text-xs text-gold/60 font-semibold tracking-[0.15em] uppercase mb-4">Chapters</p>
+                <p className="text-[11px] text-[#999999] font-semibold tracking-[0.1em] uppercase mb-4">Chapters</p>
                 <div className="space-y-1">
                   {chapters.map((ch, i) => {
                     const locked = !isChapterUnlocked(ch.number, progress);
@@ -517,10 +525,10 @@ export function ReaderLayout({
                         disabled={locked}
                         className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
                           locked
-                            ? 'text-ink/20 cursor-not-allowed'
+                            ? 'text-[#999999]/30 cursor-not-allowed'
                             : i === currentChapter
-                            ? 'bg-gold/15 text-gold font-medium'
-                            : 'text-ink/50 hover:text-ink/80 hover:bg-ink/5'
+                            ? 'bg-[rgba(201,125,46,0.15)] text-gold font-medium'
+                            : 'text-[#999999] hover:text-[#E8E8E8] hover:bg-[rgba(255,255,255,0.05)]'
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -550,12 +558,12 @@ export function ReaderLayout({
 
         {/* Practice tab */}
         {activeTab === 'practice' && user?.id && (
-          <div className={`flex-1 overflow-y-auto reader-scroll bg-cream ${showChat ? 'hidden md:block' : ''}`}>
+          <div className={`flex-1 overflow-y-auto reader-scroll bg-[#111111] ${showChat ? 'hidden md:block' : ''}`}>
             <HabitTracker bookId={bookId} bookTitle={bookTitle} userId={user.id} />
           </div>
         )}
         {activeTab === 'practice' && !user?.id && (
-          <div className="flex-1 flex items-center justify-center bg-cream text-muted text-sm">
+          <div className="flex-1 flex items-center justify-center bg-[#111111] text-[#999999] text-sm">
             Sign in to track your practice habits.
           </div>
         )}
@@ -563,21 +571,21 @@ export function ReaderLayout({
         {/* Reader panel */}
         <div className={`flex-1 overflow-y-auto reader-scroll transition-all duration-300 ${activeTab !== 'chapters' ? 'hidden' : ''} ${showChat ? 'hidden md:block' : ''}`}>
           {unlocked ? (
-            <article className="max-w-2xl mx-auto px-6 md:px-12 py-12">
+            <article className="max-w-[740px] mx-auto px-4 md:px-6 py-12">
               {/* Commitment follow-up banner */}
               {pendingFollowUp && !followUpDismissed && (
-                <div className="mb-6 bg-warm-gray border border-border-strong rounded-2xl p-5 animate-message-in">
+                <div className="mb-8 bg-[#252525] border border-[rgba(201,125,46,0.3)] rounded-xl p-5 pl-7 border-l-[3px] border-l-gold animate-message-in">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">🎯</span>
-                      <span className="text-[11px] font-semibold text-gold/70 uppercase tracking-widest">Check-in</span>
+                      <span className="text-[11px] font-semibold text-[#999999] uppercase tracking-[0.1em]">Check-in</span>
                     </div>
-                    <button onClick={() => setFollowUpDismissed(true)} className="text-muted hover:text-ink text-xs">Later</button>
+                    <button onClick={() => setFollowUpDismissed(true)} className="text-[#999999] hover:text-[#E8E8E8] text-xs">Later</button>
                   </div>
-                  <p className="text-sm text-ink/70 mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                    You committed: <em>"{pendingFollowUp.commitment_text}"</em>
+                  <p className="text-sm text-[#E8E8E8]/70 mb-2" style={{ fontFamily: "var(--rk-font-heading)" }}>
+                    You committed: <em className="text-gold-light">"{pendingFollowUp.commitment_text}"</em>
                   </p>
-                  <p className="text-sm text-ink/80 font-medium mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <p className="text-sm text-[#E8E8E8] font-medium mb-3" style={{ fontFamily: "var(--rk-font-heading)" }}>
                     What happened?
                   </p>
                   <textarea
@@ -586,17 +594,17 @@ export function ReaderLayout({
                     placeholder="I did it / I didn't get to it because..."
                     rows={2}
                     disabled={followUpLoading}
-                    className="w-full bg-navy-light border border-border rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-muted-soft outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50"
-                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    className="w-full bg-[#2A2A2A] border border-[rgba(255,255,255,0.12)] rounded-lg px-4 py-3 text-sm text-[#E8E8E8] placeholder:text-[#666666] outline-none focus:border-gold transition-colors resize-none leading-relaxed disabled:opacity-50"
+                    style={{ fontFamily: "var(--rk-font-heading)" }}
                   />
                   <div className="flex justify-end mt-3">
                     <button
                       onClick={handleFollowUpSubmit}
                       disabled={!followUpInput.trim() || followUpLoading}
-                      className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-warm-gray disabled:text-muted-soft text-navy font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                      className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-[#2A2A2A] disabled:text-[#666666] text-[#111111] font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
                     >
                       {followUpLoading ? (
-                        <div className="w-4 h-4 border-2 border-ink/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-[#111111]/30 border-t-white rounded-full animate-spin" />
                       ) : (
                         'Share what happened'
                       )}
@@ -607,15 +615,15 @@ export function ReaderLayout({
 
               {/* Personalized intro */}
               {(personalizedIntro || introLoading) && (
-                <div className="mb-10 bg-warm-gray border border-gold/15 rounded-2xl px-6 py-5">
-                  <p className="text-[10px] text-gold/60 font-semibold tracking-[0.15em] uppercase mb-2">For you</p>
+                <div className="mb-10 bg-[#1C1C1C] border border-[rgba(201,125,46,0.25)] rounded-xl px-6 py-5">
+                  <p className="text-[11px] text-[#999999] font-semibold tracking-[0.1em] uppercase mb-2">For you</p>
                   {introLoading ? (
-                    <div className="flex items-center gap-2 text-sm text-muted">
+                    <div className="flex items-center gap-2 text-sm text-[#999999]">
                       <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
                       Personalizing this chapter for you...
                     </div>
                   ) : (
-                    <p className="text-sm text-ink/70 leading-relaxed italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    <p className="text-[15px] text-gold-light leading-relaxed italic" style={{ fontFamily: "var(--rk-font-heading)" }}>
                       {personalizedIntro}
                     </p>
                   )}
@@ -623,16 +631,16 @@ export function ReaderLayout({
               )}
 
               {/* Chapter header */}
-              <div className="mb-12">
-                <p className="text-xs text-muted font-semibold tracking-[0.15em] uppercase mb-3">Chapter {chapter.number}</p>
-                <h1 className="text-3xl md:text-4xl font-bold text-ink leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <div className="mb-8" style={{ marginBottom: '32px' }}>
+                <p className="text-[11px] text-[#999999] font-semibold tracking-[0.1em] uppercase mb-3">Chapter {chapter.number}</p>
+                <h1 className="text-[28px] font-semibold text-heading leading-[1.3]" style={{ fontFamily: "var(--rk-font-heading)" }}>
                   {chapter.title}
                 </h1>
-                <div className="w-12 h-0.5 bg-gold mt-6" />
+                <div className="w-12 h-[3px] bg-gold mt-6 rounded-full" />
               </div>
 
               {/* Content */}
-              <div className="text-base text-ink/80" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <div className="text-[17px] text-[#E8E8E8] max-w-[680px]" style={{ fontFamily: "var(--rk-font-body)", lineHeight: '1.8' }}>
                 {renderText(chapter.content)}
               </div>
 
@@ -650,27 +658,27 @@ export function ReaderLayout({
               )}
 
               {/* Chapter navigation */}
-              <div className="mt-16 pt-8 border-t border-border flex items-center justify-between">
+              <div className="mt-16 pt-8 border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between">
                 <button
                   onClick={() => navigateChapter(Math.max(0, currentChapter - 1))}
                   disabled={currentChapter === 0}
-                  className="flex items-center gap-2 text-sm font-medium text-muted hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 text-sm font-medium text-[#999999] hover:text-[#E8E8E8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
                   Previous
                 </button>
-                <span className="text-xs text-muted">{currentChapter + 1} / {chapters.length}</span>
+                <span className="text-xs text-[#999999]">{currentChapter + 1} / {chapters.length}</span>
                 {currentChapter < chapters.length - 1 ? (
                   isChapterUnlocked(chapters[currentChapter + 1].number, progress) ? (
                     <button
                       onClick={() => navigateChapter(currentChapter + 1)}
-                      className="flex items-center gap-2 text-sm font-medium text-muted hover:text-ink transition-colors"
+                      className="flex items-center gap-2 text-sm font-medium text-[#999999] hover:text-[#E8E8E8] transition-colors"
                     >
                       Next
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
                     </button>
                   ) : (
-                    <span className="text-xs text-muted/50 flex items-center gap-1.5">
+                    <span className="text-xs text-[#666666] flex items-center gap-1.5">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       {(() => {
                         const d = getUnlockDate(chapters[currentChapter + 1].number, progress);
@@ -679,20 +687,20 @@ export function ReaderLayout({
                     </span>
                   )
                 ) : (
-                  <span className="text-xs text-muted/50">Final chapter</span>
+                  <span className="text-xs text-[#666666]">Final chapter</span>
                 )}
               </div>
             </article>
           ) : (
             /* Locked chapter state */
             <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-              <div className="w-16 h-16 bg-warm-gray border border-border rounded-2xl flex items-center justify-center mb-6">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A7A7A7" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div className="w-16 h-16 bg-[#1C1C1C] border border-[rgba(255,255,255,0.08)] rounded-2xl flex items-center justify-center mb-6">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
-              <h2 className="text-xl font-semibold text-ink mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <h2 className="text-xl font-semibold text-heading mb-2" style={{ fontFamily: "var(--rk-font-heading)" }}>
                 Chapter {chapter.number} is locked
               </h2>
-              <p className="text-sm text-muted max-w-sm">
+              <p className="text-sm text-[#999999] max-w-sm">
                 {(() => {
                   const d = getUnlockDate(chapter.number, progress);
                   if (!d) return 'Read the previous chapter to unlock this one.';
@@ -710,7 +718,7 @@ export function ReaderLayout({
             className="fixed bottom-20 right-4 z-40 md:hidden w-14 h-14 bg-gold rounded-full flex items-center justify-center shadow-lg shadow-gold/30 hover:bg-gold-light active:scale-95 transition-all"
             aria-label="Open AI Companion"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1410" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
           </button>
@@ -759,18 +767,18 @@ export function ReaderLayout({
 
         {/* AI Companion panel */}
         {showChat && (
-          <div className="flex flex-col bg-navy-light border-l border-ink/10 z-10 w-full md:w-[380px] lg:w-[420px] shrink-0">
-            <div className="px-4 py-3 border-b border-ink/10 flex items-center justify-between">
+          <div className="flex flex-col bg-[#1C1C1C] border-l border-[rgba(255,255,255,0.08)] z-10 w-full md:w-[380px] lg:w-[420px] shrink-0">
+            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 bg-gold/20 rounded-full flex items-center justify-center">
+                <div className="w-7 h-7 bg-[rgba(201,125,46,0.15)] rounded-full flex items-center justify-center">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-ink/90">AI Companion</p>
-                  <p className="text-[10px] text-ink/40">Reading Ch. {chapter.number}</p>
+                  <p className="text-sm font-medium text-[#E8E8E8]">AI Companion</p>
+                  <p className="text-[10px] text-[#666666]">Reading Ch. {chapter.number}</p>
                 </div>
               </div>
-              <button onClick={() => setShowChat(false)} className="text-ink/40 hover:text-ink/70 transition-colors p-1 md:hidden">
+              <button onClick={() => setShowChat(false)} className="text-[#666666] hover:text-[#E8E8E8] transition-colors p-1 md:hidden">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
@@ -780,8 +788,8 @@ export function ReaderLayout({
                 <div key={i} className={`animate-message-in ${msg.role === 'user' ? 'flex justify-end' : ''}`}>
                   <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed max-w-[90%] ${
                     msg.role === 'user'
-                      ? 'bg-gold/20 text-gold-light rounded-br-md'
-                      : 'bg-ink/5 text-ink/80 rounded-bl-md'
+                      ? 'bg-[rgba(201,125,46,0.15)] text-gold-light rounded-br-md'
+                      : 'bg-[#252525] text-[#E8E8E8]/80 rounded-bl-md'
                   }`}>
                     {renderChatText(msg.content)}
                   </div>
@@ -789,10 +797,10 @@ export function ReaderLayout({
               ))}
               {isTyping && (
                 <div className="animate-message-in">
-                  <div className="bg-ink/5 rounded-2xl rounded-bl-md px-4 py-3 inline-flex gap-1.5">
-                    <div className="w-2 h-2 bg-ink/30 rounded-full typing-dot" />
-                    <div className="w-2 h-2 bg-ink/30 rounded-full typing-dot" />
-                    <div className="w-2 h-2 bg-ink/30 rounded-full typing-dot" />
+                  <div className="bg-[#252525] rounded-2xl rounded-bl-md px-4 py-3 inline-flex gap-1.5">
+                    <div className="w-2 h-2 bg-[#999999]/30 rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-[#999999]/30 rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-[#999999]/30 rounded-full typing-dot" />
                   </div>
                 </div>
               )}
@@ -800,15 +808,15 @@ export function ReaderLayout({
               {/* Journey summary */}
               {showJourney && (
                 <div className="animate-message-in">
-                  <div className="bg-gold/10 border border-gold/20 rounded-2xl px-5 py-4">
-                    <p className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest mb-2">Your Journey</p>
+                  <div className="bg-[rgba(201,125,46,0.12)] border border-[rgba(201,125,46,0.25)] rounded-2xl px-5 py-4">
+                    <p className="text-[11px] font-semibold text-[#999999] uppercase tracking-[0.1em] mb-2">Your Journey</p>
                     {journeyLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-ink/50">
+                      <div className="flex items-center gap-2 text-sm text-[#999999]">
                         <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
                         Compiling your journey...
                       </div>
                     ) : (
-                      <div className="text-sm text-ink/80 leading-relaxed">
+                      <div className="text-sm text-[#E8E8E8]/80 leading-relaxed">
                         {renderChatText(journeySummary || '')}
                       </div>
                     )}
@@ -819,8 +827,8 @@ export function ReaderLayout({
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 border-t border-ink/10">
-              <div className="flex items-center gap-2 bg-ink/5 rounded-xl px-4 py-2.5">
+            <div className="p-3 border-t border-[rgba(255,255,255,0.08)]">
+              <div className="flex items-center gap-2 bg-[#2A2A2A] rounded-lg px-4 py-2.5 border border-[rgba(255,255,255,0.12)] focus-within:border-gold transition-colors">
                 <input
                   ref={chatInputRef}
                   type="text"
@@ -829,23 +837,23 @@ export function ReaderLayout({
                   onKeyDown={handleKeyDown}
                   placeholder={limitReached ? "Monthly limit reached" : "Ask about this chapter..."}
                   disabled={limitReached}
-                  className="flex-1 bg-transparent text-sm text-ink/90 placeholder:text-ink/30 outline-none disabled:opacity-40"
+                  className="flex-1 bg-transparent text-sm text-[#E8E8E8] placeholder:text-[#666666] outline-none disabled:opacity-40"
                 />
                 {!limitReached && (
-                  <MicButton 
-                    currentText={input} 
-                    onTextChange={setInput} 
+                  <MicButton
+                    currentText={input}
+                    onTextChange={setInput}
                   />
                 )}
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isTyping || limitReached}
-                  className="text-gold hover:text-gold-light disabled:text-ink/20 disabled:cursor-not-allowed transition-colors p-1"
+                  className="text-gold hover:text-gold-light disabled:text-[#666666] disabled:cursor-not-allowed transition-colors p-1"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
               </div>
-              <p className="text-[10px] text-ink/20 text-center mt-2">Personalized to your journey</p>
+              <p className="text-[10px] text-[#666666] text-center mt-2">Personalized to your journey</p>
             </div>
           </div>
         )}

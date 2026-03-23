@@ -42,33 +42,35 @@
 }
 
 @theme {
-  /* Spotify-dark: all surfaces are dark, gold accent pops */
-  --color-navy: #121212;          /* Spotify base black */
-  --color-navy-light: #181818;    /* Spotify card/surface */
+  /* Dark reader palette — easy on the eyes for long reading */
+  --color-navy: #111111;          /* reader base background */
+  --color-navy-light: #1C1C1C;    /* surface/cards */
   --color-gold: #C97D2E;          /* rk-accent: deep amber */
   --color-gold-light: #F5C87A;    /* rk-accent-light */
-  --color-cream: #121212;         /* reader bg — now dark */
-  --color-warm-gray: #282828;     /* elevated surface */
-  --color-ink: #E8E6E3;           /* primary text — high contrast off-white */
-  --color-muted: #A7A7A7;         /* secondary text */
-  --color-muted-soft: #6A6A6A;    /* tertiary/disabled text */
+  --color-cream: #111111;         /* reader bg */
+  --color-warm-gray: #252525;     /* elevated cards */
+  --color-ink: #E8E8E8;           /* body text — soft white */
+  --color-muted: #999999;         /* secondary text */
+  --color-muted-soft: #666666;    /* tertiary/placeholder text */
   --color-border: rgba(255,255,255,0.08); /* subtle dividers */
   --color-border-strong: rgba(255,255,255,0.16); /* stronger dividers */
   --color-accent-hover: #B56D1E;  /* rk-accent-hover */
   --color-accent-pale: #FDECD4;   /* rk-accent-pale */
+  --color-heading: #F5ECD7;       /* warm cream headings */
+  --color-input-bg: #2A2A2A;      /* input backgrounds */
 }
 
 /* Dark mode override — same palette since base is already dark */
 [data-theme="dark"] {
-  --color-navy: #121212;
-  --color-navy-light: #181818;
+  --color-navy: #111111;
+  --color-navy-light: #1C1C1C;
   --color-gold: #C97D2E;
   --color-gold-light: #F5C87A;
-  --color-cream: #121212;
-  --color-warm-gray: #282828;
-  --color-ink: #E8E6E3;
-  --color-muted: #A7A7A7;
-  --color-muted-soft: #6A6A6A;
+  --color-cream: #111111;
+  --color-warm-gray: #252525;
+  --color-ink: #E8E8E8;
+  --color-muted: #999999;
+  --color-muted-soft: #666666;
   --color-border: rgba(255,255,255,0.08);
   --color-border-strong: rgba(255,255,255,0.16);
 }
@@ -81,11 +83,11 @@
   background: transparent;
 }
 .reader-scroll::-webkit-scrollbar-thumb {
-  background: #383838;
+  background: #2A2A2A;
   border-radius: 3px;
 }
 .reader-scroll::-webkit-scrollbar-thumb:hover {
-  background: #484848;
+  background: #3A3A3A;
 }
 
 /* Chat messages animation */
