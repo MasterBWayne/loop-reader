@@ -142,10 +142,11 @@ export function ReaderLayout({
         }
       });
 
-      // Load pending commitments for follow-up banner
+      // Load pending commitments for follow-up banner (current book only)
       loadPendingCommitments(user.id).then(pending => {
-        if (pending.length > 0) {
-          setPendingFollowUp(pending[0]);
+        const bookPending = pending.filter(c => c.book_id === bookId);
+        if (bookPending.length > 0) {
+          setPendingFollowUp(bookPending[0]);
         }
       });
 
@@ -757,8 +758,8 @@ export function ReaderLayout({
                 />
               )}
 
-              {/* Commitment follow-up — appears after exercise, not before chapter */}
-              {pendingFollowUp && !followUpDismissed && (
+              {/* Commitment follow-up — only on the chapter it belongs to */}
+              {pendingFollowUp && !followUpDismissed && pendingFollowUp.chapter_number === chapter.number && (
                 <div className="mt-10 bg-[#252525] border border-[rgba(201,125,46,0.3)] rounded-xl p-5 pl-7 border-l-[3px] border-l-gold animate-message-in">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
