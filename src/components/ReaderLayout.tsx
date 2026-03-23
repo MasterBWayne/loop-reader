@@ -746,17 +746,16 @@ export function ReaderLayout({
                 </div>
               )}
 
-              {/* Personalized intro */}
+              {/* Personalized intro — subtle, blends with page */}
               {(personalizedIntro || introLoading) && (
-                <div className="mb-10 bg-[#1C1C1C] border border-[rgba(201,125,46,0.25)] rounded-xl px-6 py-5">
-                  <p className="text-[11px] text-[#999999] font-semibold tracking-[0.1em] uppercase mb-2">For you</p>
+                <div className="mb-8 pl-4 border-l-2 border-gold/20">
                   {introLoading ? (
-                    <div className="flex items-center gap-2 text-sm text-[#999999]">
-                      <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-                      Personalizing this chapter for you...
+                    <div className="flex items-center gap-2 text-sm text-muted/60">
+                      <div className="w-3.5 h-3.5 border-2 border-gold/20 border-t-gold/60 rounded-full animate-spin" />
+                      Personalizing...
                     </div>
                   ) : (
-                    <p className="text-[15px] text-gold-light leading-relaxed italic" style={{ fontFamily: "var(--rk-font-heading)" }}>
+                    <p className="text-[15px] text-ink/50 leading-relaxed italic" style={{ fontFamily: "var(--rk-font-heading)" }}>
                       {personalizedIntro}
                     </p>
                   )}
