@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getCurrentUser, supabase, loadAllCommitments, loadWeeklyInsight, saveWeeklyInsight, saveFlashbackResponse } from '@/lib/supabase';
+import { useState, useEffect, useCallback } from 'react';
+import { getCurrentUser, supabase, loadAllCommitments, loadPendingCommitments, markCommitmentFollowedUp, loadWeeklyInsight, saveWeeklyInsight, saveFlashbackResponse } from '@/lib/supabase';
+import type { CommitmentRecord } from '@/lib/supabase';
 import { BOOKS } from '@/data/books';
 
 interface Reflection {
@@ -48,7 +49,7 @@ export default function JourneyPage() {
   const [allReflections, setAllReflections] = useState<Reflection[]>([]);
   const [expandedBook, setExpandedBook] = useState<string | null>(null);
   
-  const [activeTab, setActiveTab] = useState<'reflections' | 'wins'>('reflections');
+  const [activeTab, setActiveTab] = useState<'reflections' | 'commitments' | 'wins'>('reflections');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   
   // Feature 1: Credit Score
@@ -74,10 +75,20 @@ export default function JourneyPage() {
   // Feature 5: Wins
   const [wins, setWins] = useState<WinCard[]>([]);
 
+  // Feature 6: Commitments tab
+  const [allCommitmentsRaw, setAllCommitmentsRaw] = useState<CommitmentRecord[]>([]);
+  const [pendingCommitments, setPendingCommitments] = useState<CommitmentRecord[]>([]);
+  const [completedCommitments, setCompletedCommitments] = useState<CommitmentRecord[]>([]);
+  const [checkinInputs, setCheckinInputs] = useState<Record<string, string>>({});
+  const [checkinLoading, setCheckinLoading] = useState<Record<string, boolean>>({});
+  const [checkinResponses, setCheckinResponses] = useState<Record<string, string>>({});
+  const [userId, setUserId] = useState<string | null>(null);
+
   useEffect(() => {
     async function load() {
       const user = await getCurrentUser();
       if (!user) { setLoading(false); return; }
+      setUserId(user.id);
 
       // Parallel fetching
       const [reflectionsRes, commitmentsData] = await Promise.all([
@@ -178,9 +189,19 @@ export default function JourneyPage() {
       setGroups(result);
       if (result.length > 0) setExpandedBook(result[0].bookId);
 
-      // Populate wins from commitments
+      // Populate wins from commitments + commitments tab data
       if (commitmentsData) {
+        setAllCommitmentsRaw(commitmentsData);
         setCommitmentsCount(commitmentsData.length);
+        
+        // Split into pending vs completed for commitments tab
+        const now = new Date();
+        const pending = commitmentsData.filter(c => !c.followed_up && new Date(c.due_date) <= now);
+        const upcoming = commitmentsData.filter(c => !c.followed_up && new Date(c.due_date) > now);
+        const completed = commitmentsData.filter(c => c.followed_up);
+        setPendingCommitments([...pending, ...upcoming].sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime()));
+        setCompletedCommitments(completed.sort((a, b) => new Date(b.due_date).getTime() - new Date(a.due_date).getTime()));
+        
         const followedUp = commitmentsData.filter(c => c.followed_up);
         
         let streak = 0;
@@ -330,6 +351,50 @@ export default function JourneyPage() {
     }
   };
 
+  // Handle commitment check-in submission
+  const handleCheckinSubmit = useCallback(async (commitment: CommitmentRecord) => {
+    const key = `${commitment.book_id}-${commitment.chapter_number}`;
+    const input = checkinInputs[key]?.trim();
+    if (!input || !userId) return;
+
+    setCheckinLoading(prev => ({ ...prev, [key]: true }));
+
+    try {
+      // Mark as followed up in DB
+      await markCommitmentFollowedUp(userId, commitment.book_id, commitment.chapter_number, input);
+
+      // Get AI follow-up response
+      const book = BOOKS.find(b => b.id === commitment.book_id);
+      const ch = book?.chapters.find(c => c.number === commitment.chapter_number);
+
+      try {
+        const res = await fetch('/api/commitment-followup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            commitmentText: commitment.commitment_text,
+            chapterTitle: ch?.title || '',
+            outcomeText: input,
+            userId,
+          })
+        });
+        const data = await res.json();
+        if (data.response) {
+          setCheckinResponses(prev => ({ ...prev, [key]: data.response }));
+        }
+      } catch {}
+
+      // Move from pending to completed
+      setPendingCommitments(prev => prev.filter(c => !(c.book_id === commitment.book_id && c.chapter_number === commitment.chapter_number)));
+      setCompletedCommitments(prev => [{ ...commitment, followed_up: true, outcome: input }, ...prev]);
+      setImplementedCount(prev => prev + 1);
+    } catch (e) {
+      console.error('Check-in submit error:', e);
+    } finally {
+      setCheckinLoading(prev => ({ ...prev, [key]: false }));
+    }
+  }, [checkinInputs, userId]);
+
   const totalReflections = allReflections.length;
   
   // Derived tags
@@ -367,6 +432,14 @@ export default function JourneyPage() {
           >
             Reflections
             {activeTab === 'reflections' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-t" />}
+          </button>
+          <button 
+            onClick={() => setActiveTab('commitments')}
+            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-2 ${activeTab === 'commitments' ? 'text-gold' : 'text-ink/40 hover:text-white'}`}
+          >
+            Check-ins
+            {pendingCommitments.length > 0 && <span className="bg-gold/20 text-gold text-[10px] px-1.5 py-0.5 rounded-md font-bold">{pendingCommitments.length}</span>}
+            {activeTab === 'commitments' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-t" />}
           </button>
           <button 
             onClick={() => setActiveTab('wins')}
@@ -618,6 +691,142 @@ export default function JourneyPage() {
         </>
       )}
       
+      {/* Feature 6: Commitments / Check-ins Tab */}
+      {activeTab === 'commitments' && (
+        <div className="max-w-3xl mx-auto px-6 pb-24">
+          {/* Pending Check-ins */}
+          {pendingCommitments.length > 0 && (
+            <div className="mb-10">
+              <h2 className="text-sm font-semibold text-gold/70 uppercase tracking-widest mb-4">Pending Check-ins</h2>
+              <div className="space-y-4">
+                {pendingCommitments.map(commitment => {
+                  const key = `${commitment.book_id}-${commitment.chapter_number}`;
+                  const book = BOOKS.find(b => b.id === commitment.book_id);
+                  const ch = book?.chapters.find(c => c.number === commitment.chapter_number);
+                  const isDue = new Date(commitment.due_date) <= new Date();
+                  const aiResponse = checkinResponses[key];
+
+                  return (
+                    <div key={key} className="bg-[#1A1A1A] border border-[#333] rounded-xl overflow-hidden">
+                      <div className="p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🎯</span>
+                            <span className="text-[10px] font-semibold text-ink/40 uppercase tracking-widest">
+                              {book?.title} · Ch {commitment.chapter_number}
+                            </span>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${isDue ? 'bg-gold/15 text-gold' : 'bg-ink/10 text-ink/40'}`}>
+                            {isDue ? 'DUE' : `Due ${new Date(commitment.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
+                          </span>
+                        </div>
+
+                        <p className="text-sm text-white font-medium mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          {ch?.title || `Chapter ${commitment.chapter_number}`}
+                        </p>
+                        <p className="text-sm text-ink/60 italic mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          &ldquo;{commitment.commitment_text}&rdquo;
+                        </p>
+
+                        {!aiResponse ? (
+                          <>
+                            <textarea
+                              value={checkinInputs[key] || ''}
+                              onChange={e => setCheckinInputs(prev => ({ ...prev, [key]: e.target.value }))}
+                              placeholder="What happened? Did you do it?"
+                              rows={2}
+                              disabled={checkinLoading[key]}
+                              className="w-full bg-[#252525] border border-[#3A3A3A] rounded-lg px-4 py-3 text-sm text-[#E8E8E8] placeholder:text-[#555] outline-none focus:border-gold/60 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                              style={{ fontFamily: "var(--rk-font-body, sans-serif)" }}
+                            />
+                            <div className="flex justify-end mt-3">
+                              <button
+                                onClick={() => handleCheckinSubmit(commitment)}
+                                disabled={!checkinInputs[key]?.trim() || checkinLoading[key]}
+                                className="flex items-center gap-2 bg-gold hover:bg-[#D4882F] disabled:bg-[#2A2A2A] disabled:text-[#555] text-[#111] font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                              >
+                                {checkinLoading[key] ? (
+                                  <div className="w-4 h-4 border-2 border-[#111]/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                  'Check in'
+                                )}
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="bg-[#252525] border border-gold/20 rounded-lg p-4 animate-fade-in">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm">💬</span>
+                              <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">The Architect</span>
+                            </div>
+                            <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                              {aiResponse}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Completed Check-ins */}
+          {completedCommitments.length > 0 && (
+            <div>
+              <h2 className="text-sm font-semibold text-ink/30 uppercase tracking-widest mb-4">Completed</h2>
+              <div className="space-y-3">
+                {completedCommitments.map(commitment => {
+                  const book = BOOKS.find(b => b.id === commitment.book_id);
+                  const ch = book?.chapters.find(c => c.number === commitment.chapter_number);
+
+                  return (
+                    <div key={`${commitment.book_id}-${commitment.chapter_number}`} className="bg-[#1A1A1A]/60 border border-[#2A2A2A] rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-emerald-400 text-sm">✓</span>
+                          <span className="text-[10px] font-semibold text-ink/30 uppercase tracking-widest">
+                            {book?.title} · Ch {commitment.chapter_number}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-ink/20">
+                          {new Date(commitment.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-ink/50 italic mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                        &ldquo;{commitment.commitment_text}&rdquo;
+                      </p>
+                      {commitment.outcome && (
+                        <p className="text-xs text-ink/30 mt-2">
+                          <span className="text-ink/40 font-semibold">You said:</span> {commitment.outcome}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {pendingCommitments.length === 0 && completedCommitments.length === 0 && (
+            <div className="py-16 text-center">
+              <div className="w-16 h-16 bg-ink/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl">🎯</span>
+              </div>
+              <h2 className="text-lg font-semibold mb-2 text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>No commitments yet</h2>
+              <p className="text-sm text-ink/50 max-w-xs mx-auto mb-6">
+                When you set intentions after chapter exercises, they&apos;ll appear here for follow-up. This is where reading becomes action.
+              </p>
+              <a href="/" className="inline-flex items-center gap-2 text-gold text-sm font-semibold hover:underline">
+                Start reading →
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Feature 5: Wins Gallery */}
       {activeTab === 'wins' && (
         <div className="max-w-3xl mx-auto px-6 pb-24">
