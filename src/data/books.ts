@@ -53,6 +53,7 @@ import { SEAT_OF_SOUL_CHAPTERS } from './seat-of-soul';
 import { WOMENS_BODIES_WISDOM_CHAPTERS } from './womens-bodies-wisdom';
 import { LETTING_GO_CHAPTERS } from './letting-go';
 import { MASTERY_CHAPTERS } from './mastery';
+import { WHEN_BODY_SAYS_NO_CHAPTERS } from './when-body-says-no';
 
 export interface Chapter {
   number: number;
@@ -987,5 +988,19 @@ The last 5% begins the moment you stop obeying the voice and start observing it.
     featured: false,
     coverColor: '#1A1A2E',
     chapters: normalizeChapters(MASTERY_CHAPTERS),
+  },
+  {
+    id: 'when-body-says-no',
+    title: 'When the Body Says No',
+    subtitle: 'Book Fifty-Seven',
+    author: 'Gabor Maté (adapted)',
+    bookNumber: 57,
+    description: 'The cost of hidden stress — how repressed emotions and the inability to say no manifest as chronic illness in the body.',
+    readTime: '~35 min read',
+    category: 'Psychology',
+    tags: ['stress', 'mind-body', 'chronic illness', 'emotions', 'boundaries'],
+    featured: false,
+    coverColor: '#386641',
+    chapters: normalizeChapters(WHEN_BODY_SAYS_NO_CHAPTERS),
   },
 ];

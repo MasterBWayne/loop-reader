@@ -1,91 +1,34 @@
-import { Chapter } from '../types';
-
-const BOOK_ID = 'no-more-mr-nice-guy';
+import type { Chapter } from './books';
 
 export const NO_MORE_MR_NICE_GUY_CHAPTERS: Chapter[] = [
   {
-    id: `${BOOK_ID}-ch1`,
-    bookId: BOOK_ID,
-    chapterNumber: 0,
+    number: 1,
     title: 'The Nice Guy Syndrome',
+    exerciseQuestion: 'Think of a recent situation where you agreed to do something you didn\'t want to do. Did you secretly expect the other person to "pay you back" later in some way?',
     content: `**The Hidden Contract**\nAt the core of the Nice Guy's operating system is a deeply flawed, unconscious contract with the world. He believes: "If I am good, generous, and hide my flaws, then I will be loved, my needs will be met, and I will have a problem-free life." When this contract inevitably fails—when he gets rejected, overlooked for a promotion, or encounters conflict—he doesn't realize the contract is broken. Instead, he just tries to be "nicer."\n\n**The Illusion of Perfection**\nNice Guys spend an enormous amount of energy trying to appear flawless. They believe that their true, messy, demanding, and sexual selves are fundamentally unlovable. As a result, they hide their mistakes, suppress their anger, and agree to things they hate, all to maintain a facade of perfection. This constant performance is exhausting and ultimately builds an invisible wall of resentment between them and the people they want to connect with.\n\n**The Passive-Aggressive Leak**\nYou cannot indefinitely suppress your true feelings and needs. When a Nice Guy constantly puts others first while secretly expecting a reward, his unmet needs eventually leak out. This often takes the form of passive-aggressive behavior: making sarcastic comments, conveniently "forgetting" promises, or sudden, explosive outbursts over minor issues. The very strategy he uses to avoid conflict actually creates chronic, toxic tension.`,
-    keyConcepts: ['The flawed hidden contract of the Nice Guy', 'The exhausting pursuit of a perfect facade', 'The inevitable leak of suppressed resentment'],
-    estimatedMinutes: 6,
-    exercises: [
-      {
-        id: `${BOOK_ID}-ch1-ex1`,
-        chapterId: `${BOOK_ID}-ch1`,
-        prompt: 'Think of a recent situation where you agreed to do something you didn\'t want to do. Did you secretly expect the other person to "pay you back" later in some way?',
-        exerciseType: 'reflection'
-      }
-    ]
   },
   {
-    id: `${BOOK_ID}-ch2`,
-    bookId: BOOK_ID,
-    chapterNumber: 1,
+    number: 2,
     title: 'Reclaiming Your Needs',
+    exerciseQuestion: 'What is one specific thing you want or need from a partner, friend, or boss that you have been hoping they would just "figure out"? How could you ask for it directly today?',
     content: `**The Fear of Being "Selfish"**\nNice Guys are terrified of being perceived as selfish. They equate having needs with being a burden. So, instead of directly asking for what they want, they use covert contracts: "I will do X for you, and you should automatically know to do Y for me." When the other person fails to read their mind, the Nice Guy feels deeply victimized. Breaking free means learning that having needs is simply part of being human.\n\n**Taking Responsibility for Yourself**\nThe most liberating realization a recovering Nice Guy can make is that no one else was put on this earth to meet his needs. It is not your partner's job to make you happy, nor is it your boss's job to validate your worth. You must take radical responsibility for getting your own needs met. This means recognizing what you want, communicating it clearly, and accepting that the answer might sometimes be "no."\n\n**The Power of Directness**\nDirect communication feels dangerous to a Nice Guy because it risks rejection or conflict. But directness is actually an act of deep integrity. When you say, "I would like X," or "I am unavailable for Y," you stop manipulating the people around you. You give them the gift of knowing exactly where you stand, which ironically creates the very trust and intimacy you were trying to buy with your "niceness."`,
-    keyConcepts: ['Dismantling covert contracts and mind-reading', 'Taking radical ownership of your own happiness', 'The integrity of direct, clear communication'],
-    estimatedMinutes: 7,
-    exercises: [
-      {
-        id: `${BOOK_ID}-ch2-ex1`,
-        chapterId: `${BOOK_ID}-ch2`,
-        prompt: 'What is one specific thing you want or need from a partner, friend, or boss that you have been hoping they would just "figure out"? How could you ask for it directly today?',
-        exerciseType: 'reflection'
-      }
-    ]
   },
   {
-    id: `${BOOK_ID}-ch3`,
-    bookId: BOOK_ID,
-    chapterNumber: 2,
+    number: 3,
     title: 'Setting Boundaries and Handling Conflict',
+    exerciseQuestion: 'Where in your life are you currently tolerating behavior that you secretly resent? What is the specific boundary you are afraid to set, and what are you afraid will happen if you do?',
     content: `**The Myth of a Problem-Free Life**\nNice Guys often believe that if they just manage everyone's feelings perfectly, they can eliminate conflict and anxiety from their lives. This is a fantasy. Conflict, disagreement, and friction are unavoidable components of any real relationship. By constantly compromising your own values to "keep the peace," you aren't actually avoiding conflict; you are just internalizing it until it destroys your self-respect.\n\n**Drawing the Line**\nA boundary is simply a line that defines where you end and someone else begins. It is the ability to say, "This behavior is unacceptable to me," without needing to apologize, justify, or over-explain. Nice Guys struggle with boundaries because they fear that saying "no" will cause the other person to leave. But a relationship that requires you to abandon yourself in order to survive is not a relationship worth keeping.\n\n**Tolerating the Discomfort of Disapproval**\nWhen you start setting boundaries, people who are used to you being endlessly accommodating will likely push back. They may get angry or accuse you of being selfish. The key to recovery is learning to tolerate the physical discomfort of someone else's disapproval. You must learn to sit with the anxiety of a conflict without rushing to fix it, apologize, or back down from your truth.`,
-    keyConcepts: ['Accepting conflict as a natural part of life', 'Drawing clear lines without over-explaining', 'Tolerating the anxiety of disapproval'],
-    estimatedMinutes: 6,
-    exercises: [
-      {
-        id: `${BOOK_ID}-ch3-ex1`,
-        chapterId: `${BOOK_ID}-ch3`,
-        prompt: 'Where in your life are you currently tolerating behavior that you secretly resent? What is the specific boundary you are afraid to set, and what are you afraid will happen if you do?',
-        exerciseType: 'reflection'
-      }
-    ]
   },
   {
-    id: `${BOOK_ID}-ch4`,
-    bookId: BOOK_ID,
-    chapterNumber: 3,
+    number: 4,
     title: 'Connecting with Masculinity and Men',
+    exerciseQuestion: 'How much of your self-worth or daily emotional validation do you rely on women (a partner, a friend, a coworker) to provide? Who is one male friend you could reach out to this week for genuine connection?',
     content: `**The Disconnect from Masculine Energy**\nMany Nice Guys grew up deeply disconnected from their fathers or from healthy male role models. As a result, they often sought validation primarily from women—mothers, teachers, and eventually partners. They unconsciously equate masculinity with aggression, toxicity, or being "bad," and therefore suppress their own power, assertiveness, and primal energy in an attempt to be "safe."\n\n**Building Brotherhood**\nTo heal, a Nice Guy must actively seek out connection with other men. This does not mean adopting toxic stereotypes; it means finding safe spaces where men can be honest, vulnerable, and supportive of one another. When you stop seeing other men as competitors or threats and start building genuine brotherhood, you stop relying solely on the women in your life to provide all of your emotional validation and identity.\n\n**Embracing Your Own Power**\nHealthy masculine energy is grounded, decisive, and protective. It is the ability to stand firm in your convictions, take decisive action in your life, and express your sexuality without shame or apology. Reclaiming this energy means giving yourself permission to be a potent, fully integrated man who does not need to shrink himself to make others feel comfortable.`,
-    keyConcepts: ['Understanding the source of the masculine disconnect', 'The healing power of male friendships and brotherhood', 'Reclaiming assertiveness, power, and healthy sexuality'],
-    estimatedMinutes: 7,
-    exercises: [
-      {
-        id: `${BOOK_ID}-ch4-ex1`,
-        chapterId: `${BOOK_ID}-ch4`,
-        prompt: 'How much of your self-worth or daily emotional validation do you rely on women (a partner, a friend, a coworker) to provide? Who is one male friend you could reach out to this week for genuine connection?',
-        exerciseType: 'reflection'
-      }
-    ]
   },
   {
-    id: `${BOOK_ID}-ch5`,
-    bookId: BOOK_ID,
-    chapterNumber: 4,
+    number: 5,
     title: 'Living with Passion and Purpose',
+    exerciseQuestion: 'If you knew that no one would judge you, criticize you, or withhold love from you, what is one major change you would make in your career or your daily life right now?',
     content: `**Breaking Out of the Safe Zone**\nThe Nice Guy's primary goal in life is usually safety: avoiding criticism, avoiding failure, and avoiding rejection. But a life built solely on safety is profoundly boring and unfulfilling. To break free, you must be willing to take risks, fail publicly, and pursue goals that actually excite you, rather than just doing what you think you "should" do to be a good person.\n\n**Discovering Your Own Mission**\nWhen you spend your entire life trying to figure out what other people want from you, you lose touch with what *you* actually want. You must reconnect with your own passions. What excites you? What infuriates you? What would you do with your life if you stopped caring whether your parents, your partner, or society approved of it? A man connected to his own mission becomes deeply attractive and internally grounded.\n\n**Embracing the Messiness of Reality**\nRecovery is not about becoming a "jerk." It is about becoming an integrated male. An integrated male is not perfect; he makes mistakes, he gets angry, and he has flaws. But he accepts himself fully. He takes responsibility for his life, states his needs clearly, sets firm boundaries, and lives with uncompromising integrity. He embraces the beautiful, unpredictable messiness of being fully alive.`,
-    keyConcepts: ['Prioritizing passion over the illusion of safety', 'Connecting to a personal mission independent of approval', 'Becoming an integrated, fully alive man'],
-    estimatedMinutes: 6,
-    exercises: [
-      {
-        id: `${BOOK_ID}-ch5-ex1`,
-        chapterId: `${BOOK_ID}-ch5`,
-        prompt: 'If you knew that no one would judge you, criticize you, or withhold love from you, what is one major change you would make in your career or your daily life right now?',
-        exerciseType: 'reflection'
-      }
-    ]
-  }
+  },
 ];
