@@ -28,7 +28,7 @@ type SortOption = 'featured' | 'newest' | 'az';
 const STORAGE_KEY_INTAKE = 'loop-reader-intake';
 const STORAGE_KEY_PROGRESS = 'loop-reader-progress';
 const STORAGE_KEY_PACE = 'loop-reader-pace';
-const BOOKS_PER_PAGE = 12;
+const BOOKS_PER_PAGE = 15;
 
 interface ChapterProgress {
   [chapterNumber: number]: { unlockedAt: string; firstOpenedAt?: string };
@@ -74,28 +74,25 @@ function BookCard({ book, progress, onSelect, isHorizontal = false }: { book: Bo
   const isCssValue = coverBg?.startsWith('linear-gradient') || coverBg?.startsWith('radial-gradient') || coverBg?.startsWith('#');
 
   return (
-    <button onClick={onSelect} className={`flex flex-col gap-1.5 text-left group shrink-0 ${isHorizontal ? 'w-32 snap-start' : 'w-full'}`}>
-      <div className="aspect-[3/4] w-full rounded-lg relative overflow-hidden shadow-md shadow-black/40"
+    <button onClick={onSelect} className={`flex flex-col gap-1 text-left group shrink-0 ${isHorizontal ? 'w-28 snap-start' : 'w-full'}`}>
+      <div className="aspect-square w-full rounded-md relative overflow-hidden shadow-md shadow-black/40"
            style={isCssValue ? { background: coverBg } : undefined}>
         {!isCssValue && <div className={`absolute inset-0 bg-gradient-to-br ${coverBg}`} />}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
         <div className="absolute inset-0 group-hover:bg-white/5 transition-colors" />
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <h3 className="text-white font-bold leading-tight line-clamp-2 text-[13px] drop-shadow-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <div className="absolute bottom-0 left-0 right-0 p-2">
+          <h3 className="text-white font-bold leading-tight line-clamp-2 text-[11px] drop-shadow-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             {book.title}
           </h3>
         </div>
         {chaptersRead > 0 && (
-          <div className="absolute bottom-0 left-0 h-[3px] w-full bg-black/30">
+          <div className="absolute bottom-0 left-0 h-[2px] w-full bg-black/30">
             <div className="h-full bg-gold rounded-r-full" style={{ width: `${percent}%` }} />
           </div>
         )}
       </div>
       <div className="px-0.5">
-        <p className="text-[11px] text-muted truncate">{book.author}</p>
-        <p className="text-[10px] text-muted-soft mt-0.5">
-          {chaptersRead > 0 ? `Ch ${chaptersRead} of ${total}` : `${total} chapters`}
-        </p>
+        <p className="text-[10px] text-muted truncate">{book.author}</p>
       </div>
     </button>
   );
@@ -538,8 +535,8 @@ export default function Home() {
             {/* 2. Jump back in */}
             {recentBooks.length > 0 && (
               <div className="px-4 mb-8">
-                <h2 className="text-xl font-bold mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Jump back in</h2>
-                <div className="grid grid-cols-2 gap-2">
+                <h2 className="text-lg font-bold mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Jump back in</h2>
+                <div className="grid grid-cols-2 gap-2.5">
                   {recentBooks.map(book => (
                     <JumpBackInCard key={book.id} book={book} onSelect={() => handleSelectBook(book)} />
                   ))}
@@ -550,7 +547,7 @@ export default function Home() {
             {/* 3. Continue Reading */}
             {startedBooks.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-xl font-bold px-4 mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Continue Reading</h2>
+                <h2 className="text-lg font-bold px-4 mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Continue Reading</h2>
                 <div className="flex overflow-x-auto gap-3 px-4 pb-2 scrollbar-hide snap-x scroll-smooth">
                   {startedBooks.map(book => (
                     <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} isHorizontal />
@@ -580,7 +577,7 @@ export default function Home() {
 
         {/* 5. All Books Grid */}
         <div className="px-4">
-          {!isSearching && <h2 className="text-xl font-bold mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>All Books</h2>}
+          {!isSearching && <h2 className="text-lg font-bold mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>All Books</h2>}
           {isSearching && <p className="text-xs text-ink/40 mb-4">{filteredBooks.length} results</p>}
           
           {visibleBooks.length === 0 ? (
@@ -590,7 +587,7 @@ export default function Home() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2.5">
                 {visibleBooks.map(book => (
                   <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} />
                 ))}
