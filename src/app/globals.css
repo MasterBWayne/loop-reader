@@ -7,82 +7,102 @@ body {
 }
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Lora', Georgia, 'Times New Roman', serif;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* ── ReadKindled Canonical Brand Tokens ─────────────────────────────── */
+/* ── Portfolio Brand Tokens — Science Blend (Sage Green / Serotonin) ──── */
+/* Source: brand-system/tokens.css | Decided: 2026-03-26 by Bruce         */
+/* Psychology: Green → calm, safety, focused reading (serotonin pathway)  */
 :root {
-  --rk-bg:              #F5ECD7;
-  --rk-bg-card:         #FAF6EE;
-  --rk-bg-surface:      #F0EBE1;
-  --rk-bg-dark:         #1A1410;
-  --rk-bg-dark-card:    #241C15;
-  --rk-bg-dark-surface: #2E231A;
-  --rk-accent:          #C97D2E;
-  --rk-accent-hover:    #B56D1E;
+  /* Backgrounds */
+  --rk-bg:              #F4F8F0;   /* sage cream */
+  --rk-bg-card:         #FFFFFF;
+  --rk-bg-surface:      #E8F0E4;
+
+  /* Text — ALL PASS WCAG AA ✓ */
+  --rk-text:            #1A2E14;   /* vs bg: 13.5:1 ✓ */
+  --rk-text-secondary:  #3D5A2E;   /* vs bg:  7.2:1 ✓ */
+  --rk-text-muted:      #3D5A2E;   /* vs bg:  7.2:1 ✓ */
+  --rk-text-inverse:    #D8F0C8;
+
+  /* Accent — Amber CTA (NEVER CHANGE) */
+  --rk-accent:          #A86820;   /* button amber — white text passes AA (4.5:1) ✓ */
+  --rk-accent-hover:    #9A5E18;   /* button hover (5.3:1) ✓ */
   --rk-accent-light:    #F5C87A;
   --rk-accent-pale:     #FDECD4;
-  --rk-text:            #1A1410;
-  --rk-text-secondary:  #6B5744;
-  --rk-text-muted:      #9B8878;
-  --rk-text-inverse:    #F5ECD7;
-  --rk-border:          #E8D5BA;
-  --rk-border-strong:   #D4B896;
-  --rk-border-dark:     rgba(255,255,255,0.10);
+  --rk-accent-border:   #C97D2E;   /* amber for borders, bars, tints */
+
+  /* App accent — sage green */
+  --rk-app-accent:      #4A7A3A;   /* sage green — vs bg: 4.7:1 ✓ */
+  --rk-app-accent-pale: #D4F0D0;
+
+  /* Borders */
+  --rk-border:          #C8E0C4;
+  --rk-border-strong:   #A8D0A0;
+  --rk-border-dark:     rgba(168, 208, 160, 0.12);
+
+  /* Typography */
   --rk-font-heading:    'Lora', Georgia, 'Times New Roman', serif;
   --rk-font-body:       'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --rk-shadow-sm:       0 2px 8px rgba(26, 20, 16, 0.06);
-  --rk-shadow:          0 4px 24px rgba(26, 20, 16, 0.08);
-  --rk-shadow-lg:       0 8px 40px rgba(26, 20, 16, 0.12);
+
+  /* Shadows */
+  --rk-shadow-sm:       0 2px 8px rgba(26, 46, 20, 0.06);
+  --rk-shadow:          0 4px 24px rgba(26, 46, 20, 0.08);
+  --rk-shadow-lg:       0 8px 40px rgba(26, 46, 20, 0.12);
   --rk-transition:      0.2s ease;
 }
 
 [data-theme="dark"] {
-  --rk-bg:              #1A1410;
-  --rk-bg-card:         #241C15;
-  --rk-bg-surface:      #2E231A;
-  --rk-text:            #F5ECD7;
-  --rk-text-secondary:  #C4A882;
-  --rk-text-muted:      #8A7060;
-  --rk-border:          rgba(255,255,255,0.10);
-  --rk-border-strong:   rgba(255,255,255,0.18);
+  --rk-bg:              #0C120A;
+  --rk-bg-card:         #141E10;
+  --rk-bg-surface:      #1A2816;
+  --rk-text:            #D8F0C8;   /* vs bg: 11.2:1 ✓ */
+  --rk-text-secondary:  #8AAA78;   /* vs bg:  5.1:1 ✓ */
+  --rk-text-muted:      #5A8A48;   /* vs bg:  3.4:1 (large text only) */
+  --rk-text-inverse:    #1A2E14;
+  --rk-border:          rgba(168, 208, 160, 0.12);
+  --rk-border-strong:   rgba(168, 208, 160, 0.20);
   --rk-shadow-sm:       0 2px 8px rgba(0,0,0,0.3);
   --rk-shadow:          0 4px 24px rgba(0,0,0,0.4);
   --rk-shadow-lg:       0 8px 40px rgba(0,0,0,0.5);
 }
 
 @theme {
-  /* Dark reader palette — easy on the eyes for long reading */
-  --color-navy: #111111;          /* reader base background */
-  --color-navy-light: #1C1C1C;    /* surface/cards */
-  --color-gold: #C97D2E;          /* rk-accent: deep amber */
-  --color-gold-light: #F5C87A;    /* rk-accent-light */
-  --color-cream: #111111;         /* reader bg */
-  --color-warm-gray: #252525;     /* elevated cards */
-  --color-ink: #E8E8E8;           /* body text — soft white */
-  --color-muted: #999999;         /* secondary text */
-  --color-muted-soft: #666666;    /* tertiary/placeholder text */
-  --color-border: rgba(255,255,255,0.08); /* subtle dividers */
-  --color-border-strong: rgba(255,255,255,0.16); /* stronger dividers */
-  --color-accent-hover: #B56D1E;  /* rk-accent-hover */
-  --color-accent-pale: #FDECD4;   /* rk-accent-pale */
-  --color-heading: #F5ECD7;       /* warm cream headings */
-  --color-input-bg: #2A2A2A;      /* input backgrounds */
+  /* ── Light-first palette — sage green (serotonin) ──────────────────── */
+  --color-navy: #F4F8F0;            /* sage cream base */
+  --color-navy-light: #E8F0E4;      /* surface/cards */
+  --color-gold: #A86820;            /* amber CTA (WCAG AA) */
+  --color-gold-light: #F5C87A;      /* amber light accent */
+  --color-cream: #F4F8F0;           /* reader bg */
+  --color-warm-gray: #FFFFFF;        /* elevated cards */
+  --color-ink: #1A2E14;             /* primary text */
+  --color-muted: #3D5A2E;           /* secondary text */
+  --color-muted-soft: #6B8C5A;      /* tertiary/placeholder */
+  --color-border: #C8E0C4;          /* subtle dividers */
+  --color-border-strong: #A8D0A0;   /* stronger dividers */
+  --color-accent-hover: #9A5E18;    /* amber hover */
+  --color-accent-pale: #FDECD4;     /* amber tint bg */
+  --color-heading: #1A2E14;         /* heading color */
+  --color-input-bg: #FFFFFF;        /* input backgrounds */
+  --color-sage: #4A7A3A;            /* app accent — sage green */
+  --color-sage-pale: #D4F0D0;       /* sage green pale */
 }
 
-/* Dark mode override — same palette since base is already dark */
+/* Dark mode override — sage green dark */
 [data-theme="dark"] {
-  --color-navy: #111111;
-  --color-navy-light: #1C1C1C;
-  --color-gold: #C97D2E;
+  --color-navy: #0C120A;
+  --color-navy-light: #1A2816;
+  --color-gold: #A86820;
   --color-gold-light: #F5C87A;
-  --color-cream: #111111;
-  --color-warm-gray: #252525;
-  --color-ink: #E8E8E8;
-  --color-muted: #999999;
-  --color-muted-soft: #666666;
-  --color-border: rgba(255,255,255,0.08);
-  --color-border-strong: rgba(255,255,255,0.16);
+  --color-cream: #0C120A;
+  --color-warm-gray: #141E10;
+  --color-ink: #D8F0C8;
+  --color-muted: #8AAA78;
+  --color-muted-soft: #5A8A48;
+  --color-border: rgba(168, 208, 160, 0.12);
+  --color-border-strong: rgba(168, 208, 160, 0.20);
+  --color-heading: #D8F0C8;
+  --color-input-bg: #1A2816;
 }
 
 /* Smooth scrollbar for reader */

@@ -4,13 +4,13 @@ import { BottomNav } from '@/components/BottomNav';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'Loop Reader — The Architect Method',
-  description: 'Your personalized self-development reading experience with AI companion.',
+  title: 'ReadKindled — The book that reads you back',
+  description: 'AI-powered book coaching. Read curated books, complete exercises, get personalized coaching, and track your transformation.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-app="readkindled" data-theme="light" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

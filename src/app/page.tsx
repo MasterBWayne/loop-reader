@@ -21,6 +21,8 @@ import {
 } from '@/lib/supabase';
 import { UserProfile, UpgradeBanner } from '@/components/UserProfile';
 import { ReadingStreak } from '@/components/ReadingStreak';
+import { useSoulGraph } from '@/lib/SoulGraphProvider';
+import { trackBookStarted, trackChapterCompleted } from '@/lib/soulGraph';
 
 type AppState = 'loading' | 'landing' | 'intake' | 'pace-select' | 'reading' | 'purchase';
 type SortOption = 'featured' | 'newest' | 'az';
@@ -115,6 +117,7 @@ function JumpBackInCard({ book, onSelect }: { book: Book; onSelect: () => void }
 // ── Main App ───────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const { sgUserId, track } = useSoulGraph();
   const [appState, setAppState] = useState<AppState>('loading');
   const [userId, setUserId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -380,9 +383,17 @@ export default function Home() {
       localStorage.setItem(`${STORAGE_KEY_PROGRESS}-${book.id}`, JSON.stringify(init));
       setAllProgress(prev => ({ ...prev, [book.id]: init }));
       if (userId) saveChapterProgress(userId, book.id, 1);
+      // Soul Graph: track book started
+      if (sgUserId) {
+        trackBookStarted(sgUserId, {
+          book_id: book.id,
+          book_title: book.title,
+          category: book.category,
+        });
+      }
     }
     setAppState('reading');
-  }, [intake, allProgress, userId, paceMap, userProfile]);
+  }, [intake, allProgress, userId, paceMap, userProfile, sgUserId]);
 
   const handleChapterOpen = useCallback((chapterNumber: number) => {
     if (!selectedBook) return;
@@ -392,14 +403,25 @@ export default function Home() {
     } catch {}
     setProgress(prev => {
       const updated = { ...prev };
+      const isNew = !updated[chapterNumber];
       if (!updated[chapterNumber]) updated[chapterNumber] = { unlockedAt: new Date().toISOString() };
       if (!updated[chapterNumber].firstOpenedAt) updated[chapterNumber].firstOpenedAt = new Date().toISOString();
       localStorage.setItem(`${STORAGE_KEY_PROGRESS}-${selectedBook.id}`, JSON.stringify(updated));
       setAllProgress(p => ({ ...p, [selectedBook.id]: updated }));
       if (userId) saveChapterProgress(userId, selectedBook.id, chapterNumber);
+      // Soul Graph: track chapter completion (only first open counts)
+      if (isNew && sgUserId) {
+        const ch = selectedBook.chapters.find(c => c.number === chapterNumber);
+        trackChapterCompleted(sgUserId, {
+          book_id: selectedBook.id,
+          book_title: selectedBook.title,
+          chapter_number: chapterNumber,
+          chapter_title: ch?.title || `Chapter ${chapterNumber}`,
+        });
+      }
       return updated;
     });
-  }, [selectedBook, userId]);
+  }, [selectedBook, userId, sgUserId]);
 
   const handleBackToLibrary = () => { setAppState('landing'); setSelectedBook(null); };
   const handleSignOut = () => { setUser(null); setIntake(null); window.location.reload(); };
