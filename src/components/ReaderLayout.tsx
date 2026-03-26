@@ -17,6 +17,8 @@ import {
 import { ActiveRecallGate } from './ActiveRecallGate';
 import { PersonalSummaryView } from './PersonalSummaryView';
 import { ExerciseHistory } from './ExerciseHistory';
+import { useSoulGraph } from '@/lib/SoulGraphProvider';
+import { trackExerciseCompleted } from '@/lib/soulGraph';
 
 interface Chapter {
   number: number;
@@ -68,6 +70,7 @@ export function ReaderLayout({
   userProfile,
   coverColor,
 }: ReaderLayoutProps) {
+  const { sgUserId } = useSoulGraph();
   const [currentChapter, setCurrentChapter] = useState(0);
   const [showChat, setShowChat] = useState(false);
   const [showNav, setShowNav] = useState(false);
@@ -325,6 +328,16 @@ export function ReaderLayout({
     }
 
     setExerciseLoading(false);
+
+    // Soul Graph: track exercise completion
+    if (sgUserId) {
+      trackExerciseCompleted(sgUserId, {
+        book_id: bookId,
+        chapter_number: chapter.number,
+        exercise_type: 'reflection',
+        response_word_count: answer.split(/\s+/).length,
+      });
+    }
 
     // Generate spaced repetition review cards (fire and forget)
     if (user?.id && chapter.content) {
