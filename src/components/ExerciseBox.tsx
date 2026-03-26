@@ -171,7 +171,7 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
             <span className="text-[10px] font-semibold text-emerald-400/50 uppercase tracking-[0.1em]">Your commitment</span>
           </div>
           <p className="text-sm text-[#B0B0B0] italic" style={{ fontFamily: "var(--rk-font-heading, 'Lora', serif)" }}>"{commitment}"</p>
-          <p className="text-[10px] text-[#555] mt-2">The Architect will check in on this tomorrow.</p>
+          <p className="text-[10px] text-[#555] mt-2">ReadKindled will check in on this tomorrow.</p>
         </div>
       )}
     </div>

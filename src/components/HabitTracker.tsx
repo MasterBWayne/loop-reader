@@ -146,7 +146,7 @@ export function HabitTracker({ bookId, bookTitle, userId }: HabitTrackerProps) {
       </div>
 
       <p className="text-center text-[10px] text-muted/40 mt-6">
-        Tap to check off. Streaks count weekly. The Architect notices.
+        Tap to check off. Streaks count weekly. ReadKindled tracks your habits.
       </p>
     </div>
   );

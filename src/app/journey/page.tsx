@@ -551,7 +551,7 @@ export default function JourneyPage() {
                       <p className="text-sm text-ink/80 mb-3">{flashbackReframe.reframe}</p>
                       <div className="bg-gold/10 border border-gold/20 rounded-xl p-3 inline-block">
                         <p className="text-xs font-bold text-gold uppercase mb-1">Micro-Step for Today</p>
-                        <p className="text-sm text-white">{flashbackReframe.microStep}</p>
+                        <p className="text-sm text-ink">{flashbackReframe.microStep}</p>
                       </div>
                     </div>
                   )}
@@ -757,7 +757,7 @@ export default function JourneyPage() {
                           <div className="bg-[#252525] border border-gold/20 rounded-lg p-4 animate-fade-in">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm">💬</span>
-                              <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">The Architect</span>
+                              <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">ReadKindled</span>
                             </div>
                             <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Lora', serif" }}>
                               {aiResponse}

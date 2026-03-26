@@ -25,7 +25,7 @@ export async function generatePersonalizedIntro(
   profile?: UserProfileContext,
   priorReflections?: { chapter: number; answer: string }[]
 ): Promise<string> {
-  const prompt = `You are The Architect — a sharp, direct friend who read this person's journal AND this chapter and is connecting the dots for them.
+  const prompt = `You are the ReadKindled AI companion — a sharp, direct friend who read this person's journal AND this chapter and is connecting the dots for them.
 
 CHAPTER: "${chapterTitle}"
 CHAPTER CONTENT (first 800 chars): ${chapterContent.slice(0, 800)}
@@ -105,7 +105,7 @@ export async function generateCompanionResponse(
     .map(m => `${m.role === 'user' ? 'Reader' : 'Companion'}: ${m.content}`)
     .join('\n');
 
-  const prompt = `You are an AI reading companion for a book by The Architect. You're helping someone read Chapter: "${chapterTitle}".
+  const prompt = `You are an AI reading companion for ReadKindled. You're helping someone read Chapter: "${chapterTitle}".
 
 Chapter excerpt: ${chapterContentSnippet.slice(0, 800)}
 ${intakeContext}${profileContext}
@@ -158,7 +158,7 @@ export async function generateMaintenanceResponse(
     ? `\nUser context: This person is working on: ${intake.struggle}. Their vision: ${intake.vision}. Always connect your response to their specific situation.`
     : '';
 
-  const prompt = `You are The Architect doing a weekly check-in with a reader who finished a book.
+  const prompt = `You are the ReadKindled AI companion doing a weekly check-in with a reader who finished a book.
 ${intakeCtx}
 The principle from "${chapterTitle}" was revisited this week.
 Their self-rating: ${rating}/10
@@ -200,7 +200,7 @@ export async function generateCommitmentFollowUp(
     ? `\nUser context: This person is working on: ${intake.struggle}. Their vision: ${intake.vision}. Always connect your response to their specific situation.`
     : '';
 
-  const prompt = `You are The Architect. A reader made a commitment after reading "${chapterTitle}":
+  const prompt = `You are the ReadKindled AI companion. A reader made a commitment after reading "${chapterTitle}":
 ${intakeCtx}
 Their commitment: "${commitmentText}"
 What happened: "${outcomeText}"
@@ -240,7 +240,7 @@ export async function generateReflectionResponse(
     ? `\nUser context: This person is working on: ${intake.struggle}. Their vision: ${intake.vision}. Always connect your response to their specific situation.`
     : '';
 
-  const prompt = `You are The Architect, a personal development author who is deeply insightful and direct.
+  const prompt = `You are the ReadKindled AI companion, a personal development author who is deeply insightful and direct.
 ${intakeCtx}
 A reader just completed the reflection exercise for the chapter "${chapterTitle}".
 
@@ -279,7 +279,7 @@ export async function generateJourneySummary(
 
   const reflText = reflections.map(r => `Chapter ${r.chapter_number}: Q: "${r.question_text}" A: "${r.answer_text}"`).join('\n');
 
-  const prompt = `You are The Architect. A reader has finished "${bookTitle}".
+  const prompt = `You are the ReadKindled AI companion. A reader has finished "${bookTitle}".
 
 Here are their reflection answers from each chapter:
 ${reflText}
@@ -425,7 +425,7 @@ export async function generateAdaptiveFollowup(
     ? `\nReader: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}`
     : '';
 
-  const prompt = `You are The Architect. A reader admitted they didn't practice the principle from "${chapterTitle}" this week.
+  const prompt = `You are the ReadKindled AI companion. A reader admitted they didn't practice the principle from "${chapterTitle}" this week.
 
 What got in their way: "${blockerDescription}"
 ${profileCtx}
