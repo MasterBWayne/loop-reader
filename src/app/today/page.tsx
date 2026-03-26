@@ -343,7 +343,7 @@ export default function TodayPage() {
               <h2 className="text-sm font-semibold text-ink/40 uppercase tracking-widest">Review</h2>
               <span className="text-[10px] text-ink/30 font-medium">{currentCardIdx + 1} of {dueCards.length}</span>
             </div>
-            <div className={`bg-[#1A1A1A] border border-[#333] rounded-2xl overflow-hidden transition-opacity duration-300 ${cardAnimating ? 'opacity-50' : 'opacity-100'}`}>
+            <div className={`bg-navy border border-border rounded-2xl overflow-hidden transition-opacity duration-300 ${cardAnimating ? 'opacity-50' : 'opacity-100'}`}>
               {/* Card header */}
               <div className="px-5 pt-4 pb-2 flex items-center gap-2">
                 <span className="text-sm">🧠</span>

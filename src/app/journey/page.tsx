@@ -707,7 +707,7 @@ export default function JourneyPage() {
                   const aiResponse = checkinResponses[key];
 
                   return (
-                    <div key={key} className="bg-[#1A1A1A] border border-[#333] rounded-xl overflow-hidden">
+                    <div key={key} className="bg-navy border border-border rounded-xl overflow-hidden">
                       <div className="p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
@@ -736,17 +736,17 @@ export default function JourneyPage() {
                               placeholder="What happened? Did you do it?"
                               rows={2}
                               disabled={checkinLoading[key]}
-                              className="w-full bg-[#252525] border border-[#3A3A3A] rounded-lg px-4 py-3 text-sm text-[#E8E8E8] placeholder:text-[#555] outline-none focus:border-gold/60 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                              className="w-full bg-navy-light border border-border rounded-lg px-4 py-3 text-sm text-ink placeholder:text-muted/40 outline-none focus:border-gold/60 transition-colors resize-none leading-relaxed disabled:opacity-50"
                               style={{ fontFamily: "var(--rk-font-body, sans-serif)" }}
                             />
                             <div className="flex justify-end mt-3">
                               <button
                                 onClick={() => handleCheckinSubmit(commitment)}
                                 disabled={!checkinInputs[key]?.trim() || checkinLoading[key]}
-                                className="flex items-center gap-2 bg-gold hover:bg-[#D4882F] disabled:bg-[#2A2A2A] disabled:text-[#555] text-[#111] font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
+                                className="flex items-center gap-2 bg-gold hover:bg-gold-light disabled:bg-navy-light disabled:text-muted-soft text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm"
                               >
                                 {checkinLoading[key] ? (
-                                  <div className="w-4 h-4 border-2 border-[#111]/30 border-t-white rounded-full animate-spin" />
+                                  <div className="w-4 h-4 border-2 border-navy/30 border-t-white rounded-full animate-spin" />
                                 ) : (
                                   'Check in'
                                 )}
@@ -754,7 +754,7 @@ export default function JourneyPage() {
                             </div>
                           </>
                         ) : (
-                          <div className="bg-[#252525] border border-gold/20 rounded-lg p-4 animate-fade-in">
+                          <div className="bg-navy-light border border-gold/20 rounded-lg p-4 animate-fade-in">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-sm">💬</span>
                               <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">ReadKindled</span>
@@ -782,7 +782,7 @@ export default function JourneyPage() {
                   const ch = book?.chapters.find(c => c.number === commitment.chapter_number);
 
                   return (
-                    <div key={`${commitment.book_id}-${commitment.chapter_number}`} className="bg-[#1A1A1A]/60 border border-[#2A2A2A] rounded-xl p-4">
+                    <div key={`${commitment.book_id}-${commitment.chapter_number}`} className="bg-navy/60 border border-border rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <span className="text-emerald-400 text-sm">✓</span>

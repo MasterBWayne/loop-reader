@@ -58,7 +58,7 @@ export function ExerciseHistory({ userId, bookId, chapters }: ExerciseHistoryPro
   if (loading) {
     return (
       <div className="px-6 py-8">
-        <div className="flex items-center gap-2 text-sm text-[#999999]">
+        <div className="flex items-center gap-2 text-sm text-muted-soft">
           <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
           Loading your responses...
         </div>
@@ -69,8 +69,8 @@ export function ExerciseHistory({ userId, bookId, chapters }: ExerciseHistoryPro
   if (grouped.length === 0) {
     return (
       <div className="px-6 py-8 text-center">
-        <p className="text-sm text-[#999999]">No exercise responses yet.</p>
-        <p className="text-xs text-[#666666] mt-1">Complete chapter exercises to see your history here.</p>
+        <p className="text-sm text-muted-soft">No exercise responses yet.</p>
+        <p className="text-xs text-muted-soft mt-1">Complete chapter exercises to see your history here.</p>
       </div>
     );
   }
@@ -84,30 +84,30 @@ export function ExerciseHistory({ userId, bookId, chapters }: ExerciseHistoryPro
           <line x1="16" y1="13" x2="8" y2="13" />
           <line x1="16" y1="17" x2="8" y2="17" />
         </svg>
-        <h3 className="text-base font-semibold text-[#E8E8E8]" style={{ fontFamily: "var(--rk-font-heading)" }}>
+        <h3 className="text-base font-semibold text-ink" style={{ fontFamily: "var(--rk-font-heading)" }}>
           My Responses
         </h3>
-        <span className="text-xs text-[#666666] ml-auto">
+        <span className="text-xs text-muted-soft ml-auto">
           {grouped.reduce((acc, g) => acc + g.responses.length, 0)} total
         </span>
       </div>
 
       {grouped.map(group => (
-        <div key={group.chapterNumber} className="bg-[#1C1C1C] border border-[rgba(255,255,255,0.08)] rounded-xl overflow-hidden">
+        <div key={group.chapterNumber} className="bg-navy border border-ink/10 rounded-xl overflow-hidden">
           <button
             onClick={() => toggleExpand(group.chapterNumber)}
-            className="w-full flex items-center justify-between px-4 py-3 hover:bg-[rgba(255,255,255,0.03)] transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 hover:bg-ink/5 transition-colors"
           >
             <div className="flex items-center gap-2">
               <span className="text-xs text-gold/60 font-mono">Ch. {group.chapterNumber}</span>
-              <span className="text-sm text-[#E8E8E8] font-medium" style={{ fontFamily: "var(--rk-font-heading)" }}>
+              <span className="text-sm text-ink font-medium" style={{ fontFamily: "var(--rk-font-heading)" }}>
                 {group.chapterTitle}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-[#666666]">{group.responses.length} response{group.responses.length !== 1 ? 's' : ''}</span>
+              <span className="text-[10px] text-muted-soft">{group.responses.length} response{group.responses.length !== 1 ? 's' : ''}</span>
               <svg
-                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666666" strokeWidth="2"
+                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                 className={`transition-transform ${expanded.has(group.chapterNumber) ? 'rotate-180' : ''}`}
               >
                 <polyline points="6 9 12 15 18 9" />
@@ -116,7 +116,7 @@ export function ExerciseHistory({ userId, bookId, chapters }: ExerciseHistoryPro
           </button>
 
           {expanded.has(group.chapterNumber) && (
-            <div className="border-t border-[rgba(255,255,255,0.06)] px-4 py-3 space-y-4">
+            <div className="border-t border-ink/10 px-4 py-3 space-y-4">
               {group.responses.map((r, i) => (
                 <div key={r.id || i} className="space-y-2">
                   {/* Prompt */}
@@ -127,25 +127,25 @@ export function ExerciseHistory({ userId, bookId, chapters }: ExerciseHistoryPro
                   )}
 
                   {/* User response */}
-                  <div className="bg-[#252525] rounded-lg px-3 py-2.5">
-                    <p className="text-[10px] text-[#666666] font-semibold uppercase tracking-wide mb-1">Your response</p>
-                    <p className="text-sm text-[#E8E8E8]/80 leading-relaxed">{r.response_text}</p>
+                  <div className="bg-navy-light rounded-lg px-3 py-2.5">
+                    <p className="text-[10px] text-muted-soft font-semibold uppercase tracking-wide mb-1">Your response</p>
+                    <p className="text-sm text-ink/80 leading-relaxed">{r.response_text}</p>
                   </div>
 
                   {/* AI Feedback */}
                   {r.ai_feedback && (
-                    <div className="bg-[rgba(201,125,46,0.08)] border border-[rgba(201,125,46,0.15)] rounded-lg px-3 py-2.5">
+                    <div className="bg-gold/10 border border-gold/15 rounded-lg px-3 py-2.5">
                       <p className="text-[10px] text-gold/60 font-semibold uppercase tracking-wide mb-1">AI Feedback</p>
-                      <p className="text-sm text-[#E8E8E8]/70 leading-relaxed">{r.ai_feedback.feedback}</p>
+                      <p className="text-sm text-muted leading-relaxed">{r.ai_feedback.feedback}</p>
                       {r.ai_feedback.missed && (
-                        <p className="text-xs text-[#999999] mt-1.5 italic">Consider: {r.ai_feedback.missed}</p>
+                        <p className="text-xs text-muted-soft mt-1.5 italic">Consider: {r.ai_feedback.missed}</p>
                       )}
                     </div>
                   )}
 
                   {/* Timestamp */}
                   {r.created_at && (
-                    <p className="text-[10px] text-[#555555]">
+                    <p className="text-[10px] text-muted-soft">
                       {new Date(r.created_at).toLocaleDateString('en-US', {
                         month: 'short', day: 'numeric', year: 'numeric',
                         hour: 'numeric', minute: '2-digit',
@@ -154,7 +154,7 @@ export function ExerciseHistory({ userId, bookId, chapters }: ExerciseHistoryPro
                   )}
 
                   {i < group.responses.length - 1 && (
-                    <div className="border-b border-[rgba(255,255,255,0.04)] my-2" />
+                    <div className="border-b border-ink/5 my-2" />
                   )}
                 </div>
               ))}
