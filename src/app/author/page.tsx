@@ -13,6 +13,7 @@ interface AuthorBook {
 
 export default function AuthorDashboard() {
   const [books, setBooks] = useState<AuthorBook[]>([]);
+  const [bookStats, setBookStats] = useState<Record<string, { readers: number; completionRate: number; totalMinutes: number }>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,8 +29,33 @@ export default function AuthorDashboard() {
         .eq('author_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (data) setBooks(data as AuthorBook[]);
+      const loadedBooks = (data || []) as AuthorBook[];
+      setBooks(loadedBooks);
       setLoading(false);
+
+      // Fetch real stats for each book
+      const stats: Record<string, { readers: number; completionRate: number; totalMinutes: number }> = {};
+      for (const book of loadedBooks) {
+        // Reader count
+        const { data: sessions } = await supabase
+          .from('reading_sessions')
+          .select('user_id')
+          .eq('book_id', book.id);
+        const uniqueReaders = new Set(sessions?.map(s => s.user_id) || []).size;
+
+        // Total reading time
+        const { data: timeSessions } = await supabase
+          .from('reading_sessions')
+          .select('duration_seconds')
+          .eq('book_id', book.id)
+          .not('duration_seconds', 'is', null);
+        const totalMinutes = Math.round(
+          (timeSessions || []).reduce((sum, s) => sum + (s.duration_seconds || 0), 0) / 60
+        );
+
+        stats[book.id] = { readers: uniqueReaders, completionRate: 0, totalMinutes };
+      }
+      setBookStats(stats);
     }
     load();
   }, []);
@@ -99,15 +125,19 @@ export default function AuthorDashboard() {
                   </span>
                 </div>
                 
-                {/* Placeholder Stats */}
-                <div className="grid grid-cols-2 gap-4 mt-auto pt-6 border-t border-ink/10">
+                {/* Real Analytics Stats */}
+                <div className="grid grid-cols-3 gap-4 mt-auto pt-6 border-t border-ink/10">
                   <div>
                     <p className="text-[10px] text-ink/40 uppercase tracking-wider mb-1">Readers</p>
-                    <p className="text-lg font-medium text-ink/90">0</p>
+                    <p className="text-lg font-medium text-ink/90">{bookStats[book.id]?.readers ?? 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-ink/40 uppercase tracking-wider mb-1">Read Time</p>
+                    <p className="text-lg font-medium text-ink/90">{bookStats[book.id]?.totalMinutes ?? 0}m</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-ink/40 uppercase tracking-wider mb-1">Completion</p>
-                    <p className="text-lg font-medium text-ink/90">0%</p>
+                    <p className="text-lg font-medium text-ink/90">{bookStats[book.id]?.completionRate ?? 0}%</p>
                   </div>
                 </div>
 
