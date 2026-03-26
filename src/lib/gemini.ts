@@ -84,11 +84,17 @@ export async function generateCompanionResponse(
     impact: string;
     tried: string;
     vision: string;
+    readingStyle?: 'direct' | 'warm' | 'balanced';
   },
   profile?: UserProfileContext
 ): Promise<string> {
+  const styleInstruction = intake?.readingStyle === 'direct'
+    ? '\nCOACHING STYLE: Be direct, practical, action-oriented. Cut to the point. No hand-holding.'
+    : intake?.readingStyle === 'warm'
+    ? '\nCOACHING STYLE: Be gentle, reflective, empathetic. Explore what\'s underneath. Hold space before pushing.'
+    : '\nCOACHING STYLE: Balance practical advice with emotional reflection. Read the room — sometimes push, sometimes hold.';
   const intakeContext = intake
-    ? `\nReader's struggle: "${intake.struggle}" (${intake.duration}). Impact: "${intake.impact}". Tried: "${intake.tried}". Vision: "${intake.vision}".`
+    ? `\nReader's struggle: "${intake.struggle}" (${intake.duration}). Impact: "${intake.impact}". Tried: "${intake.tried}". Vision: "${intake.vision}".${styleInstruction}`
     : '';
   const profileContext = profile
     ? `\nReader's life: ${profile.age ? profile.age + 'yo' : ''}${profile.career_stage ? ', ' + profile.career_stage : ''}${profile.relationship_status ? ', ' + profile.relationship_status : ''}${profile.life_situation ? '. ' + profile.life_situation : ''}${profile.current_goals ? '. Goals: ' + profile.current_goals : ''}${profile.biggest_challenges ? '. Challenges: ' + profile.biggest_challenges : ''}`

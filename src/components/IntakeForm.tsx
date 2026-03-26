@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { MicButton } from './MicButton';
 
+export type ReadingStyle = 'direct' | 'warm' | 'balanced';
+
 export interface IntakeAnswers {
   struggle: string;
   duration: string;
   impact: string;
   tried: string;
   vision: string;
+  readingStyle?: ReadingStyle;
 }
 
 const QUESTIONS = [
@@ -57,12 +60,15 @@ export function IntakeForm({ onComplete, onSkip }: IntakeFormProps) {
     impact: '',
     tried: '',
     vision: '',
+    readingStyle: undefined,
   });
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const question = QUESTIONS[step];
-  const currentAnswer = answers[question.key];
-  const isLast = step === QUESTIONS.length - 1;
+  const TOTAL_STEPS = QUESTIONS.length + 1; // +1 for reading style
+  const isStyleStep = step === QUESTIONS.length;
+  const question = isStyleStep ? null : QUESTIONS[step];
+  const currentAnswer = isStyleStep ? (answers.readingStyle || '') : (question ? answers[question.key] : '');
+  const isLast = step === TOTAL_STEPS - 1;
 
   const handleNext = () => {
     if (!currentAnswer.trim()) return;
@@ -99,13 +105,13 @@ export function IntakeForm({ onComplete, onSkip }: IntakeFormProps) {
       {/* Progress */}
       <div className="w-full max-w-md mb-12">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-ink/30 font-medium">Question {step + 1} of {QUESTIONS.length}</span>
-          <span className="text-xs text-gold/60 font-medium">{Math.round(((step + 1) / QUESTIONS.length) * 100)}%</span>
+          <span className="text-xs text-ink/30 font-medium">Step {step + 1} of {TOTAL_STEPS}</span>
+          <span className="text-xs text-gold/60 font-medium">{Math.round(((step + 1) / TOTAL_STEPS) * 100)}%</span>
         </div>
         <div className="h-1 bg-ink/10 rounded-full overflow-hidden">
           <div
             className="h-full bg-gold rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }}
+            style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
           />
         </div>
       </div>
@@ -116,34 +122,67 @@ export function IntakeForm({ onComplete, onSkip }: IntakeFormProps) {
           isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
         }`}
       >
-        <p className="text-xs text-gold/70 font-semibold tracking-[0.15em] uppercase mb-4">Before we begin</p>
-        <h2
-          className="text-2xl font-semibold text-white mb-3 leading-snug"
-          style={{ fontFamily: "'Lora', serif" }}
-        >
-          {question.label}
-        </h2>
-        <p className="text-sm text-ink/40 mb-8">{question.hint}</p>
+        <p className="text-xs text-gold/70 font-semibold tracking-[0.15em] uppercase mb-4">{isStyleStep ? 'Almost done' : 'Before we begin'}</p>
 
-        <div className="relative">
-          <textarea
-            value={currentAnswer}
-            onChange={(e) => {
-              setAnswers({ ...answers, [question.key]: e.target.value });
-              e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder={question.placeholder}
-            autoFocus
-            className="w-full min-h-[120px] bg-ink/5 border border-ink/10 rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/90 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed overflow-y-auto"
-          />
-          <MicButton 
-            currentText={currentAnswer} 
-            onTextChange={(newText) => setAnswers({ ...answers, [question.key]: newText })} 
-            className="absolute bottom-2 right-2" 
-          />
-        </div>
+        {isStyleStep ? (
+          <>
+            <h2 className="text-2xl font-semibold text-heading mb-3 leading-snug" style={{ fontFamily: "'Lora', serif" }}>
+              How do you prefer to be coached?
+            </h2>
+            <p className="text-sm text-muted mb-6">This adjusts how the AI talks to you throughout every book.</p>
+            <div className="space-y-3">
+              {([
+                { value: 'direct' as const, emoji: '🎯', label: 'Direct and practical', desc: '"Here\'s what to do — no hand-holding."' },
+                { value: 'warm' as const, emoji: '🤗', label: 'Gentle and reflective', desc: '"Let\'s explore what\'s underneath together."' },
+                { value: 'balanced' as const, emoji: '⚖️', label: 'Mix of both', desc: '"Read the room — sometimes push, sometimes hold."' },
+              ]).map(style => (
+                <button
+                  key={style.value}
+                  onClick={() => setAnswers({ ...answers, readingStyle: style.value })}
+                  className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${
+                    answers.readingStyle === style.value
+                      ? 'border-gold bg-gold/10 shadow-sm'
+                      : 'border-border hover:border-muted bg-warm-gray/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{style.emoji}</span>
+                    <div>
+                      <p className="font-semibold text-sm text-ink">{style.label}</p>
+                      <p className="text-xs text-muted mt-0.5">{style.desc}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </>
+        ) : question ? (
+          <>
+            <h2 className="text-2xl font-semibold text-heading mb-3 leading-snug" style={{ fontFamily: "'Lora', serif" }}>
+              {question.label}
+            </h2>
+            <p className="text-sm text-muted mb-8">{question.hint}</p>
+            <div className="relative">
+              <textarea
+                value={currentAnswer}
+                onChange={(e) => {
+                  setAnswers({ ...answers, [question.key]: e.target.value });
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={question.placeholder}
+                autoFocus
+                className="w-full min-h-[120px] bg-input-bg border border-border rounded-xl px-4 py-3.5 pb-10 text-sm text-ink placeholder:text-muted-soft outline-none focus:border-gold/60 transition-colors resize-none leading-relaxed overflow-y-auto"
+              />
+              <MicButton 
+                currentText={currentAnswer} 
+                onTextChange={(newText) => setAnswers({ ...answers, [question.key]: newText })} 
+                className="absolute bottom-2 right-2" 
+              />
+            </div>
+          </>
+        ) : null}
 
         <div className="flex items-center justify-between mt-6">
           <button
