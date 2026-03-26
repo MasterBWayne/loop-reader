@@ -119,7 +119,7 @@ export function IntakeForm({ onComplete, onSkip }: IntakeFormProps) {
         <p className="text-xs text-gold/70 font-semibold tracking-[0.15em] uppercase mb-4">Before we begin</p>
         <h2
           className="text-2xl font-semibold text-white mb-3 leading-snug"
-          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+          style={{ fontFamily: "'Lora', serif" }}
         >
           {question.label}
         </h2>

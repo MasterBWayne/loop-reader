@@ -169,7 +169,7 @@ export default function TodayPage() {
           )}
         </Link>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-sm font-medium tracking-wide text-ink/80" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Loop Reader</span>
+          <span className="text-sm font-medium tracking-wide text-ink/80" style={{ fontFamily: "'Lora', serif" }}>Loop Reader</span>
         </div>
         {/* Streak badge */}
         {streak > 0 && (
@@ -185,7 +185,7 @@ export default function TodayPage() {
         {/* Greeting + Progress Ring */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <h1 className="text-2xl font-bold leading-tight" style={{ fontFamily: "'Lora', serif" }}>
               {greeting}{displayName ? `, ${displayName}` : ''}
             </h1>
             <p className="text-ink/50 text-sm mt-1">
@@ -258,7 +258,7 @@ export default function TodayPage() {
 
               {/* Question */}
               <div className="px-5 pb-4">
-                <p className="text-sm text-white font-medium leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <p className="text-sm text-white font-medium leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
                   {currentCard?.question}
                 </p>
               </div>
@@ -277,7 +277,7 @@ export default function TodayPage() {
                 <div className="border-t border-ink/10">
                   <div className="px-5 py-4">
                     <p className="text-[10px] font-semibold text-gold/50 uppercase tracking-widest mb-2">Answer</p>
-                    <p className="text-sm text-ink/70 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    <p className="text-sm text-ink/70 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
                       {currentCard?.correct_answer}
                     </p>
                   </div>
@@ -420,7 +420,7 @@ export default function TodayPage() {
         {readToday && commitments.length === 0 && dueCards.length === 0 && !maintenance && (
           <div className="bg-ink/5 border border-ink/10 rounded-xl p-8 text-center">
             <span className="text-3xl">✨</span>
-            <p className="text-sm font-semibold text-white mt-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <p className="text-sm font-semibold text-white mt-3" style={{ fontFamily: "'Lora', serif" }}>
               You're all caught up
             </p>
             <p className="text-[11px] text-ink/40 mt-1.5 max-w-xs mx-auto">

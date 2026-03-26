@@ -58,7 +58,7 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
           <span className="text-[11px] font-semibold text-[#888] uppercase tracking-[0.1em]">Your reflection</span>
         </div>
 
-        <p className="text-[15px] font-medium text-gold leading-relaxed italic mb-5" style={{ fontFamily: "var(--rk-font-heading, 'Cormorant Garamond', serif)" }}>
+        <p className="text-[15px] font-medium text-gold leading-relaxed italic mb-5" style={{ fontFamily: "var(--rk-font-heading, 'Lora', serif)" }}>
           {question}
         </p>
 
@@ -126,7 +126,7 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
             <span className="text-lg">🎯</span>
             <span className="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-[0.1em]">Make it real</span>
           </div>
-          <p className="text-sm text-[#C0C0C0] mb-4 leading-relaxed" style={{ fontFamily: "var(--rk-font-heading, 'Cormorant Garamond', serif)" }}>
+          <p className="text-sm text-[#C0C0C0] mb-4 leading-relaxed" style={{ fontFamily: "var(--rk-font-heading, 'Lora', serif)" }}>
             When will you apply this? Set a specific intention:
           </p>
           <p className="text-xs text-[#777] mb-3 italic">
@@ -170,7 +170,7 @@ export function ExerciseBox({ question, existingAnswer, existingCommitment, onSu
             <span className="text-sm">🎯</span>
             <span className="text-[10px] font-semibold text-emerald-400/50 uppercase tracking-[0.1em]">Your commitment</span>
           </div>
-          <p className="text-sm text-[#B0B0B0] italic" style={{ fontFamily: "var(--rk-font-heading, 'Cormorant Garamond', serif)" }}>"{commitment}"</p>
+          <p className="text-sm text-[#B0B0B0] italic" style={{ fontFamily: "var(--rk-font-heading, 'Lora', serif)" }}>"{commitment}"</p>
           <p className="text-[10px] text-[#555] mt-2">The Architect will check in on this tomorrow.</p>
         </div>
       )}

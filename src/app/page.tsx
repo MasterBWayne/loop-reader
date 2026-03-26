@@ -81,7 +81,7 @@ function BookCard({ book, progress, onSelect, isHorizontal = false }: { book: Bo
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
         <div className="absolute inset-0 group-hover:bg-white/5 transition-colors" />
         <div className="absolute bottom-0 left-0 right-0 p-2">
-          <h3 className="text-white font-bold leading-tight line-clamp-2 text-[11px] drop-shadow-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          <h3 className="text-white font-bold leading-tight line-clamp-2 text-[11px] drop-shadow-lg" style={{ fontFamily: "'Lora', serif" }}>
             {book.title}
           </h3>
         </div>
@@ -107,7 +107,7 @@ function JumpBackInCard({ book, onSelect }: { book: Book; onSelect: () => void }
            style={isCssValue ? { background: coverBg } : undefined}>
         {!isCssValue && <div className={`w-full h-full bg-gradient-to-br ${coverBg}`} />}
       </div>
-      <span className="font-semibold text-[13px] text-ink leading-tight line-clamp-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{book.title}</span>
+      <span className="font-semibold text-[13px] text-ink leading-tight line-clamp-2" style={{ fontFamily: "'Lora', serif" }}>{book.title}</span>
     </button>
   );
 }
@@ -409,7 +409,7 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-navy flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-[#121212] font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-[#121212] font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
         </div>
       </main>
@@ -426,10 +426,10 @@ export default function Home() {
           <button onClick={() => setAppState('landing')} className="absolute top-4 right-4 text-ink/40 hover:text-ink/80 p-2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
           
           <div className="w-20 h-28 mx-auto mb-6 rounded shadow-lg flex items-end justify-center pb-4 relative" style={{ background: BOOK_COVERS[selectedBook.id] || selectedBook.coverColor }}>
-             <h3 className="relative z-10 text-white font-bold leading-tight line-clamp-2 text-[10px] text-center px-2 drop-shadow-md" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{selectedBook.title}</h3>
+             <h3 className="relative z-10 text-white font-bold leading-tight line-clamp-2 text-[10px] text-center px-2 drop-shadow-md" style={{ fontFamily: "'Lora', serif" }}>{selectedBook.title}</h3>
           </div>
           
-          <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{selectedBook.title}</h2>
+          <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>{selectedBook.title}</h2>
           <p className="text-sm text-ink/50 mb-1">By {selectedBook.author}</p>
           <p className="text-[11px] text-gold/80 uppercase tracking-wider font-semibold mb-6">Companion Experience</p>
           
@@ -535,7 +535,7 @@ export default function Home() {
             {/* 2. Jump back in */}
             {recentBooks.length > 0 && (
               <div className="px-4 mb-8">
-                <h2 className="text-lg font-bold mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Jump back in</h2>
+                <h2 className="text-lg font-bold mb-3" style={{ fontFamily: "'Lora', serif" }}>Jump back in</h2>
                 <div className="grid grid-cols-2 gap-2.5">
                   {recentBooks.map(book => (
                     <JumpBackInCard key={book.id} book={book} onSelect={() => handleSelectBook(book)} />
@@ -547,7 +547,7 @@ export default function Home() {
             {/* 3. Continue Reading */}
             {startedBooks.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-bold px-4 mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Continue Reading</h2>
+                <h2 className="text-lg font-bold px-4 mb-3" style={{ fontFamily: "'Lora', serif" }}>Continue Reading</h2>
                 <div className="flex overflow-x-auto gap-3 px-4 pb-2 scrollbar-hide snap-x scroll-smooth">
                   {startedBooks.map(book => (
                     <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} isHorizontal />
@@ -577,7 +577,7 @@ export default function Home() {
 
         {/* 5. All Books Grid */}
         <div className="px-4">
-          {!isSearching && <h2 className="text-lg font-bold mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>All Books</h2>}
+          {!isSearching && <h2 className="text-lg font-bold mb-3" style={{ fontFamily: "'Lora', serif" }}>All Books</h2>}
           {isSearching && <p className="text-xs text-ink/40 mb-4">{filteredBooks.length} results</p>}
           
           {visibleBooks.length === 0 ? (

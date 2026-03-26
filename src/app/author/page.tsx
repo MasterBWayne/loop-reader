@@ -46,7 +46,7 @@ export default function AuthorDashboard() {
     <main className="min-h-screen bg-navy text-ink">
       <nav className="px-6 py-4 flex items-center justify-between max-w-4xl mx-auto">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <span className="text-sm font-medium tracking-wide text-ink/80">THE ARCHITECT METHOD</span>
         </Link>
         <Link href="/" className="text-xs text-ink/40 hover:text-ink/70 transition-colors flex items-center gap-1">
@@ -58,7 +58,7 @@ export default function AuthorDashboard() {
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-24">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
-            <h1 className="text-3xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Author Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Lora', serif" }}>Author Dashboard</h1>
             <p className="text-ink/50 text-sm">Manage your published books and view insights.</p>
           </div>
           <Link
@@ -89,7 +89,7 @@ export default function AuthorDashboard() {
             {books.map(book => (
               <div key={book.id} className="bg-ink/5 border border-ink/10 rounded-2xl p-6 flex flex-col">
                 <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-lg font-bold text-ink/90 line-clamp-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{book.title}</h3>
+                  <h3 className="text-lg font-bold text-ink/90 line-clamp-2" style={{ fontFamily: "'Lora', serif" }}>{book.title}</h3>
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md shrink-0 ml-4 ${
                     book.status === 'live' ? 'bg-green-500/20 text-green-400' :
                     book.status === 'processing' ? 'bg-yellow-500/20 text-yellow-400' :

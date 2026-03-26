@@ -418,11 +418,11 @@ export default function JourneyPage() {
       {/* Header */}
       <div className="max-w-3xl mx-auto px-6 pt-8 pb-6">
         <div className="flex items-center gap-2.5 mb-6">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <span className="text-sm font-medium tracking-wide text-ink/80">THE ARCHITECT METHOD</span>
         </div>
 
-        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Your Journey</h1>
+        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Lora', serif" }}>Your Journey</h1>
         
         {/* Tabs */}
         <div className="flex gap-6 border-b border-ink/10 mt-6 mb-6">
@@ -490,7 +490,7 @@ export default function JourneyPage() {
                   <span className="text-xl">💡</span>
                   <h3 className="text-sm font-semibold text-gold tracking-wide">THIS WEEK'S INSIGHT</h3>
                 </div>
-                <p className="text-sm text-ink/90 leading-relaxed mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <p className="text-sm text-ink/90 leading-relaxed mb-4" style={{ fontFamily: "'Lora', serif" }}>
                   {weeklyInsight.insight}
                 </p>
                 {weeklyInsight.bookId && weeklyInsight.chapterNumber && (
@@ -516,10 +516,10 @@ export default function JourneyPage() {
                       Flashback · {flashbackReflection.date}
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-white mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <h3 className="text-sm font-bold text-white mb-1" style={{ fontFamily: "'Lora', serif" }}>
                     {flashbackReflection.bookTitle} · {flashbackReflection.chapterTitle}
                   </h3>
-                  <p className="text-sm text-ink/60 italic line-clamp-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <p className="text-sm text-ink/60 italic line-clamp-3" style={{ fontFamily: "'Lora', serif" }}>
                     "{flashbackReflection.answerText}"
                   </p>
                 </div>
@@ -594,7 +594,7 @@ export default function JourneyPage() {
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
               </div>
-              <h2 className="text-lg font-semibold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>No reflections yet</h2>
+              <h2 className="text-lg font-semibold mb-2" style={{ fontFamily: "'Lora', serif" }}>No reflections yet</h2>
               <p className="text-sm text-ink/40 max-w-sm mx-auto mb-6">
                 Start reading a book and complete the exercise at the end of each chapter. Your answers will appear here as a personal growth journal.
               </p>
@@ -625,7 +625,7 @@ export default function JourneyPage() {
                       <div className="absolute inset-0 bg-black/30" />
                       <div className="relative z-10 flex items-center gap-3 min-w-0">
                         <div>
-                          <h2 className="text-base font-bold text-white leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{group.bookTitle}</h2>
+                          <h2 className="text-base font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>{group.bookTitle}</h2>
                           <p className="text-[11px] text-ink/50 mt-0.5">
                             {group.bookAuthor} &middot; {groupRefls.length} reflection{groupRefls.length !== 1 ? 's' : ''}
                           </p>
@@ -663,12 +663,12 @@ export default function JourneyPage() {
                           </div>
 
                           {/* Question */}
-                          <p className="text-xs text-ink/40 italic mb-2 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          <p className="text-xs text-ink/40 italic mb-2 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
                             &ldquo;{r.question}&rdquo;
                           </p>
 
                           {/* Answer */}
-                          <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap mb-3" style={{ fontFamily: "'Lora', serif" }}>
                             {r.answer}
                           </p>
                           
@@ -721,10 +721,10 @@ export default function JourneyPage() {
                           </span>
                         </div>
 
-                        <p className="text-sm text-white font-medium mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                        <p className="text-sm text-white font-medium mb-1" style={{ fontFamily: "'Lora', serif" }}>
                           {ch?.title || `Chapter ${commitment.chapter_number}`}
                         </p>
-                        <p className="text-sm text-ink/60 italic mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                        <p className="text-sm text-ink/60 italic mb-4" style={{ fontFamily: "'Lora', serif" }}>
                           &ldquo;{commitment.commitment_text}&rdquo;
                         </p>
 
@@ -759,7 +759,7 @@ export default function JourneyPage() {
                               <span className="text-sm">💬</span>
                               <span className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest">The Architect</span>
                             </div>
-                            <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                            <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Lora', serif" }}>
                               {aiResponse}
                             </p>
                           </div>
@@ -794,7 +794,7 @@ export default function JourneyPage() {
                           {new Date(commitment.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </span>
                       </div>
-                      <p className="text-sm text-ink/50 italic mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                      <p className="text-sm text-ink/50 italic mb-1" style={{ fontFamily: "'Lora', serif" }}>
                         &ldquo;{commitment.commitment_text}&rdquo;
                       </p>
                       {commitment.outcome && (
@@ -815,7 +815,7 @@ export default function JourneyPage() {
               <div className="w-16 h-16 bg-ink/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl">🎯</span>
               </div>
-              <h2 className="text-lg font-semibold mb-2 text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>No commitments yet</h2>
+              <h2 className="text-lg font-semibold mb-2 text-white" style={{ fontFamily: "'Lora', serif" }}>No commitments yet</h2>
               <p className="text-sm text-ink/50 max-w-xs mx-auto mb-6">
                 When you set intentions after chapter exercises, they&apos;ll appear here for follow-up. This is where reading becomes action.
               </p>
@@ -835,7 +835,7 @@ export default function JourneyPage() {
               <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl">🏆</span>
               </div>
-              <h2 className="text-lg font-semibold mb-2 text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>No wins yet</h2>
+              <h2 className="text-lg font-semibold mb-2 text-white" style={{ fontFamily: "'Lora', serif" }}>No wins yet</h2>
               <p className="text-sm text-ink/50 max-w-xs mx-auto mb-6">
                 Your wins will appear here when you mark commitments as completed or apply what you read. This is your proof of capability.
               </p>
@@ -859,7 +859,7 @@ export default function JourneyPage() {
                       <span className="text-[10px] text-ink/30 font-medium">{win.dateAchieved}</span>
                     </div>
                     <h3 className="text-[10px] font-bold text-ink/50 uppercase tracking-wider mb-1 line-clamp-1">{win.bookTitle} · {win.chapterTitle}</h3>
-                    <p className="text-sm text-ink/90 font-medium leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    <p className="text-sm text-ink/90 font-medium leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
                       "{win.what}"
                     </p>
                   </div>

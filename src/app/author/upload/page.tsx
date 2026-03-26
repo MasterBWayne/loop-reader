@@ -138,7 +138,7 @@ export default function AuthorUploadPage() {
     <main className="min-h-screen bg-navy text-ink pb-24">
       <nav className="px-6 py-4 flex items-center justify-between max-w-2xl mx-auto border-b border-ink/10">
         <Link href="/author" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <span className="text-sm font-medium tracking-wide text-ink/80">AUTHOR PORTAL</span>
         </Link>
         <Link href="/author" className="text-xs text-ink/40 hover:text-ink/70 transition-colors flex items-center gap-1">
@@ -167,7 +167,7 @@ export default function AuthorUploadPage() {
         {step === 1 && (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Book Details</h1>
+              <h1 className="text-2xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Lora', serif" }}>Book Details</h1>
               <p className="text-sm text-ink/40 mb-8">Tell us about your book. This is what readers will see in the library.</p>
             </div>
 
@@ -250,7 +250,7 @@ export default function AuthorUploadPage() {
         {step === 2 && (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Upload Content</h1>
+              <h1 className="text-2xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Lora', serif" }}>Upload Content</h1>
               <p className="text-sm text-ink/40 mb-8">Provide your manuscript. Our AI will automatically chapterize it and generate reflection questions.</p>
             </div>
 
@@ -323,7 +323,7 @@ export default function AuthorUploadPage() {
                 <div className="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <h1 className="text-3xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Your book is live!</h1>
+                <h1 className="text-3xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Lora', serif" }}>Your book is live!</h1>
                 <p className="text-sm text-ink/40 max-w-sm mx-auto mb-8">
                   The AI has finished extracting chapters and creating the companion experience.
                 </p>
@@ -350,10 +350,10 @@ export default function AuthorUploadPage() {
                 <div className="relative w-24 h-24 mx-auto">
                   <div className="absolute inset-0 border-4 border-gold/20 rounded-full"></div>
                   <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
-                  <div className="absolute inset-0 flex items-center justify-center text-gold font-bold" style={{ fontFamily: "'Cormorant Garamond', serif" }}>AI</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-gold font-bold" style={{ fontFamily: "'Lora', serif" }}>AI</div>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold mb-3 text-ink/90" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Processing your book...</h2>
+                  <h2 className="text-xl font-bold mb-3 text-ink/90" style={{ fontFamily: "'Lora', serif" }}>Processing your book...</h2>
                   <p className="text-sm text-ink/50 max-w-sm mx-auto leading-relaxed">{processingStatus}</p>
                 </div>
                 

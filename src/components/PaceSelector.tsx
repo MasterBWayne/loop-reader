@@ -16,7 +16,7 @@ export function PaceSelector({ bookTitle, onSelect }: PaceSelectorProps) {
     <div className="min-h-screen bg-navy flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-md">
         <p className="text-xs text-gold/60 font-semibold tracking-[0.15em] uppercase mb-3 text-center">Before you begin</p>
-        <h1 className="text-2xl font-bold text-white text-center mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <h1 className="text-2xl font-bold text-white text-center mb-2" style={{ fontFamily: "'Lora', serif" }}>
           How do you want to read?
         </h1>
         <p className="text-sm text-ink/40 text-center mb-10">

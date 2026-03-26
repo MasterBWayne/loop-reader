@@ -19,8 +19,8 @@
   --rk-border:          #E8D5BA;
   --rk-border-strong:   #D4B896;
   --rk-border-dark:     rgba(255,255,255,0.10);
-  --rk-font-heading:    'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --rk-font-body:       'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --rk-font-heading:    'Lora', Georgia, 'Times New Roman', serif;
+  --rk-font-body:       'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --rk-shadow-sm:       0 2px 8px rgba(26, 20, 16, 0.06);
   --rk-shadow:          0 4px 24px rgba(26, 20, 16, 0.08);
   --rk-shadow-lg:       0 8px 40px rgba(26, 20, 16, 0.12);

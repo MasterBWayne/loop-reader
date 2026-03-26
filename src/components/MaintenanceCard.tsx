@@ -83,7 +83,7 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
       </div>
 
       <p className="text-xs text-muted mb-1">{bookTitle}</p>
-      <p className="text-sm font-medium text-ink/80 mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+      <p className="text-sm font-medium text-ink/80 mb-4" style={{ fontFamily: "'Lora', serif" }}>
         Ch. {chapterNumber}: {chapterTitle} — Did you practice this principle this week?
       </p>
 
@@ -92,7 +92,7 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
         <div className="animate-message-in">
           <div className="bg-gold/8 border border-gold/15 rounded-xl p-4 mb-3">
             <p className="text-[10px] font-semibold text-gold/60 uppercase tracking-widest mb-2">Adjusted Practice</p>
-            <p className="text-sm text-ink/70 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <p className="text-sm text-ink/70 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
               {adaptiveResponse}
             </p>
           </div>
@@ -102,7 +102,7 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
         </div>
       ) : showBlockerInput ? (
         <div className="animate-message-in">
-          <p className="text-sm text-ink/80 font-medium mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          <p className="text-sm text-ink/80 font-medium mb-3" style={{ fontFamily: "'Lora', serif" }}>
             What got in the way? Understanding the blocker is the next step.
           </p>
           <textarea
@@ -112,7 +112,7 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
             rows={2}
             disabled={blockerLoading}
             className="w-full bg-white/60 border border-border rounded-xl px-4 py-3 text-sm text-ink/80 placeholder:text-muted/40 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50 mb-3"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            style={{ fontFamily: "'Lora', serif" }}
           />
           <div className="flex items-center gap-2">
             <button
@@ -132,7 +132,7 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
         </div>
       ) : aiResponse ? (
         <div className="bg-white/60 border border-border rounded-xl p-4">
-          <p className="text-sm text-ink/70 italic leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          <p className="text-sm text-ink/70 italic leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
             {aiResponse}
           </p>
           <div className="flex items-center gap-2 mt-3">
@@ -178,7 +178,7 @@ export function MaintenanceCard({ bookTitle, chapterTitle, chapterNumber, onSubm
             onChange={e => setReflection(e.target.value)}
             placeholder="One sentence — what happened? (optional)"
             className="w-full bg-white/60 border border-border rounded-xl px-4 py-2.5 text-sm text-ink/80 placeholder:text-muted/40 outline-none focus:border-gold/40 transition-colors mb-3"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            style={{ fontFamily: "'Lora', serif" }}
           />
 
           <button

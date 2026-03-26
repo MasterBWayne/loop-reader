@@ -88,7 +88,7 @@ export function HabitTracker({ bookId, bookTitle, userId }: HabitTrackerProps) {
     <div className="max-w-2xl mx-auto px-6 md:px-12 py-8">
       <div className="mb-6">
         <p className="text-xs text-muted font-semibold tracking-[0.15em] uppercase mb-2">Weekly Practice</p>
-        <h2 className="text-xl font-bold text-ink" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <h2 className="text-xl font-bold text-ink" style={{ fontFamily: "'Lora', serif" }}>
           {bookTitle}
         </h2>
         <div className="flex items-center gap-3 mt-3">
@@ -125,7 +125,7 @@ export function HabitTracker({ bookId, bookTitle, userId }: HabitTrackerProps) {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-sm leading-relaxed ${habit.completedToday ? 'text-ink/50 line-through' : 'text-ink/80'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <p className={`text-sm leading-relaxed ${habit.completedToday ? 'text-ink/50 line-through' : 'text-ink/80'}`} style={{ fontFamily: "'Lora', serif" }}>
                 {habit.habit_text}
               </p>
               <div className="flex items-center gap-3 mt-2">

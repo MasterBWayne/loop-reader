@@ -84,21 +84,21 @@ export default function TokenAccessPage() {
 
         {status === 'loading' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Activating your access...</h1>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Activating your access...</h1>
             <p className="text-sm text-ink/40">Verifying your link</p>
           </>
         )}
 
         {status === 'valid' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>You're in.</h1>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>You're in.</h1>
             <p className="text-sm text-ink/40">Redirecting to your library...</p>
           </>
         )}
 
         {status === 'invalid' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Invalid link</h1>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Invalid link</h1>
             <p className="text-sm text-ink/40 mb-6">This access link isn't valid or has expired.</p>
             <a href="/" className="text-sm text-gold hover:text-gold-light transition-colors">Go to library</a>
           </>
@@ -106,7 +106,7 @@ export default function TokenAccessPage() {
 
         {status === 'error' && (
           <>
-            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Something went wrong</h1>
+            <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Something went wrong</h1>
             <p className="text-sm text-ink/40 mb-6">Please try again or contact support.</p>
             <a href="/" className="text-sm text-gold hover:text-gold-light transition-colors">Go to library</a>
           </>

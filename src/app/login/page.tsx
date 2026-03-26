@@ -47,7 +47,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C97D2E" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
           </div>
-          <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Check your email</h1>
+          <h1 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>Check your email</h1>
           <p className="text-sm text-ink/50">We sent a confirmation link to <span className="text-gold">{email}</span>. Click it to activate your account.</p>
           <a href="/" className="inline-block mt-8 text-xs text-ink/30 hover:text-ink/60 transition-colors">Back to reading</a>
         </div>
@@ -60,11 +60,11 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-10">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <span className="text-sm font-medium tracking-wide text-ink/80">THE ARCHITECT METHOD</span>
         </div>
 
-        <h1 className="text-2xl font-bold text-white text-center mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <h1 className="text-2xl font-bold text-white text-center mb-2" style={{ fontFamily: "'Lora', serif" }}>
           {mode === 'login' ? 'Welcome back' : 'Create your account'}
         </h1>
         <p className="text-sm text-ink/40 text-center mb-8">

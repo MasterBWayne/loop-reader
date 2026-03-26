@@ -92,7 +92,7 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-navy text-ink">
       <nav className="px-6 py-4 flex items-center justify-between max-w-3xl mx-auto">
         <a href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Cormorant Garamond', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <span className="text-sm font-medium tracking-wide text-ink/80">THE ARCHITECT METHOD</span>
         </a>
         <a href="/" className="text-xs text-ink/40 hover:text-ink/70 transition-colors flex items-center gap-1">
@@ -102,7 +102,7 @@ export default function ProfilePage() {
       </nav>
 
       <div className="max-w-lg mx-auto px-6 pt-8 pb-24">
-        <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Your Profile</h1>
+        <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Lora', serif" }}>Your Profile</h1>
         <p className="text-sm text-ink/40 mb-8">The more the AI knows about you, the more relevant its insights become \u2014 across every book you read.</p>
 
         <div className="space-y-5">
@@ -229,7 +229,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="max-w-lg mx-auto px-6 pb-24 border-t border-ink/10 pt-8 mt-8">
-        <h2 className="text-xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Author Portal</h2>
+        <h2 className="text-xl font-bold mb-2 text-ink/90" style={{ fontFamily: "'Lora', serif" }}>Author Portal</h2>
         <p className="text-sm text-ink/40 mb-6">Are you a creator? Publish your own book, complete with an AI companion experience.</p>
         <a href="/author" className="inline-flex items-center gap-2 bg-ink/5 hover:bg-ink/10 text-white font-medium px-5 py-2.5 rounded-lg border border-ink/10 transition-colors text-sm">
           Publish Your Book

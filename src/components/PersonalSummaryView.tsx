@@ -130,7 +130,7 @@ export function PersonalSummaryView({
           <div className="relative z-10 flex items-center justify-between">
             <div>
               <p className="text-[10px] text-gold/60 font-semibold tracking-[0.15em] uppercase mb-1">Your Story</p>
-              <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Lora', serif" }}>
                 My {bookTitle}
               </h2>
             </div>
@@ -149,7 +149,7 @@ export function PersonalSummaryView({
             </div>
           ) : !summary ? (
             <div className="text-center py-16">
-              <p className="text-lg text-ink/60 mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <p className="text-lg text-ink/60 mb-2" style={{ fontFamily: "'Lora', serif" }}>
                 No reflections yet
               </p>
               <p className="text-sm text-ink/40">
@@ -158,7 +158,7 @@ export function PersonalSummaryView({
             </div>
           ) : (
             <>
-              <div className="text-base text-ink/80 leading-[1.85]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <div className="text-base text-ink/80 leading-[1.85]" style={{ fontFamily: "'Lora', serif" }}>
                 {renderText(summary)}
               </div>
 

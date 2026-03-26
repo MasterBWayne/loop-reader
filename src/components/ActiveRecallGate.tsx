@@ -83,13 +83,13 @@ export function ActiveRecallGate({
           <span className="text-[11px] font-semibold text-gold/60 uppercase tracking-widest">Active Recall</span>
         </div>
 
-        <h2 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <h2 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>
           Ch. {chapterNumber}: {chapterTitle}
         </h2>
 
         {!result ? (
           <>
-            <p className="text-sm text-ink/70 mb-5 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <p className="text-sm text-ink/70 mb-5 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
               Before moving on — explain the main idea of this chapter in your own words, as if telling a friend. <span className="text-ink/40">(minimum 20 words)</span>
             </p>
 
@@ -104,7 +104,7 @@ export function ActiveRecallGate({
                 placeholder="The main idea of this chapter is..."
                 disabled={loading}
                 className="w-full min-h-[120px] bg-ink/5 border border-ink/15 rounded-xl px-4 py-3.5 pb-10 text-sm text-ink/80 placeholder:text-ink/25 outline-none focus:border-gold/40 transition-colors resize-none leading-relaxed disabled:opacity-50"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                style={{ fontFamily: "'Lora', serif" }}
               />
               {!loading && (
                 <MicButton
@@ -143,7 +143,7 @@ export function ActiveRecallGate({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
                   <span className="text-sm font-semibold text-emerald-400">You got it.</span>
                 </div>
-                <p className="text-sm text-ink/70 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <p className="text-sm text-ink/70 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
                   {result.feedback}
                 </p>
               </div>
@@ -153,11 +153,11 @@ export function ActiveRecallGate({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
                   <span className="text-sm font-semibold text-amber-400">Almost there</span>
                 </div>
-                <p className="text-sm text-ink/70 leading-relaxed mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <p className="text-sm text-ink/70 leading-relaxed mb-2" style={{ fontFamily: "'Lora', serif" }}>
                   {result.feedback}
                 </p>
                 {result.missed && (
-                  <p className="text-sm text-amber-300/80 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <p className="text-sm text-amber-300/80 leading-relaxed" style={{ fontFamily: "'Lora', serif" }}>
                     Core idea you missed: <em>{result.missed}</em>
                   </p>
                 )}
