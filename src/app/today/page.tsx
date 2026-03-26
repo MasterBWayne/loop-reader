@@ -169,7 +169,7 @@ export default function TodayPage() {
           )}
         </Link>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-sm font-medium tracking-wide text-ink/80" style={{ fontFamily: "'Lora', serif" }}>Loop Reader</span>
+          <span className="text-sm font-medium tracking-wide text-ink/80" style={{ fontFamily: "'Lora', serif" }}>ReadKindled</span>
         </div>
         {/* Streak badge */}
         {streak > 0 && (
