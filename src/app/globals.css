@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* ── Global Font Rules ─────────────────────────────── */
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+}
+
 /* ── ReadKindled Canonical Brand Tokens ─────────────────────────────── */
 :root {
   --rk-bg:              #F5ECD7;
