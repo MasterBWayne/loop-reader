@@ -60,8 +60,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-10">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-ink font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
-          <span className="text-sm font-medium tracking-wide text-ink/80">THE ARCHITECT METHOD</span>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-white font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>R</div>
+          <span className="text-sm font-medium tracking-wide text-ink/80">READKINDLED</span>
         </div>
 
         <h1 className="text-2xl font-bold text-white text-center mb-2" style={{ fontFamily: "'Lora', serif" }}>
