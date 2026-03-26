@@ -19,6 +19,7 @@ import { PersonalSummaryView } from './PersonalSummaryView';
 import { ExerciseHistory } from './ExerciseHistory';
 import { useSoulGraph } from '@/lib/SoulGraphProvider';
 import { trackExerciseCompleted } from '@/lib/soulGraph';
+import { MidBookCheckIn, shouldShowMidBookCheckIn, markCheckInShown } from './MidBookCheckIn';
 
 interface Chapter {
   number: number;
@@ -112,6 +113,7 @@ export function ReaderLayout({
 
   // Week 3-4: Exercise Response History (tab in nav)
   const [showExerciseHistory, setShowExerciseHistory] = useState(false);
+  const [showMidBookCheckIn, setShowMidBookCheckIn] = useState(false);
 
   const bookId = bookTitle.toLowerCase().replace(/\s+/g, '-');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -119,6 +121,16 @@ export function ReaderLayout({
 
   const chapter = chapters[currentChapter];
   const unlocked = isChapterUnlocked(chapter.number, progress);
+
+  // Mid-book check-in trigger (40-70% completion window)
+  useEffect(() => {
+    const chaptersRead = Object.keys(progress).length;
+    if (shouldShowMidBookCheckIn(bookId, chaptersRead, chapters.length)) {
+      // Slight delay so it doesn't interrupt chapter transition
+      const timer = setTimeout(() => setShowMidBookCheckIn(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [Object.keys(progress).length, bookId, chapters.length]);
 
   // Load reflections from Supabase + localStorage fallback
   useEffect(() => {
@@ -572,6 +584,43 @@ export function ReaderLayout({
 
   return (
     <div className="h-screen flex flex-col bg-[#111111]">
+      {/* Mid-book check-in overlay */}
+      {showMidBookCheckIn && (
+        <MidBookCheckIn
+          bookTitle={bookTitle}
+          chapterProgress={Object.keys(progress).length / chapters.length}
+          onSubmit={async (data) => {
+            markCheckInShown(bookId);
+            setShowMidBookCheckIn(false);
+            // Save to Supabase
+            if (user?.id) {
+              try {
+                const { supabase } = await import('@/lib/supabase');
+                await supabase.from('midbook_checkins').insert({
+                  user_id: user.id,
+                  book_id: bookId,
+                  mood_score: data.mood,
+                  reflection: data.reflection || null,
+                  chapter_pct: Object.keys(progress).length / chapters.length,
+                });
+              } catch { /* silent — localStorage already marks shown */ }
+            }
+            // Soul Graph tracking
+            if (sgUserId) {
+              trackExerciseCompleted(sgUserId, {
+                book_id: bookId,
+                chapter_number: Object.keys(progress).length,
+                exercise_type: 'midbook_checkin',
+                response_word_count: (data.reflection || '').split(/\s+/).length,
+              });
+            }
+          }}
+          onDismiss={() => {
+            markCheckInShown(bookId);
+            setShowMidBookCheckIn(false);
+          }}
+        />
+      )}
       {/* Top bar */}
       <header className="bg-[#111111] border-b border-[rgba(255,255,255,0.06)] px-4 py-3 flex items-center justify-between shrink-0 z-30 backdrop-blur-md">
         <div className="flex items-center gap-3">
