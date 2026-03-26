@@ -45,6 +45,11 @@ export default function TodayPage() {
   const [chaptersRead, setChaptersRead] = useState(0);
   const [booksStarted, setBooksStarted] = useState(0);
 
+  // Weekly synthesis
+  const [weeklySynthesis, setWeeklySynthesis] = useState<string | null>(null);
+  const [synthesisLoading, setSynthesisLoading] = useState(false);
+  const [synthesisGenerated, setSynthesisGenerated] = useState(false);
+
   useEffect(() => {
     async function init() {
       const currentUser = await getCurrentUser();
@@ -109,6 +114,61 @@ export default function TodayPage() {
     }
     init();
   }, []);
+
+  // Weekly synthesis — check cache first, generate on demand
+  const handleGenerateSynthesis = useCallback(async () => {
+    // Check localStorage cache
+    const cacheKey = 'rk-weekly-synthesis';
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+      if (cached && Date.now() - cached.ts < 7 * 24 * 60 * 60 * 1000) {
+        setWeeklySynthesis(cached.text);
+        setSynthesisGenerated(true);
+        return;
+      }
+    } catch { /* no cache */ }
+
+    setSynthesisLoading(true);
+    try {
+      // Load recent reflections from Supabase
+      const currentUser = await getCurrentUser();
+      if (!currentUser?.id) { setSynthesisLoading(false); return; }
+
+      const { supabase } = await import('@/lib/supabase');
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: reflections } = await supabase
+        .from('reflections')
+        .select('answer')
+        .eq('user_id', currentUser.id)
+        .gte('created_at', weekAgo)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      const reflectionTexts = (reflections || []).map((r: any) => r.answer).filter(Boolean);
+
+      const res = await fetch('/api/weekly-synthesis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reflections: reflectionTexts,
+          exerciseCount: reflectionTexts.length,
+          chaptersRead,
+          booksActive: booksStarted || 1,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.synthesis) {
+        setWeeklySynthesis(data.synthesis);
+        setSynthesisGenerated(true);
+        localStorage.setItem(cacheKey, JSON.stringify({ text: data.synthesis, ts: Date.now() }));
+      }
+    } catch (e) {
+      console.error('Weekly synthesis error:', e);
+    } finally {
+      setSynthesisLoading(false);
+    }
+  }, [chaptersRead, booksStarted]);
 
   const handleCardResponse = useCallback(async (remembered: boolean) => {
     const card = dueCards[currentCardIdx];
@@ -237,6 +297,42 @@ export default function TodayPage() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* Weekly Synthesis */}
+        <div className="rounded-2xl border border-border bg-warm-gray/50 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-widest">Weekly Patterns</h2>
+            <span className="text-[10px] text-muted-soft">AI-powered</span>
+          </div>
+          {synthesisGenerated && weeklySynthesis ? (
+            <div>
+              <p className="text-sm text-ink leading-relaxed italic" style={{ fontFamily: "'Lora', serif" }}>
+                "{weeklySynthesis}"
+              </p>
+              <button
+                onClick={() => { setSynthesisGenerated(false); setWeeklySynthesis(null); localStorage.removeItem('rk-weekly-synthesis'); handleGenerateSynthesis(); }}
+                className="mt-3 text-[10px] text-muted hover:text-ink transition-colors"
+              >
+                ↻ Regenerate
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleGenerateSynthesis}
+              disabled={synthesisLoading}
+              className="w-full py-3 rounded-xl text-sm font-semibold transition-all border border-border hover:border-gold/40 text-muted hover:text-ink disabled:opacity-50"
+            >
+              {synthesisLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                  Analyzing your week...
+                </span>
+              ) : (
+                '✨ Generate My Week'
+              )}
+            </button>
           )}
         </div>
 

@@ -428,14 +428,14 @@ export default function JourneyPage() {
         <div className="flex gap-6 border-b border-ink/10 mt-6 mb-6">
           <button 
             onClick={() => setActiveTab('reflections')}
-            className={`pb-3 text-sm font-semibold transition-colors relative ${activeTab === 'reflections' ? 'text-gold' : 'text-ink/40 hover:text-white'}`}
+            className={`pb-3 text-sm font-semibold transition-colors relative ${activeTab === 'reflections' ? 'text-gold' : 'text-ink/40 hover:text-ink'}`}
           >
             Reflections
             {activeTab === 'reflections' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-t" />}
           </button>
           <button 
             onClick={() => setActiveTab('commitments')}
-            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-2 ${activeTab === 'commitments' ? 'text-gold' : 'text-ink/40 hover:text-white'}`}
+            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-2 ${activeTab === 'commitments' ? 'text-gold' : 'text-ink/40 hover:text-ink'}`}
           >
             Check-ins
             {pendingCommitments.length > 0 && <span className="bg-gold/20 text-gold text-[10px] px-1.5 py-0.5 rounded-md font-bold">{pendingCommitments.length}</span>}
@@ -443,10 +443,10 @@ export default function JourneyPage() {
           </button>
           <button 
             onClick={() => setActiveTab('wins')}
-            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-2 ${activeTab === 'wins' ? 'text-gold' : 'text-ink/40 hover:text-white'}`}
+            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-2 ${activeTab === 'wins' ? 'text-gold' : 'text-ink/40 hover:text-ink'}`}
           >
             Wins Gallery
-            {wins.length > 0 && <span className="bg-ink/10 text-white text-[10px] px-1.5 py-0.5 rounded-md">{wins.length}</span>}
+            {wins.length > 0 && <span className="bg-navy-light text-ink text-[10px] px-1.5 py-0.5 rounded-md">{wins.length}</span>}
             {activeTab === 'wins' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-t" />}
           </button>
         </div>
@@ -467,7 +467,7 @@ export default function JourneyPage() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">{implementationRate}%</span>
+                  <span className="text-sm font-bold text-ink">{implementationRate}%</span>
                 </div>
               </div>
               <div>
@@ -516,7 +516,7 @@ export default function JourneyPage() {
                       Flashback · {flashbackReflection.date}
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-white mb-1" style={{ fontFamily: "'Lora', serif" }}>
+                  <h3 className="text-sm font-bold text-ink mb-1" style={{ fontFamily: "'Lora', serif" }}>
                     {flashbackReflection.bookTitle} · {flashbackReflection.chapterTitle}
                   </h3>
                   <p className="text-sm text-ink/60 italic line-clamp-3" style={{ fontFamily: "'Lora', serif" }}>
@@ -524,15 +524,15 @@ export default function JourneyPage() {
                   </p>
                 </div>
                 
-                <div className="p-5 bg-black/20">
+                <div className="p-5 bg-navy-light/60">
                   {flashbackState === 'idle' && (
                     <>
-                      <p className="text-sm font-medium text-white mb-4 text-center">Have you applied this yet?</p>
+                      <p className="text-sm font-medium text-ink mb-4 text-center">Have you applied this yet?</p>
                       <div className="grid grid-cols-3 gap-2">
-                        <button onClick={() => handleFlashbackAction('yes')} className="bg-ink/10 hover:bg-ink/20 text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                        <button onClick={() => handleFlashbackAction('yes')} className="bg-ink/10 hover:bg-ink/20 text-ink text-xs font-semibold py-2 rounded-lg transition-colors">
                           ✓ Yes, I did it
                         </button>
-                        <button onClick={() => handleFlashbackAction('not_yet')} className="bg-ink/5 hover:bg-ink/10 text-ink/60 hover:text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                        <button onClick={() => handleFlashbackAction('not_yet')} className="bg-ink/5 hover:bg-ink/10 text-ink/60 hover:text-ink text-xs font-semibold py-2 rounded-lg transition-colors">
                           ✗ Not yet
                         </button>
                         <button onClick={() => handleFlashbackAction('help')} className="bg-gold/10 hover:bg-gold/20 text-gold text-xs font-semibold py-2 rounded-lg transition-colors">

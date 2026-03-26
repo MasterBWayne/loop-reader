@@ -445,7 +445,7 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-navy flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-[#121212] font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
+          <div className="w-8 h-8 bg-gold rounded flex items-center justify-center text-white font-bold text-sm" style={{ fontFamily: "'Lora', serif" }}>A</div>
           <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
         </div>
       </main>
@@ -465,7 +465,7 @@ export default function Home() {
              <h3 className="relative z-10 text-white font-bold leading-tight line-clamp-2 text-[10px] text-center px-2 drop-shadow-md" style={{ fontFamily: "'Lora', serif" }}>{selectedBook.title}</h3>
           </div>
           
-          <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>{selectedBook.title}</h2>
+          <h2 className="text-2xl font-bold text-ink mb-2" style={{ fontFamily: "'Lora', serif" }}>{selectedBook.title}</h2>
           <p className="text-sm text-ink/50 mb-1">By {selectedBook.author}</p>
           <p className="text-[11px] text-gold/80 uppercase tracking-wider font-semibold mb-6">Companion Experience</p>
           
@@ -477,7 +477,7 @@ export default function Home() {
             href="https://gumroad.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="w-full bg-gold hover:bg-gold-light text-[#121212] font-semibold px-6 py-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+            className="w-full bg-gold hover:bg-gold-light text-white font-semibold px-6 py-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
           >
             Buy Now for ${(selectedBook.price! / 100).toFixed(2)}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -528,7 +528,7 @@ export default function Home() {
             value={searchQuery}
             onChange={e => { setSearchQuery(e.target.value); setVisibleCount(BOOKS_PER_PAGE); }}
             placeholder="Search books..."
-            className="w-full bg-ink/10 rounded-md pl-9 pr-4 py-1.5 text-sm text-white placeholder:text-ink/40 outline-none focus:bg-ink/15 transition-colors"
+            className="w-full bg-ink/10 rounded-md pl-9 pr-4 py-1.5 text-sm text-ink placeholder:text-muted/40 outline-none focus:bg-ink/15 transition-colors"
           />
         </div>
         <div className="shrink-0 flex items-center z-10">
@@ -599,13 +599,13 @@ export default function Home() {
           <div className="flex overflow-x-auto gap-2 px-4 pb-2 scrollbar-hide snap-x scroll-smooth">
             <button
               onClick={() => { setCategoryFilter('All'); setVisibleCount(BOOKS_PER_PAGE); }}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === 'All' ? 'bg-gold text-[#121212]' : 'bg-ink/10 text-white'}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === 'All' ? 'bg-gold text-white' : 'bg-navy-light text-ink'}`}
             >All</button>
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => { setCategoryFilter(cat); setVisibleCount(BOOKS_PER_PAGE); }}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === cat ? 'bg-gold text-[#121212]' : 'bg-ink/10 text-white'}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap snap-start transition-colors ${categoryFilter === cat ? 'bg-gold text-white' : 'bg-navy-light text-ink'}`}
               >{cat}</button>
             ))}
           </div>
@@ -619,7 +619,7 @@ export default function Home() {
           {visibleBooks.length === 0 ? (
             <div className="py-10 text-center">
               <p className="text-ink/40 text-sm">No books match your search.</p>
-              <button onClick={() => { setSearchQuery(''); setCategoryFilter('All'); }} className="text-xs text-white mt-2 font-medium">Clear filters</button>
+              <button onClick={() => { setSearchQuery(''); setCategoryFilter('All'); }} className="text-xs text-gold mt-2 font-medium">Clear filters</button>
             </div>
           ) : (
             <>
@@ -633,7 +633,7 @@ export default function Home() {
                 <div className="text-center mt-8">
                   <button
                     onClick={() => setVisibleCount(v => v + BOOKS_PER_PAGE)}
-                    className="text-xs text-white border border-ink/20 px-6 py-2 rounded-full font-medium"
+                    className="text-xs text-ink border border-ink/20 px-6 py-2 rounded-full font-medium"
                   >
                     Load more
                   </button>
