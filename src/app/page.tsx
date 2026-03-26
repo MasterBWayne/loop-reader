@@ -23,6 +23,7 @@ import { UserProfile, UpgradeBanner } from '@/components/UserProfile';
 import { ReadingStreak } from '@/components/ReadingStreak';
 import { useSoulGraph } from '@/lib/SoulGraphProvider';
 import { trackBookStarted, trackChapterCompleted } from '@/lib/soulGraph';
+import { useBookCovers } from '@/hooks/useBookCovers';
 
 type AppState = 'loading' | 'landing' | 'intake' | 'pace-select' | 'reading' | 'purchase';
 type SortOption = 'featured' | 'newest' | 'az';
@@ -65,21 +66,25 @@ function getUnlockDate(cn: number, progress: ChapterProgress): Date | null {
 
 // ── Book Card ──────────────────────────────────────────────────────────────
 
-function BookCard({ book, progress, onSelect, isHorizontal = false }: { book: Book; progress: ChapterProgress; onSelect: () => void, isHorizontal?: boolean }) {
+function BookCard({ book, progress, onSelect, isHorizontal = false, googleCoverUrl }: { book: Book; progress: ChapterProgress; onSelect: () => void, isHorizontal?: boolean, googleCoverUrl?: string }) {
   const chaptersRead = Object.keys(progress).length;
   const contentChapters = book.chapters.filter(c => c.content && !c.content.startsWith('Coming soon'));
   const total = contentChapters.length > 0 ? contentChapters.length : book.chapters.length;
   const percent = total > 0 ? Math.min(100, Math.round((chaptersRead / total) * 100)) : 0;
   
   const coverBg = BOOK_COVERS[book.id] || book.coverColor;
-  // Check if coverColor is a Tailwind gradient class or a CSS value
   const isCssValue = coverBg?.startsWith('linear-gradient') || coverBg?.startsWith('radial-gradient') || coverBg?.startsWith('#');
+  const coverUrl = googleCoverUrl || book.coverImage;
 
   return (
     <button onClick={onSelect} className={`flex flex-col gap-1 text-left group shrink-0 ${isHorizontal ? 'w-28 snap-start' : 'w-full'}`}>
       <div className="aspect-square w-full rounded-md relative overflow-hidden shadow-md shadow-black/40"
-           style={isCssValue ? { background: coverBg } : undefined}>
-        {!isCssValue && <div className={`absolute inset-0 bg-gradient-to-br ${coverBg}`} />}
+           style={!coverUrl && isCssValue ? { background: coverBg } : undefined}>
+        {coverUrl ? (
+          <img src={coverUrl} alt={book.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+        ) : (
+          !isCssValue && <div className={`absolute inset-0 bg-gradient-to-br ${coverBg}`} />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
         <div className="absolute inset-0 group-hover:bg-white/5 transition-colors" />
         <div className="absolute bottom-0 left-0 right-0 p-2">
@@ -100,14 +105,19 @@ function BookCard({ book, progress, onSelect, isHorizontal = false }: { book: Bo
   );
 }
 
-function JumpBackInCard({ book, onSelect }: { book: Book; onSelect: () => void }) {
+function JumpBackInCard({ book, onSelect, googleCoverUrl }: { book: Book; onSelect: () => void; googleCoverUrl?: string }) {
   const coverBg = BOOK_COVERS[book.id] || book.coverColor;
   const isCssValue = coverBg?.startsWith('linear-gradient') || coverBg?.startsWith('radial-gradient') || coverBg?.startsWith('#');
+  const coverUrl = googleCoverUrl || book.coverImage;
   return (
-    <button onClick={onSelect} className="flex items-center gap-2.5 bg-[#181818] hover:bg-[#282828] rounded-lg overflow-hidden transition-colors text-left w-full h-14 pr-3 group">
-      <div className="w-14 h-14 shrink-0 opacity-90 group-hover:opacity-100 transition-opacity"
-           style={isCssValue ? { background: coverBg } : undefined}>
-        {!isCssValue && <div className={`w-full h-full bg-gradient-to-br ${coverBg}`} />}
+    <button onClick={onSelect} className="flex items-center gap-2.5 bg-warm-gray hover:bg-navy-light rounded-lg overflow-hidden transition-colors text-left w-full h-14 pr-3 group">
+      <div className="w-14 h-14 shrink-0 opacity-90 group-hover:opacity-100 transition-opacity relative"
+           style={!coverUrl && isCssValue ? { background: coverBg } : undefined}>
+        {coverUrl ? (
+          <img src={coverUrl} alt={book.title} className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          !isCssValue && <div className={`w-full h-full bg-gradient-to-br ${coverBg}`} />
+        )}
       </div>
       <span className="font-semibold text-[13px] text-ink leading-tight line-clamp-2" style={{ fontFamily: "'Lora', serif" }}>{book.title}</span>
     </button>
@@ -135,6 +145,10 @@ export default function Home() {
   const [visibleCount, setVisibleCount] = useState(BOOKS_PER_PAGE);
 
   const [supabaseBooks, setSupabaseBooks] = useState<Book[]>([]);
+
+  // ── Google Books covers (legal cover images) ─────────────────────────
+  const allBooksForCovers = useMemo(() => [...BOOKS, ...supabaseBooks], [supabaseBooks]);
+  const googleCovers = useBookCovers(allBooksForCovers);
 
   // ── Sync reading state to localStorage for BottomNav ─────────────────
   useEffect(() => {
@@ -560,7 +574,7 @@ export default function Home() {
                 <h2 className="text-lg font-bold mb-3" style={{ fontFamily: "'Lora', serif" }}>Jump back in</h2>
                 <div className="grid grid-cols-2 gap-2.5">
                   {recentBooks.map(book => (
-                    <JumpBackInCard key={book.id} book={book} onSelect={() => handleSelectBook(book)} />
+                    <JumpBackInCard key={book.id} book={book} onSelect={() => handleSelectBook(book)} googleCoverUrl={googleCovers.get(book.id)} />
                   ))}
                 </div>
               </div>
@@ -572,7 +586,7 @@ export default function Home() {
                 <h2 className="text-lg font-bold px-4 mb-3" style={{ fontFamily: "'Lora', serif" }}>Continue Reading</h2>
                 <div className="flex overflow-x-auto gap-3 px-4 pb-2 scrollbar-hide snap-x scroll-smooth">
                   {startedBooks.map(book => (
-                    <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} isHorizontal />
+                    <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} isHorizontal googleCoverUrl={googleCovers.get(book.id)} />
                   ))}
                 </div>
               </div>
@@ -611,7 +625,7 @@ export default function Home() {
             <>
               <div className="grid grid-cols-3 gap-2.5">
                 {visibleBooks.map(book => (
-                  <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} />
+                  <BookCard key={book.id} book={book} progress={allProgress[book.id] || {}} onSelect={() => handleSelectBook(book)} googleCoverUrl={googleCovers.get(book.id)} />
                 ))}
               </div>
 
