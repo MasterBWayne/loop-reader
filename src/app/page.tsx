@@ -24,6 +24,7 @@ import { ReadingStreak } from '@/components/ReadingStreak';
 import { useSoulGraph } from '@/lib/SoulGraphProvider';
 import { trackBookStarted, trackChapterCompleted } from '@/lib/soulGraph';
 import { useBookCovers } from '@/hooks/useBookCovers';
+import { getAmazonLink } from '@/lib/constants';
 
 type AppState = 'loading' | 'landing' | 'intake' | 'pace-select' | 'reading' | 'purchase';
 type SortOption = 'featured' | 'newest' | 'az';
@@ -100,6 +101,17 @@ function BookCard({ book, progress, onSelect, isHorizontal = false, googleCoverU
       </div>
       <div className="px-0.5">
         <p className="text-[10px] text-muted truncate">{book.author}</p>
+        {!book.is_author_upload && (
+          <a
+            href={getAmazonLink(book.title, book.author)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="text-[9px] text-muted-soft hover:text-gold transition-colors"
+          >
+            Buy on Amazon →
+          </a>
+        )}
       </div>
     </button>
   );

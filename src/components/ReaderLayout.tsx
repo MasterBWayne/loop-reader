@@ -20,6 +20,7 @@ import { ExerciseHistory } from './ExerciseHistory';
 import { useSoulGraph } from '@/lib/SoulGraphProvider';
 import { trackExerciseCompleted } from '@/lib/soulGraph';
 import { MidBookCheckIn, shouldShowMidBookCheckIn, markCheckInShown } from './MidBookCheckIn';
+import { getAmazonLink } from '@/lib/constants';
 
 interface Chapter {
   number: number;
@@ -628,7 +629,10 @@ export function ReaderLayout({
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
           </button>
           <div>
-            <p className="text-xs text-gold/80 font-medium tracking-wide">{bookTitle}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-gold/80 font-medium tracking-wide">{bookTitle}</p>
+              <a href={getAmazonLink(bookTitle, '')} target="_blank" rel="noopener noreferrer" className="text-[9px] text-[#555] hover:text-gold transition-colors">Amazon →</a>
+            </div>
             <p className="text-sm text-ink font-medium">Ch. {chapter.number}: {chapter.title}</p>
           </div>
         </div>
