@@ -1,3 +1,4 @@
+@import '../styles/brand-system/tokens.css';
 @import "tailwindcss";
 
 /* ── Global Font Rules ─────────────────────────────── */
