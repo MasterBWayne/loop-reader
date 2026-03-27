@@ -55,6 +55,8 @@ interface ReaderLayoutProps {
   pace?: 'guided' | 'free';
   userProfile?: any;
   coverColor?: string;
+  onPaywallTrigger?: () => void;
+  userPlan?: 'free' | 'pro';
 }
 
 export function ReaderLayout({
@@ -71,6 +73,8 @@ export function ReaderLayout({
   pace,
   userProfile,
   coverColor,
+  onPaywallTrigger,
+  userPlan,
 }: ReaderLayoutProps) {
   const { sgUserId } = useSoulGraph();
   const [currentChapter, setCurrentChapter] = useState(0);
@@ -718,8 +722,12 @@ export function ReaderLayout({
                     return (
                       <button
                         key={ch.number}
-                        onClick={() => !locked && navigateChapter(i)}
-                        disabled={locked}
+                        onClick={() => {
+                          if (!locked) { navigateChapter(i); return; }
+                          // If locked because of paywall (chapter 3+ for free users), trigger paywall
+                          if (userPlan !== 'pro' && ch.number > 2 && onPaywallTrigger) { onPaywallTrigger(); return; }
+                        }}
+                        disabled={locked && !(userPlan !== 'pro' && ch.number > 2)}
                         className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
                           locked
                             ? 'text-muted-soft/30 cursor-not-allowed'

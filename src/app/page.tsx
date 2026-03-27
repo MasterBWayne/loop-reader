@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { ReaderLayout } from '@/components/ReaderLayout';
+import PaywallModal from '@/components/PaywallModal';
 import { IntakeForm, type IntakeAnswers } from '@/components/IntakeForm';
 import { BOOKS, CATEGORIES, type Book, type BookCategory } from '@/data/books';
 import { PaceSelector, type ReadingPace } from '@/components/PaceSelector';
@@ -51,7 +52,9 @@ function supabaseProgressToLocal(records: ChapterProgressRecord[]): ChapterProgr
   for (const rec of records) r[rec.chapter_number] = { unlockedAt: rec.unlocked_at, firstOpenedAt: rec.first_opened_at || undefined };
   return r;
 }
-function isChapterUnlocked(cn: number, progress: ChapterProgress, pace?: ReadingPace): boolean {
+function isChapterUnlocked(cn: number, progress: ChapterProgress, pace?: ReadingPace, plan?: 'free' | 'pro'): boolean {
+  // Paywall gate: free users can only access chapters 1-2
+  if (plan !== 'pro' && cn > 2) return false;
   if (pace === 'free') return true;
   if (cn === 1) return true;
   const prev = progress[cn - 1];
@@ -149,6 +152,8 @@ export default function Home() {
   const [progress, setProgress] = useState<ChapterProgress>({});
   const [allProgress, setAllProgress] = useState<Record<string, ChapterProgress>>({});
   const [paceMap, setPaceMap] = useState<Record<string, ReadingPace>>({});
+  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [showPaywall, setShowPaywall] = useState(false);
 
   // Library state
   const [searchQuery, setSearchQuery] = useState('');
@@ -192,6 +197,12 @@ export default function Home() {
         console.log('Intake loaded from Supabase:', loadedIntake);
         const profile = await loadUserProfile(uid);
         if (profile) setUserProfile(profile);
+        // Load user plan
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          const { data: planData } = await supabase.from('users').select('plan').eq('id', uid).single();
+          if (planData?.plan === 'pro') setUserPlan('pro');
+        } catch { /* plan defaults to free */ }
       }
       if (!loadedIntake) {
         loadedIntake = getLocalIntake();
@@ -260,8 +271,20 @@ export default function Home() {
       setAllProgress(progressMap);
       try { const p = localStorage.getItem(STORAGE_KEY_PACE); if (p) setPaceMap(JSON.parse(p)); } catch {}
 
-      // Check for resume from /reading tab or ?resume=true
+      // Check for checkout success → refresh plan
       const params = new URLSearchParams(window.location.search);
+      if (params.get('checkout') === 'success') {
+        // Re-fetch plan after successful checkout
+        try {
+          const { supabase: sb } = await import('@/lib/supabase');
+          const { data: freshPlan } = await sb.from('users').select('plan').eq('id', uid).single();
+          if (freshPlan?.plan === 'pro') setUserPlan('pro');
+        } catch { /* noop */ }
+        // Clean URL
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
+      // Check for resume from /reading tab or ?resume=true
       const shouldResume = params.get('resume') === 'true';
       if (shouldResume) {
         const lastBookId = localStorage.getItem('loop-reader-last-book');
@@ -501,13 +524,14 @@ export default function Home() {
 
   if (appState === 'reading' && selectedBook) {
     return (
+      <>
       <ReaderLayout
         chapters={selectedBook.chapters}
         bookTitle={selectedBook.title}
         intake={intake!}
         progress={progress}
         onChapterOpen={handleChapterOpen}
-        isChapterUnlocked={(cn, p) => isChapterUnlocked(cn, p, paceMap[selectedBook.id])}
+        isChapterUnlocked={(cn, p) => isChapterUnlocked(cn, p, paceMap[selectedBook.id], userPlan)}
         getUnlockDate={paceMap[selectedBook.id] === 'free' ? () => null : getUnlockDate}
         onBackToLibrary={handleBackToLibrary}
         user={user}
@@ -515,7 +539,17 @@ export default function Home() {
         pace={paceMap[selectedBook.id]}
         userProfile={userProfile}
         coverColor={selectedBook.coverColor}
+        onPaywallTrigger={() => setShowPaywall(true)}
+        userPlan={userPlan}
       />
+      <PaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        userId={userId || ''}
+        userEmail={user?.email}
+        bookTitle={selectedBook.title}
+      />
+      </>
     );
   }
 
